@@ -1,4 +1,3 @@
-with Ada.Characters.Latin_1;
 with Ada.Directories.Hierarchical_File_Names;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded.Text_IO;
@@ -133,44 +132,51 @@ package body SP.Interactive is
         return True;
     end List;
 
+    function Ext (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean is
+    begin
+        for Ext of Extensions loop
+            if not Ctx.Extensions.Contains(Ext) then
+                Ctx.Extensions.Append(Ext);
+            end if;
+        end loop;
+
+        Ada.Text_IO.Put_Line("Extensions:");
+        for Ext of Ctx.Extensions loop
+            Ada.Strings.Unbounded.Text_IO.Put_Line(Ext);
+        end loop;
+        return True;
+    end Ext;
+
+
     function Evaluate
         (Ctx : in out Context; Line : in Ada.Strings.Unbounded.Unbounded_String)
-          return Evaluate_Result is
+              return Evaluate_Result is
+        use Ada.Containers;
+        use type Ada.Strings.Unbounded.Unbounded_String;
         Whitespace     : constant Ada.Strings.Maps.Character_Set := Ada.Strings.Maps.To_Set (" ");
         Sanitized_Line : constant Ada.Strings.Unbounded.Unbounded_String :=
                            Ada.Strings.Unbounded.Trim (Line, Whitespace, Whitespace);
-        use type Ada.Strings.Unbounded.Unbounded_String;
+        Words          : String_Vectors.Vector := Split (Sanitized_Line);
+        Command        : constant Ada.Strings.Unbounded.Unbounded_String := (if Words.Length > 0 then Words.Element(1) else Ada.Strings.Unbounded.Null_Unbounded_String);
     begin
-        if Sanitized_Line = "exit" or Sanitized_Line = "quit" then
+        if Words.Length > 0 then
+            Words.Delete_First;
+        end if;
+        if Command = "exit" or Sanitized_Line = "quit" then
             return Quit;
-        elsif Sanitized_Line = "refresh" then
+        elsif Command = "refresh" then
             if not Refresh (Ctx, Ctx.Starting_Dir) then
                 return Quit;
             end if;
-        elsif Sanitized_Line = "list" then
+        elsif Command = "list" then
             if not List (Ctx) then
                 return Quit;
             end if;
+        elsif Command = "ext" then
+            if not Ext (Ctx, Words) then
+                return Quit;
+            end if;
         else
-            -- More complicated command being used.
-            declare
-                -- Split the line into its parts.
-                -- TODO: Support usaged of quotes.
-                Words : constant String_Vectors.Vector := Split (Sanitized_Line);
-                use Ada.Containers;
-            begin
-                -- Print the words in the command.
-                for W of Words loop
-                    Ada.Text_IO.Put_Line
-                        (Ada.Characters.Latin_1.Quotation & Ada.Strings.Unbounded.To_String (W) &
-                             Ada.Characters.Latin_1.Quotation);
-                end loop;
-
-                if Words.Length = 0 then
-                    Ada.Text_IO.Put_Line("No command given.");
-                end if;
-            end;
-
             Ada.Text_IO.Put_Line
                 ("Unknown command: " & Ada.Strings.Unbounded.To_String (Sanitized_Line));
             Ada.Strings.Unbounded.Text_IO.Put_Line (Ctx.Starting_Dir);
