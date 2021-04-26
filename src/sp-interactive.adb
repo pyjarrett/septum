@@ -5,6 +5,12 @@ with Ada.Text_IO;
 with SP.Debug;
 
 package body SP.Interactive is
+    function Uses_Extension(Ctx : Context; Extension : String) return Boolean is
+    begin
+        return Ctx.Extensions.Contains(Ada.Strings.Unbounded.To_Unbounded_String(Extension));
+    end Uses_Extension;
+
+
     function Is_Current_Or_Parent_Directory(Dir : Ada.Directories.Directory_Entry_Type) return Boolean is
         Name : constant String := Ada.Directories.Simple_Name(Dir);
     begin
@@ -81,7 +87,7 @@ package body SP.Interactive is
             if Is_Current_Or_Parent_Directory(Next_Entry) then
                 null;
             else
-                if Ada.Directories.Kind (Next_Entry) = Ordinary_File then
+                if Ada.Directories.Kind (Next_Entry) = Ordinary_File and Uses_Extension(Ctx, Ada.Directories.Extension(Ada.Directories.Simple_Name(Next_Entry))) then
                     declare
                         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
                     begin
@@ -150,7 +156,7 @@ package body SP.Interactive is
 
     function Evaluate
         (Ctx : in out Context; Line : in Ada.Strings.Unbounded.Unbounded_String)
-              return Evaluate_Result is
+          return Evaluate_Result is
         use Ada.Containers;
         use type Ada.Strings.Unbounded.Unbounded_String;
         Whitespace     : constant Ada.Strings.Maps.Character_Set := Ada.Strings.Maps.To_Set (" ");
