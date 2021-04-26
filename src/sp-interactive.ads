@@ -30,4 +30,7 @@ package SP.Interactive is
         -- List of extensions, without the "." of all of the types of files which should be
         -- considered in the search list.
     end record;
+
+    function Refresh
+        (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) return Boolean;
 end SP.Interactive;

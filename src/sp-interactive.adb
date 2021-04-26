@@ -22,12 +22,47 @@ package body SP.Interactive is
             Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name(Name);
     end Is_Current_Or_Parent_Directory;
 
+    function Add_To_Context(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
+        use Ada.Directories;
+    begin
+        if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Ordinary_File and Uses_Extension(Ctx, Ada.Directories.Extension(Ada.Directories.Simple_Name(Next_Entry))) then
+            declare
+                Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
+            begin
+                if Read_Lines(Ada.Directories.Full_Name(Next_Entry), Lines) then
+                    if Ctx.Files.Contains
+                        (Ada.Strings.Unbounded.To_Unbounded_String
+                             (Ada.Directories.Full_Name (Next_Entry)))
+                    then
+                        Ctx.Files.Replace
+                            (Ada.Strings.Unbounded.To_Unbounded_String
+                                 (Ada.Directories.Full_Name (Next_Entry)),
+                             Lines);
+                    else
+                        Ctx.Files.Insert
+                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)),
+                             Lines);
+                    end if;
+                    Ada.Text_IO.Put_Line ("Next File is: " & Ada.Directories.Full_Name (Next_Entry));
+                else
+                    return False;
+                end if;
+            end;
+        end if;
+
+        if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Directory
+            and then not Refresh (Ctx, Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)))
+        then
+            return False;
+        end if;
+        return True;
+    end Add_To_Context;
+
     function Refresh
         (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String)
           return Boolean is
         --  Refreshes the list of files stored in the context.
         use Ada.Directories;
-        use Ada.Text_IO;
         Search     : Search_Type;
         Next_Entry : Directory_Entry_Type;
         Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
@@ -39,40 +74,8 @@ package body SP.Interactive is
             Ada.Directories.Get_Next_Entry (Search, Next_Entry);
             if Is_Current_Or_Parent_Directory(Next_Entry) then
                 null;
-            else
-                if Ada.Directories.Kind (Next_Entry) = Ordinary_File and Uses_Extension(Ctx, Ada.Directories.Extension(Ada.Directories.Simple_Name(Next_Entry))) then
-                    declare
-                        Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
-                    begin
-                        if Read_Lines(Ada.Directories.Full_Name(Next_Entry), Lines) then
-                            if Ctx.Files.Contains
-                                (Ada.Strings.Unbounded.To_Unbounded_String
-                                     (Ada.Directories.Full_Name (Next_Entry)))
-                            then
-                                Ctx.Files.Replace
-                                    (Ada.Strings.Unbounded.To_Unbounded_String
-                                         (Ada.Directories.Full_Name (Next_Entry)),
-                                     Lines);
-                            else
-                                Ctx.Files.Insert
-                                    (Ada.Strings.Unbounded.To_Unbounded_String (Full_Name (Next_Entry)),
-                                     Lines);
-                            end if;
-                            Put_Line ("Next File is: " & Ada.Directories.Full_Name (Next_Entry));
-                        else
-                            return False;
-                        end if;
-                    end;
-                end if;
-
-                if Ada.Directories.Kind (Next_Entry) = Directory
-                    and then not Refresh
-                        (Ctx,
-                         Ada.Strings.Unbounded.To_Unbounded_String
-                             (Ada.Directories.Full_Name (Next_Entry)))
-                then
-                    return False;
-                end if;
+            elsif not Add_To_Context(Ctx, Next_Entry) then
+                return False;
             end if;
         end loop;
         End_Search (Search);
