@@ -1,18 +1,18 @@
 with Ada.Directories;
 with Ada.Strings.Unbounded;
 with Ada.Containers.Ordered_Maps;
-with Ada.Containers.Vectors;
+
+with SP.Strings;
 
 package SP.Interactive is
+    use SP.Strings;
+
     procedure Main(Starting_Dir : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Current_Directory));
     -- Main program entry point.
 
     type Evaluate_Result is (Continue, Quit);
     -- Describes if the evaluation loop should continue.
 
-    package String_Vectors is new Ada.Containers.Vectors(Index_Type   => Positive,
-                                                         Element_Type => Ada.Strings.Unbounded.Unbounded_String,
-                                                         "="          => Ada.Strings.Unbounded."=");
 
     package File_Maps is new Ada.Containers.Ordered_Maps(Key_Type     => Ada.Strings.Unbounded.Unbounded_String,
                                                          Element_Type => String_Vectors.Vector,
