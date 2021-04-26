@@ -5,13 +5,18 @@ with Ada.Text_IO;
 with SP.Debug;
 
 package body SP.Interactive is
+    type Evaluate_Result is (Continue, Quit);
+    -- Describes if the evaluation loop should continue.
+
     function Uses_Extension(Ctx : Context; Extension : String) return Boolean is
+        -- Returns true if the context should contain files with the given extension.
     begin
         return Ctx.Extensions.Contains(Ada.Strings.Unbounded.To_Unbounded_String(Extension));
     end Uses_Extension;
 
-    function Is_Current_Or_Parent_Directory(Dir : Ada.Directories.Directory_Entry_Type) return Boolean is
-        Name : constant String := Ada.Directories.Simple_Name(Dir);
+    function Is_Current_Or_Parent_Directory(Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
+        -- Return true if the entry is "." or "..".
+        Name : constant String := Ada.Directories.Simple_Name(Dir_Entry);
     begin
         return Ada.Directories.Hierarchical_File_Names.Is_Parent_Directory_Name(Name) or else
             Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name(Name);
