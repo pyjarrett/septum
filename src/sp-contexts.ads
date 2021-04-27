@@ -13,7 +13,7 @@ package SP.Contexts is
                                                          "=" => String_Vectors."="
                                                         );
 
-    type Context is record
+    type Context is tagged record
         --  A description of the current search. This includes all of the files of the starting
         --  point, their contents, as well as the currently applied filters.
 
@@ -29,8 +29,10 @@ package SP.Contexts is
     end record;
 
     function Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
+    function Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
     function Uses_Extension(Ctx : Context; Extension : String) return Boolean;
-    function Add_To_Context(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
+    function Add_File(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
     function Refresh(Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) return Boolean;
     function List (Ctx : in Context) return Boolean;
+
 end SP.Contexts;

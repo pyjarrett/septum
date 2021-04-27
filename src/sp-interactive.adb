@@ -39,6 +39,10 @@ package body SP.Interactive is
             if not Add_Extensions (Ctx, Words) then
                 return Quit;
             end if;
+        elsif Command = "remove-ext" then
+            if not Remove_Extensions (Ctx, Words) then
+                return Quit;
+            end if;
         else
             Ada.Text_IO.Put_Line
                 ("Unknown command: " & Ada.Strings.Unbounded.To_String (Sanitized_Line));

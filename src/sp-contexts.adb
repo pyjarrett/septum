@@ -3,13 +3,14 @@ with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
 package body SP.Contexts is
-    function Uses_Extension(Ctx : Context; Extension : String) return Boolean is
+
+     function Uses_Extension(Ctx : Context; Extension : String) return Boolean is
         -- Returns true if the context should contain files with the given extension.
     begin
         return Ctx.Extensions.Contains(Ada.Strings.Unbounded.To_Unbounded_String(Extension));
     end Uses_Extension;
 
-    function Add_To_Context(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
+    function Add_File(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
         use Ada.Directories;
     begin
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Ordinary_File and Uses_Extension(Ctx, Ada.Directories.Extension(Ada.Directories.Simple_Name(Next_Entry))) then
@@ -43,7 +44,7 @@ package body SP.Contexts is
             return False;
         end if;
         return True;
-    end Add_To_Context;
+    end Add_File;
 
 
     function Is_Current_Or_Parent_Directory(Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
@@ -64,13 +65,15 @@ package body SP.Contexts is
         Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
     begin
         Ada.Directories.Start_Search
-            (Search  => Search, Directory => Ada.Strings.Unbounded.To_String (Starting_Dir),
-             Pattern => "*", Filter => Filter);
+            (Search  => Search,
+             Directory => Ada.Strings.Unbounded.To_String (Starting_Dir),
+             Pattern => "*",
+             Filter => Filter);
         while Ada.Directories.More_Entries (Search) loop
             Ada.Directories.Get_Next_Entry (Search, Next_Entry);
             if Is_Current_Or_Parent_Directory(Next_Entry) then
                 null;
-            elsif not Add_To_Context(Ctx, Next_Entry) then
+            elsif not Add_File(Ctx, Next_Entry) then
                 return False;
             end if;
         end loop;
@@ -104,6 +107,18 @@ package body SP.Contexts is
         end loop;
         return True;
     end Add_Extensions;
+
+
+    function Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean is
+    begin
+        for Ext of Extensions loop
+            if Ctx.Extensions.Contains(Ext) then
+                Ctx.Extensions.Delete(Ctx.Extensions.Find_Index(Ext));
+            end if;
+        end loop;
+        return True;
+    end Remove_Extensions;
+
 
 
 end SP.Contexts;
