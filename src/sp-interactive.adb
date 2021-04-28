@@ -28,19 +28,19 @@ package body SP.Interactive is
         if Command = "exit" or Sanitized_Line = "quit" then
             return Quit;
         elsif Command = "refresh" then
-            if not Refresh (Ctx, Ctx.Starting_Dir) then
+            if not Ctx.Refresh (Ctx.Starting_Dir) then
                 return Quit;
             end if;
         elsif Command = "list" then
-            if not List (Ctx) then
+            if not Ctx.List then
                 return Quit;
             end if;
         elsif Command = "ext" then
-            if not Add_Extensions (Ctx, Words) then
+            if not Ctx.Add_Extensions (Words) then
                 return Quit;
             end if;
         elsif Command = "remove-ext" then
-            if not Remove_Extensions (Ctx, Words) then
+            if not Ctx.Remove_Extensions (Words) then
                 return Quit;
             end if;
         else

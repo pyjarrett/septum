@@ -39,7 +39,7 @@ package body SP.Contexts is
         end if;
 
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Directory
-            and then not Refresh (Ctx, Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)))
+            and then not Ctx.Refresh(Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)))
         then
             return False;
         end if;
