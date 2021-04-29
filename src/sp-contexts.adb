@@ -119,6 +119,11 @@ package body SP.Contexts is
         return True;
     end Remove_Extensions;
 
+    function Set_Context_Width (Ctx : in out Context; Width : in Context_Width) return Boolean is
+    begin
+        Ctx.Width := Width;
+        return True;
+    end Set_Context_Width;
 
 
 end SP.Contexts;
