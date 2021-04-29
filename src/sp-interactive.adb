@@ -44,36 +44,9 @@ package body SP.Interactive is
                 return Quit;
             end if;
         elsif Command = "context" then
-            if Words.Length > 1 then
-                Ada.Text_IO.Put_Line ("Usage: context [width]");
-                Ada.Text_IO.Put_Line ("No width removes context.");
-                return Continue;
+            if not Ctx.Set_Context_Width (Words) then
+                return Quit;
             end if;
-
-            if Words.Length = 0 then
-                if Ctx.Set_Context_Width(SP.Contexts.Context_Width(SP.Contexts.Full_File_Width)) then
-                    Ada.Text_IO.Put_Line ("Context set to file wide.");
-                    return Continue;
-                else
-                    return Quit;
-                end if;
-            end if;
-
-            declare
-                Width : Integer;
-            begin
-                Width := Integer'Value(Ada.Strings.Unbounded.To_String(Words.First_Element));
-                if Ctx.Set_Context_Width(Context_Width(Width)) then
-                    Ada.Text_IO.Put_Line ("Context set to " & Integer'Image(Width));
-                    return Continue;
-                else
-                    return Quit;
-                end if;
-            exception
-                when others =>
-                    Ada.Text_IO.Put_Line("Invalid context: " & Ada.Strings.Unbounded.To_String(Words.First_Element));
-                    return Continue;
-            end;
         else
             Ada.Text_IO.Put_Line
                 ("Unknown command: " & Ada.Strings.Unbounded.To_String (Sanitized_Line));

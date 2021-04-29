@@ -119,11 +119,37 @@ package body SP.Contexts is
         return True;
     end Remove_Extensions;
 
-    function Set_Context_Width (Ctx : in out Context; Width : in Context_Width) return Boolean is
+    function Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector) return Boolean is
+        use Ada.Containers;
+        use String_Vectors;
     begin
-        Ctx.Width := Width;
-        return True;
+        if Words.Length > 1 then
+            Ada.Text_IO.Put_Line ("Usage: context [width]");
+            Ada.Text_IO.Put_Line ("No width removes context.");
+            return True;
+        end if;
+
+        if Words.Length = 0 then
+            Ctx.Width := Full_File_Width;
+            Ada.Text_IO.Put_Line ("Context set to file wide.");
+            return True;
+        end if;
+
+        declare
+            Width : Integer;
+        begin
+            Width := Integer'Value(Ada.Strings.Unbounded.To_String(Words.First_Element));
+            if Width > 0 then
+                Ada.Text_IO.Put_Line ("Context set to " & Integer'Image(Width));
+                Ctx.Width := Context_Width(Width);
+            else
+                Ada.Text_IO.Put_Line ("Context must be one line or greater.");
+            end if;
+            return True;
+        exception
+            when others =>
+                Ada.Text_IO.Put_Line("Invalid context: " & Ada.Strings.Unbounded.To_String(Words.First_Element));
+                return False;
+        end;
     end Set_Context_Width;
-
-
 end SP.Contexts;

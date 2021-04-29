@@ -41,6 +41,6 @@ package SP.Contexts is
     function Add_File(Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
     function Refresh(Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) return Boolean;
     function List (Ctx : in Context) return Boolean;
-    function Set_Context_Width (Ctx : in out Context; Width : in Context_Width) return Boolean;
+    function Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector) return Boolean;
 
 end SP.Contexts;
