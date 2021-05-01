@@ -28,25 +28,15 @@ package body SP.Interactive is
         if Command = "exit" or Sanitized_Line = "quit" then
             return Quit;
         elsif Command = "refresh" then
-            if not Ctx.Refresh (Ctx.Starting_Dir) then
-                return Quit;
-            end if;
+            Ctx.Refresh (Ctx.Starting_Dir);
         elsif Command = "list" then
-            if not Ctx.List then
-                return Quit;
-            end if;
+            Ctx.List;
         elsif Command = "ext" then
-            if not Ctx.Add_Extensions (Words) then
-                return Quit;
-            end if;
+            Ctx.Add_Extensions (Words);
         elsif Command = "remove-ext" then
-            if not Ctx.Remove_Extensions (Words) then
-                return Quit;
-            end if;
+            Ctx.Remove_Extensions(Words);
         elsif Command = "context" then
-            if not Ctx.Set_Context_Width (Words) then
-                return Quit;
-            end if;
+            Ctx.Set_Context_Width(Words);
         else
             Ada.Text_IO.Put_Line
                 ("Unknown command: " & Ada.Strings.Unbounded.To_String (Sanitized_Line));
@@ -68,10 +58,7 @@ package body SP.Interactive is
         Ctx       : Context;
     begin
         --  Starts the search in the current directory.
-        if not Ctx.Add_Directory(Ada.Strings.Unbounded.To_String(Starting_Dir)) then
-            Ada.Text_IO.Put_Line("Unable to add starting driectory to context.");
-            return;
-        end if;
+        Ctx.Add_Directory(Ada.Strings.Unbounded.To_String(Starting_Dir));
 
         --  Print the command line while we're debugging.
         if (SP.Debug.Enabled) then

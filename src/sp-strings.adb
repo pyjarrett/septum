@@ -5,19 +5,18 @@ with Ada.Text_IO;
 package body SP.Strings is
     function Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector is
         --  Splits an unbounded string on spaces.
-        Start  : Positive := 1;
-        Finish : Natural  := 0;
+        Start : Positive := 1;
+        Finish : Natural := 0;
     begin
         return Result : String_Vectors.Vector do
             while Start <= Ada.Strings.Unbounded.Length (S) loop
                 Ada.Strings.Unbounded.Find_Token
-                   (Source => S, Set => Ada.Strings.Maps.To_Set (" "), From => Start,
-                    Test   => Ada.Strings.Outside, First => Start, Last => Finish);
+                    (Source => S, Set => Ada.Strings.Maps.To_Set (" "), From => Start, Test => Ada.Strings.Outside,
+                     First => Start, Last => Finish);
                 String_Vectors.Append
-                   (Container => Result,
-                    New_Item  =>
-                       Ada.Strings.Unbounded.To_Unbounded_String
-                          (Ada.Strings.Unbounded.Slice (S, Start, Finish)));
+                    (Container => Result,
+                     New_Item =>
+                         Ada.Strings.Unbounded.To_Unbounded_String (Ada.Strings.Unbounded.Slice (S, Start, Finish)));
                 Start := Finish + 1;
             end loop;
         end return;

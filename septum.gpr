@@ -21,7 +21,7 @@ project Septum is
    end Builder;
 
    package Pretty_Printer is
-      for Default_Switches ("ada") use ("-A0", "-c4", "--no-separate-is", "-i4", "-c3", "-M120", "-cl4", "-c2", "-l2");
+      for Default_Switches ("ada") use ("-c4", "-i4", "-c3", "-M120", "-cl4", "-c2", "-l2", "--no-separate-is");
    end Pretty_Printer;
 
 end Septum;

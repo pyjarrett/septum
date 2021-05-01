@@ -9,29 +9,25 @@ package body SP.Contexts is
         return Ctx.Extensions.Contains (Ada.Strings.Unbounded.To_Unbounded_String (Extension));
     end Uses_Extension;
 
-    function Add_Directory(Ctx : in out Context; Directory : String) return Boolean is
+    procedure Add_Directory(Ctx : in out Context; Directory : String) is
         use Ada.Directories;
         use Ada.Strings.Unbounded;
     begin
         if Ada.Directories.Kind(Directory) = Ada.Directories.Directory then
             if Ctx.Starting_Dir = Ada.Strings.Unbounded.Null_Unbounded_String then
                 Ctx.Starting_Dir := Ada.Strings.Unbounded.To_Unbounded_String(Directory);
-                return true;
             else
                 Ada.Text_IO.Put_Line("Context already has a starting directory.");
-                return false;
             end if;
         else
             Ada.Text_IO.Put_Line("Trying to add a non-directory as a directory: " & Directory);
-            return false;
         end if;
     exception
         when Ada.Directories.Name_Error =>
             Ada.Text_IO.Put_Line("Directory does not exist: " & Directory);
-            return false;
     end Add_Directory;
 
-    function Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
+    procedure Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         use Ada.Directories;
     begin
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Ordinary_File and
@@ -51,19 +47,14 @@ package body SP.Contexts is
                             (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)), Lines);
                     end if;
                     Ada.Text_IO.Put_Line ("Next File is: " & Ada.Directories.Full_Name (Next_Entry));
-                else
-                    return False;
                 end if;
             end;
         end if;
 
-        if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Directory
-            and then not Ctx.Refresh
-                (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)))
-        then
-            return False;
+        if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Directory then
+            Ctx.Refresh
+                (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)));
         end if;
-        return True;
     end Add_File;
 
     function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
@@ -75,7 +66,7 @@ package body SP.Contexts is
             or else Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name (Name);
     end Is_Current_Or_Parent_Directory;
 
-    function Refresh (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) return Boolean is
+    procedure Refresh (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) is
         --  Refreshes the list of files stored in the context.
         use Ada.Directories;
         Search : Search_Type;
@@ -89,29 +80,26 @@ package body SP.Contexts is
             Ada.Directories.Get_Next_Entry (Search, Next_Entry);
             if Is_Current_Or_Parent_Directory (Next_Entry) then
                 null;
-            elsif not Add_File (Ctx, Next_Entry) then
-                return False;
+            else
+                Add_File(Ctx, Next_Entry);
             end if;
         end loop;
         End_Search (Search);
-        return True;
     exception
         when others =>
             Ada.Text_IO.Put_Line ("Unknown Exception");
-            return False;
     end Refresh;
 
-    function List (Ctx : in Context) return Boolean is
+    procedure List (Ctx : in Context) is
     begin
         for Elem in Ctx.Files.Iterate loop
             Ada.Text_IO.Put_Line
                 (Ada.Strings.Unbounded.To_String (File_Maps.Key (Elem)) & " : " &
                  Integer'Image (Integer (File_Maps.Element (Elem).Length)));
         end loop;
-        return True;
     end List;
 
-    function Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean is
+    procedure Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) is
     begin
         for Ext of Extensions loop
             if not Ctx.Extensions.Contains (Ext) then
@@ -123,33 +111,29 @@ package body SP.Contexts is
         for Ext of Ctx.Extensions loop
             Ada.Strings.Unbounded.Text_IO.Put_Line (Ext);
         end loop;
-        return True;
     end Add_Extensions;
 
-    function Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean is
+    procedure Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) is
     begin
         for Ext of Extensions loop
             if Ctx.Extensions.Contains (Ext) then
                 Ctx.Extensions.Delete (Ext);
             end if;
         end loop;
-        return True;
     end Remove_Extensions;
 
-    function Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector) return Boolean is
+    procedure Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector) is
         use Ada.Containers;
         use String_Vectors;
     begin
         if Words.Length > 1 then
             Ada.Text_IO.Put_Line ("Usage: context [width]");
             Ada.Text_IO.Put_Line ("No width removes context.");
-            return True;
         end if;
 
         if Words.Length = 0 then
             Ctx.Width := Full_File_Width;
             Ada.Text_IO.Put_Line ("Context set to file wide.");
-            return True;
         end if;
 
         declare
@@ -162,11 +146,9 @@ package body SP.Contexts is
             else
                 Ada.Text_IO.Put_Line ("Context must be one line or greater.");
             end if;
-            return True;
         exception
             when others =>
                 Ada.Text_IO.Put_Line ("Invalid context: " & Ada.Strings.Unbounded.To_String (Words.First_Element));
-                return False;
         end;
     end Set_Context_Width;
 end SP.Contexts;

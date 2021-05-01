@@ -32,14 +32,15 @@ package SP.Contexts is
         --  The number of lines above and below a positive search result to include or not include.
     end record;
 
-    function Add_Directory(Ctx : in out Context; Directory : in String) return Boolean;
-    function Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
-    function Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
     function Uses_Extension (Ctx : Context; Extension : String) return Boolean;
-    function Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
-    function Refresh (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) return Boolean;
-    function List (Ctx : in Context) return Boolean;
-    function Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector) return Boolean;
+
+    procedure Add_Directory(Ctx : in out Context; Directory : in String);
+    procedure Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector);
+    procedure Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector);
+    procedure Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type);
+    procedure Refresh (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String);
+    procedure List (Ctx : in Context);
+    procedure Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector);
 
     --  Gets the current set of matching files.
 
