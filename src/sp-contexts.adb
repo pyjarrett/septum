@@ -115,7 +115,7 @@ package body SP.Contexts is
     begin
         for Ext of Extensions loop
             if not Ctx.Extensions.Contains (Ext) then
-                Ctx.Extensions.Append (Ext);
+                Ctx.Extensions.Insert (Ext);
             end if;
         end loop;
 
@@ -130,7 +130,7 @@ package body SP.Contexts is
     begin
         for Ext of Extensions loop
             if Ctx.Extensions.Contains (Ext) then
-                Ctx.Extensions.Delete (Ctx.Extensions.Find_Index (Ext));
+                Ctx.Extensions.Delete (Ext);
             end if;
         end loop;
         return True;

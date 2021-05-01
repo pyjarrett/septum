@@ -24,7 +24,7 @@ package SP.Contexts is
         Files : File_Maps.Map;
         --  Cached contents of all files.
 
-        Extensions : String_Vectors.Vector;
+        Extensions : String_Sets.Set;
         --  List of extensions, without the "." of all of the types of files which should be considered in the search
         --  list.
 
