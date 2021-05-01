@@ -58,13 +58,20 @@ package body SP.Interactive is
     procedure Main
         (Starting_Dir : Ada.Strings.Unbounded.Unbounded_String :=
              Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Current_Directory)) is
+        -- Entry point for program execution.
+        --
+        -- Starts a new empty search
+        --
         --  Called to start an interactive search at the given directory.
         Done      : Boolean := False;
         Next_Line : Ada.Strings.Unbounded.Unbounded_String;
         Ctx       : Context;
     begin
         --  Starts the search in the current directory.
-        Ctx.Starting_Dir := Starting_Dir;
+        if not Ctx.Add_Directory(Ada.Strings.Unbounded.To_String(Starting_Dir)) then
+            Ada.Text_IO.Put_Line("Unable to add starting driectory to context.");
+            return;
+        end if;
 
         --  Print the command line while we're debugging.
         if (SP.Debug.Enabled) then

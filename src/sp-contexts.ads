@@ -32,6 +32,7 @@ package SP.Contexts is
         --  The number of lines above and below a positive search result to include or not include.
     end record;
 
+    function Add_Directory(Ctx : in out Context; Directory : in String) return Boolean;
     function Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
     function Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector) return Boolean;
     function Uses_Extension (Ctx : Context; Extension : String) return Boolean;

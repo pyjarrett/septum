@@ -9,6 +9,28 @@ package body SP.Contexts is
         return Ctx.Extensions.Contains (Ada.Strings.Unbounded.To_Unbounded_String (Extension));
     end Uses_Extension;
 
+    function Add_Directory(Ctx : in out Context; Directory : String) return Boolean is
+        use Ada.Directories;
+        use Ada.Strings.Unbounded;
+    begin
+        if Ada.Directories.Kind(Directory) = Ada.Directories.Directory then
+            if Ctx.Starting_Dir = Ada.Strings.Unbounded.Null_Unbounded_String then
+                Ctx.Starting_Dir := Ada.Strings.Unbounded.To_Unbounded_String(Directory);
+                return true;
+            else
+                Ada.Text_IO.Put_Line("Context already has a starting directory.");
+                return false;
+            end if;
+        else
+            Ada.Text_IO.Put_Line("Trying to add a non-directory as a directory: " & Directory);
+            return false;
+        end if;
+    exception
+        when Ada.Directories.Name_Error =>
+            Ada.Text_IO.Put_Line("Directory does not exist: " & Directory);
+            return false;
+    end Add_Directory;
+
     function Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
         use Ada.Directories;
     begin
