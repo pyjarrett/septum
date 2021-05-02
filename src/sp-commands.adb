@@ -25,18 +25,18 @@ package body SP.Commands is
         Put_Line ("Help");
     end Help_Exec;
 
-    procedure Refresh_Help is
+    procedure Reload_Help is
     begin
-        Put_Line ("Refresh help");
-    end Refresh_Help;
+        Put_Line ("Reload help");
+    end Reload_Help;
 
-    procedure Refresh_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Reload_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Refresh should have an empty command line.");
         end if;
-        SP.Contexts.Refresh(Srch);
-    end Refresh_Exec;
+        SP.Contexts.Reload_Working_Set(Srch);
+    end Reload_Exec;
 
     function Execute
         (Srch : in out SP.Contexts.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
@@ -56,5 +56,5 @@ package body SP.Commands is
 
 begin
     Command_Map.Insert (To_Unbounded_String ("help"), (Help_Help'Access, Help_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("refresh"), (Refresh_Help'Access, Refresh_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("reload"), (Reload_Help'Access, Reload_Exec'Access));
 end SP.Commands;

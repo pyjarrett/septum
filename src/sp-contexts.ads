@@ -52,8 +52,8 @@ package SP.Contexts is
     type Search is private;
     subtype Search_Result is String_Vectors.Vector;
 
-    procedure Refresh (Srch : in out Search);
-    procedure Refresh (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
+    procedure Reload_Working_Set (Srch : in out Search);
+    procedure Refresh_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
 

@@ -169,11 +169,11 @@ package body SP.Contexts is
 
         if Kind (Next_Entry) = Directory then
             -- Recursively add to the search path.
-            Refresh (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
+            Refresh_Directory (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
         end if;
     end Add_File;
 
-    procedure Refresh (Srch : in out Search; Dir_Name : Unbounded_String) is
+    procedure Refresh_Directory (Srch : in out Search; Dir_Name : Unbounded_String) is
         use Ada.Directories;
         Dir_Search : Search_Type;
         Next_Entry : Directory_Entry_Type;
@@ -189,16 +189,17 @@ package body SP.Contexts is
         end loop;
         End_Search (Dir_Search);
         pragma Unreferenced (Dir_Search);
-    end Refresh;
+    end Refresh_Directory;
 
-    procedure Refresh (Srch : in out Search) is
-        --  Refreshes the list of files stored in the context.
-        -- TODO: The file cache should be cleared on refresh, or updated according to modified timestamps.
+    procedure Reload_Working_Set (Srch : in out Search) is
     begin
+        -- TODO: The file cache should watch files to know when it needs a refresh
+        -- such as examining last time modified timestamp.
+        Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Refresh (Srch, Dir_Name);
+            Refresh_Directory (Srch, Dir_Name);
         end loop;
-    end Refresh;
+    end Reload_Working_Set;
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String) is
         use Ada.Directories;
