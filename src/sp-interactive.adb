@@ -60,8 +60,9 @@ package body SP.Interactive is
     begin
         Build_Command_Map;
         Add_Directory (Srch, Ada.Directories.Current_Directory);
-        Command_Line := Read_Prompt (Default_Prompt);
+        Reload_Working_Set (Srch);
 
+        Command_Line := Read_Prompt (Default_Prompt);
         while Execute (Srch, Command_Line) loop
             Command_Line := Read_Prompt (Default_Prompt);
         end loop;
