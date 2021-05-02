@@ -210,11 +210,21 @@ package body SP.Contexts is
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
+            Refresh_Directory (Srch, Unbounded_Name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
         end if;
     end Add_Directory;
+
+    function Search_Directories (Srch : in Search) return String_Vectors.Vector is
+    begin
+        return Result : String_Vectors.Vector do
+            for Directory of Srch.Directories loop
+                Result.Append (Directory);
+            end loop;
+        end return;
+    end Search_Directories;
 
     function Contains (Result : Search_Result; Str : String) return Boolean is
     begin

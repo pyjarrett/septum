@@ -14,6 +14,8 @@ package SP.Contexts is
         (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
          "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
+-- OLD INTERFACE
+-- vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     type Context is tagged record
         --  A description of the current search. This includes all of the files of the starting point, their contents,
         --  as well as the currently applied filters.
@@ -44,9 +46,10 @@ package SP.Contexts is
     procedure Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector);
 
     procedure Add_File (File_Cache : in out File_Maps.Map; Next_Entry : in Ada.Directories.Directory_Entry_Type);
+-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-- OLD INTERFACE
 
     --  Gets the current set of matching files.
-
     --  Gets the current set of matching lines.
 
     type Search is private;
@@ -56,6 +59,7 @@ package SP.Contexts is
     procedure Refresh_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
+    function Search_Directories (Srch : in Search) return String_Vectors.Vector;
 
     function Contains (Result : Search_Result; Str : String) return Boolean;
 
