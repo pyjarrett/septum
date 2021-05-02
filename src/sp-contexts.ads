@@ -12,7 +12,7 @@ package SP.Contexts is
 
     package File_Maps is new Ada.Containers.Ordered_Maps
         (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
-         "<" => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
+         "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
     type Context is tagged record
         --  A description of the current search. This includes all of the files of the starting point, their contents,
@@ -34,7 +34,8 @@ package SP.Contexts is
 
     function Uses_Extension (Ctx : Context; Extension : String) return Boolean;
 
-    procedure Add_Directory(Ctx : in out Context; Directory : in String);
+-- Commands for processing.
+    procedure Add_Directory (Ctx : in out Context; Directory : in String);
     procedure Add_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector);
     procedure Remove_Extensions (Ctx : in out Context; Extensions : in String_Vectors.Vector);
     procedure Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type);
@@ -42,8 +43,23 @@ package SP.Contexts is
     procedure List (Ctx : in Context);
     procedure Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector);
 
+    procedure Add_File (File_Cache : in out File_Maps.Map; Next_Entry : in Ada.Directories.Directory_Entry_Type);
+
     --  Gets the current set of matching files.
 
     --  Gets the current set of matching lines.
+
+    type Search is private;
+    subtype Search_Result is String_Vectors.Vector;
+
+    procedure Refresh (Srch : in out Search);
+    function Contains (Result : Search_Result; Str : String) return Boolean;
+
+private
+
+    type Search is record
+        Files : File_Maps.Map;
+        -- Cached contents of files.
+    end record;
 
 end SP.Contexts;

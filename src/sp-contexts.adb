@@ -3,28 +3,29 @@ with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
 package body SP.Contexts is
+    use Ada.Strings.Unbounded;
+
     function Uses_Extension (Ctx : Context; Extension : String) return Boolean is
     --  Returns true if the context should contain files with the given extension.
     begin
         return Ctx.Extensions.Contains (Ada.Strings.Unbounded.To_Unbounded_String (Extension));
     end Uses_Extension;
 
-    procedure Add_Directory(Ctx : in out Context; Directory : String) is
+    procedure Add_Directory (Ctx : in out Context; Directory : String) is
         use Ada.Directories;
-        use Ada.Strings.Unbounded;
     begin
-        if Ada.Directories.Kind(Directory) = Ada.Directories.Directory then
+        if Ada.Directories.Kind (Directory) = Ada.Directories.Directory then
             if Ctx.Starting_Dir = Ada.Strings.Unbounded.Null_Unbounded_String then
-                Ctx.Starting_Dir := Ada.Strings.Unbounded.To_Unbounded_String(Directory);
+                Ctx.Starting_Dir := Ada.Strings.Unbounded.To_Unbounded_String (Directory);
             else
-                Ada.Text_IO.Put_Line("Context already has a starting directory.");
+                Ada.Text_IO.Put_Line ("Context already has a starting directory.");
             end if;
         else
-            Ada.Text_IO.Put_Line("Trying to add a non-directory as a directory: " & Directory);
+            Ada.Text_IO.Put_Line ("Trying to add a non-directory as a directory: " & Directory);
         end if;
     exception
         when Ada.Directories.Name_Error =>
-            Ada.Text_IO.Put_Line("Directory does not exist: " & Directory);
+            Ada.Text_IO.Put_Line ("Directory does not exist: " & Directory);
     end Add_Directory;
 
     procedure Add_File (Ctx : in out Context; Next_Entry : Ada.Directories.Directory_Entry_Type) is
@@ -33,27 +34,30 @@ package body SP.Contexts is
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Ordinary_File and
             Uses_Extension (Ctx, Ada.Directories.Extension (Ada.Directories.Simple_Name (Next_Entry)))
         then
-            declare
-                Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
-            begin
-                if Read_Lines (Ada.Directories.Full_Name (Next_Entry), Lines) then
-                    if Ctx.Files.Contains
-                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)))
-                    then
-                        Ctx.Files.Replace
-                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)), Lines);
-                    else
-                        Ctx.Files.Insert
-                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)), Lines);
-                    end if;
-                    Ada.Text_IO.Put_Line ("Next File is: " & Ada.Directories.Full_Name (Next_Entry));
-                end if;
-            end;
+            Add_File (Ctx.Files, Next_Entry);
         end if;
 
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Directory then
-            Ctx.Refresh
-                (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)));
+            Ctx.Refresh (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Next_Entry)));
+        end if;
+    end Add_File;
+
+    procedure Add_File (File_Cache : in out File_Maps.Map; Next_Entry : Ada.Directories.Directory_Entry_Type) is
+        -- Adds the contents of a file to the file cache.
+        use Ada.Directories;
+        Lines        : String_Vectors.Vector     := String_Vectors.Empty_Vector;
+        File_Name    : constant Unbounded_String := To_Unbounded_String (Full_Name (Next_Entry));
+        Is_Directory : constant Boolean          := Kind (Next_Entry) /= Directory;
+    begin
+        if Is_Directory then
+            if Read_Lines (To_String(File_Name), Lines) then
+                Ada.Text_IO.Put_Line ("Next File is: " & To_String(File_Name));
+                if File_Cache.Contains (File_Name) then
+                    File_Cache.Replace (File_Name, Lines);
+                else
+                    File_Cache.Insert (File_Name, Lines);
+                end if;
+            end if;
         end if;
     end Add_File;
 
@@ -69,9 +73,9 @@ package body SP.Contexts is
     procedure Refresh (Ctx : in out Context; Starting_Dir : Ada.Strings.Unbounded.Unbounded_String) is
         --  Refreshes the list of files stored in the context.
         use Ada.Directories;
-        Search : Search_Type;
+        Search     : Search_Type;
         Next_Entry : Directory_Entry_Type;
-        Filter : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
+        Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
     begin
         Ada.Directories.Start_Search
             (Search => Search, Directory => Ada.Strings.Unbounded.To_String (Starting_Dir), Pattern => "*",
@@ -81,10 +85,11 @@ package body SP.Contexts is
             if Is_Current_Or_Parent_Directory (Next_Entry) then
                 null;
             else
-                Add_File(Ctx, Next_Entry);
+                Add_File (Ctx, Next_Entry);
             end if;
         end loop;
         End_Search (Search);
+        pragma Unreferenced (Search);
     exception
         when others =>
             Ada.Text_IO.Put_Line ("Unknown Exception");
@@ -151,4 +156,19 @@ package body SP.Contexts is
                 Ada.Text_IO.Put_Line ("Invalid context: " & Ada.Strings.Unbounded.To_String (Words.First_Element));
         end;
     end Set_Context_Width;
+
+    procedure Refresh (Srch : in out Search) is
+    begin
+        null;
+    end Refresh;
+
+    function Contains (Result : Search_Result; Str : String) return Boolean is
+    begin
+        for Line of Result loop
+            if Result.Contains (To_Unbounded_String(Str)) then
+                return True;
+            end if;
+        end loop;
+        return False;
+    end Contains;
 end SP.Contexts;

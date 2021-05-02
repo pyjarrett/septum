@@ -2,5 +2,5 @@ with SP.Interactive;
 
 procedure Main is
 begin
-    SP.Interactive.Main;
+    SP.Interactive.Old_Main;
 end Main;

@@ -12,5 +12,5 @@ package SP.Strings is
 
     function Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector;
 
-    function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean;
+    function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
 end SP.Strings;
