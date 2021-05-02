@@ -58,7 +58,10 @@ package SP.Contexts is
 private
 
     type Search is record
-        Files : File_Maps.Map;
+        Directories : String_Vectors.Vector;
+        -- A list of all directories to search.
+
+        File_Cache : File_Maps.Map;
         -- Cached contents of files.
     end record;
 

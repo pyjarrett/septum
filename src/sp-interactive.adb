@@ -1,52 +1,24 @@
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 with SP.Strings; use SP.Strings;
 with SP.Contexts; use SP.Contexts;
 with SP.Debug;
+with SP.Commands;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
     use Ada.Strings.Unbounded.Text_IO;
     use Ada.Text_IO;
 
-    type Executable_Command is record
-        Help_Proc : not null access procedure;
-        Exec_Proc : not null access procedure (Command_Line : String_Vectors.Vector);
-    end record;
-
-    package Command_Maps is new Ada.Containers.Ordered_Maps
-        (Key_Type => Unbounded_String, Element_Type => Executable_Command);
-
-    Command_Map    : Command_Maps.Map;
     Quit_Commands  : String_Sets.Set;
     Default_Prompt : constant String := "> ";
-
-    package Help is
-        procedure Help;
-        procedure Exec (Command_Line : String_Vectors.Vector);
-    end Help;
-
-    package body Help is
-        procedure Help is
-        begin
-            Put_Line ("Help help");
-        end Help;
-
-        procedure Exec (Command_Line : String_Vectors.Vector) is
-        begin
-            pragma Unreferenced (Command_Line);
-            Put_Line ("Help");
-        end Exec;
-    end Help;
 
     procedure Build_Command_Map is
     begin
         Quit_Commands.Insert (To_Unbounded_String ("quit"));
         Quit_Commands.Insert (To_Unbounded_String ("exit"));
-
-        Command_Map.Insert (To_Unbounded_String ("help"), (Help.Help'Access, Help.Exec'Access));
     end Build_Command_Map;
 
     function Read_Prompt (Prompt : String) return String_Vectors.Vector is
@@ -60,7 +32,7 @@ package body SP.Interactive is
         end;
     end Read_Prompt;
 
-    function Execute (Command_Line : String_Vectors.Vector) return Boolean is
+    function Execute (Srch : SP.Contexts.Search; Command_Line : String_Vectors.Vector) return Boolean is
         use Ada.Containers;
         Parameters   : constant String_Vectors.Vector := Command_Line;
         Command_Name : constant Unbounded_String      :=
@@ -70,13 +42,8 @@ package body SP.Interactive is
             return True;
         elsif Command_Line.Length = 1 and then Quit_Commands.Contains (Command_Name) then
             return False;
-        elsif Command_Map.Contains (Command_Name) then
-            declare
-                It      : constant Command_Maps.Cursor := Command_Map.Find (Command_Name);
-                Command : constant Executable_Command  := Command_Maps.Element (It);
-            begin
-                Command.Exec_Proc.all (Parameters);
-            end;
+        elsif not SP.Commands.Execute(Srch, Command_Name, Parameters) then
+            Put_Line("Unknown command: " & To_String(Command_Name));
         end if;
         return True;
     end Execute;
@@ -85,9 +52,10 @@ package body SP.Interactive is
         -- The interactive loop through which the user starts a search context and then interatively refines it by
         -- pushing and popping operations.
         Command_Line : String_Vectors.Vector := Read_Prompt (Default_Prompt);
+        Srch : SP.Contexts.Search;
     begin
         Build_Command_Map;
-        while Execute (Command_Line) loop
+        while Execute (Srch, Command_Line) loop
             Command_Line := Read_Prompt (Default_Prompt);
         end loop;
     end Main;
