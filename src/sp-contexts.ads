@@ -53,12 +53,16 @@ package SP.Contexts is
     subtype Search_Result is String_Vectors.Vector;
 
     procedure Refresh (Srch : in out Search);
+    procedure Refresh (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
+
+    procedure Add_Directory (Srch : in out Search; Dir_Name : String);
+
     function Contains (Result : Search_Result; Str : String) return Boolean;
 
 private
 
     type Search is record
-        Directories : String_Vectors.Vector;
+        Directories : String_Sets.Set;
         -- A list of all directories to search.
 
         File_Cache : File_Maps.Map;

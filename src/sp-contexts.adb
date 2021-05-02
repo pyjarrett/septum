@@ -50,8 +50,8 @@ package body SP.Contexts is
         Is_Directory : constant Boolean          := Kind (Next_Entry) /= Directory;
     begin
         if Is_Directory then
-            if Read_Lines (To_String(File_Name), Lines) then
-                Ada.Text_IO.Put_Line ("Next File is: " & To_String(File_Name));
+            if Read_Lines (To_String (File_Name), Lines) then
+                Ada.Text_IO.Put_Line ("Next File is: " & To_String (File_Name));
                 if File_Cache.Contains (File_Name) then
                     File_Cache.Replace (File_Name, Lines);
                 else
@@ -157,15 +157,68 @@ package body SP.Contexts is
         end;
     end Set_Context_Width;
 
-    procedure Refresh (Srch : in out Search) is
+    procedure Add_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
+        use Ada.Directories;
     begin
-        null;
+        if Kind (Next_Entry) = Ordinary_File --and
+            --Uses_Extension (Srch, Extension (Simple_Name (Next_Entry)))
+
+        then
+            Add_File (Srch.File_Cache, Next_Entry);
+        end if;
+
+        if Kind (Next_Entry) = Directory then
+            -- Recursively add to the search path.
+            Refresh (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
+        end if;
+    end Add_File;
+
+    procedure Refresh (Srch : in out Search; Dir_Name : Unbounded_String) is
+        use Ada.Directories;
+        Dir_Search : Search_Type;
+        Next_Entry : Directory_Entry_Type;
+        Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
+    begin
+        Ada.Directories.Start_Search
+            (Search => Dir_Search, Directory => To_String (Dir_Name), Pattern => "*", Filter => Filter);
+        while More_Entries (Dir_Search) loop
+            Get_Next_Entry (Dir_Search, Next_Entry);
+            if not Is_Current_Or_Parent_Directory (Next_Entry) then
+                Add_File (Srch, Next_Entry);
+            end if;
+        end loop;
+        End_Search (Dir_Search);
+        pragma Unreferenced (Dir_Search);
     end Refresh;
+
+    procedure Refresh (Srch : in out Search) is
+        --  Refreshes the list of files stored in the context.
+        -- TODO: The file cache should be cleared on refresh, or updated according to modified timestamps.
+    begin
+        for Dir_Name of Srch.Directories loop
+            Refresh (Srch, Dir_Name);
+        end loop;
+    end Refresh;
+
+    procedure Add_Directory (Srch : in out Search; Dir_Name : String) is
+        use Ada.Directories;
+        Unbounded_Name : constant Unbounded_String := To_Unbounded_String (Dir_Name);
+        Path_Exists    : constant Boolean          := Exists (Dir_Name);
+        Is_Directory   : constant Boolean          := Path_Exists and then Kind (Dir_Name) = Directory;
+    begin
+        -- TODO: this should also ensure new directories aren't subdirectories of existing directories
+        if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
+            Srch.Directories.Insert (Unbounded_Name);
+            Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
+        else
+            Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
+        end if;
+    end Add_Directory;
 
     function Contains (Result : Search_Result; Str : String) return Boolean is
     begin
         for Line of Result loop
-            if Result.Contains (To_Unbounded_String(Str)) then
+            if Result.Contains (To_Unbounded_String (Str)) then
                 return True;
             end if;
         end loop;
