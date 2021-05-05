@@ -1,3 +1,5 @@
+with "gnatcoll.gpr";
+
 project Septum is
 
    for Source_Dirs use ("src");
@@ -5,7 +7,7 @@ project Septum is
    for Main use ("main.adb");
 
    package Compiler is
-      for Switches ("ada") use ("-gnatf", "-g", "-gnata", "-gnat12", "-fstack-check", "-gnato", "-gnatVa", "-gnatwae");
+      for Switches ("ada") use ("-gnatf", "-g", "-gnata", "-gnat12", "-fstack-check", "-gnato", "-gnatVa", "-gnatw.oat");
    end Compiler;
 
    package Binder is
@@ -21,7 +23,7 @@ project Septum is
    end Builder;
 
    package Pretty_Printer is
-      for Default_Switches ("ada") use ("-c4", "-i4", "-c3", "-M120", "-cl4", "-c2", "-l2", "--no-separate-is");
+      for Default_Switches ("ada") use ("-c4", "-i4", "-M120", "-cl4", "-c2", "--no-separate-is", "--no-separate-loop-then", "--use-on-new-line", "-l2");
    end Pretty_Printer;
 
 end Septum;

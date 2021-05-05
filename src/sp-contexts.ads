@@ -1,6 +1,8 @@
 with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Vectors;
 with Ada.Directories;
 with Ada.Strings.Unbounded;
+with GNATCOLL.Refcount;
 
 with SP.Strings;
 
@@ -46,11 +48,9 @@ package SP.Contexts is
     procedure Set_Context_Width (Ctx : in out Context; Words : in String_Vectors.Vector);
 
     procedure Add_File (File_Cache : in out File_Maps.Map; Next_Entry : in Ada.Directories.Directory_Entry_Type);
--- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
--- OLD INTERFACE
+-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ OLD INTERFACE
 
-    --  Gets the current set of matching files.
-    --  Gets the current set of matching lines.
+    --  Gets the current set of matching files. Gets the current set of matching lines.
 
     type Search is private;
     subtype Search_Result is String_Vectors.Vector;
@@ -63,7 +63,38 @@ package SP.Contexts is
 
     function Contains (Result : Search_Result; Str : String) return Boolean;
 
+    procedure Push (Srch : in out Search; Text : String);
+
+    procedure Pop (Srch : in out Search);
+    -- Undoes the last search operations.
+
+    function Get_Filter_Names (Srch : in Search) return String_Vectors.Vector;
+
 private
+    type Filter is interface;
+    -- Search filters define which lines match.
+
+    function Image (F : Filter) return String is abstract;
+
+    function Matches (F : Filter; Str : String) return Boolean is abstract;
+    -- Determine if a filter matches a string.
+
+    type Case_Sensitive_Match_Filter is new Filter with record
+        Text : Ada.Strings.Unbounded.Unbounded_String;
+    end record;
+
+    overriding function Image (F : Case_Sensitive_Match_Filter) return String;
+
+    overriding function Matches (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
+
+    package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
+
+    subtype Filter_Ptr is Pointers.Ref;
+
+    package Filter_List is new Ada.Containers.Vectors
+        (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
+
+    -- The lines which match can determine the width of the context to be saved.
 
     type Search is record
         Directories : String_Sets.Set;
@@ -71,6 +102,8 @@ private
 
         File_Cache : File_Maps.Map;
         -- Cached contents of files.
+
+        Filters : Filter_List.Vector;
     end record;
 
 end SP.Contexts;

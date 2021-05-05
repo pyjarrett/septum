@@ -1,4 +1,6 @@
+with Ada.Characters.Latin_1;
 with Ada.Directories.Hierarchical_File_Names;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
@@ -32,8 +34,7 @@ package body SP.Contexts is
         use Ada.Directories;
     begin
         if Ada.Directories.Kind (Next_Entry) = Ada.Directories.Ordinary_File and
-            Uses_Extension (Ctx, Ada.Directories.Extension (Ada.Directories.Simple_Name (Next_Entry)))
-        then
+            Uses_Extension (Ctx, Ada.Directories.Extension (Ada.Directories.Simple_Name (Next_Entry))) then
             Add_File (Ctx.Files, Next_Entry);
         end if;
 
@@ -160,10 +161,11 @@ package body SP.Contexts is
     procedure Add_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         use Ada.Directories;
     begin
-        if Kind (Next_Entry) = Ordinary_File --and
-            --Uses_Extension (Srch, Extension (Simple_Name (Next_Entry)))
+        if Kind (Next_Entry) =
+            Ordinary_File --and
+        --Uses_Extension (Srch, Extension (Simple_Name (Next_Entry)))
 
-        then
+then
             Add_File (Srch.File_Cache, Next_Entry);
         end if;
 
@@ -193,8 +195,8 @@ package body SP.Contexts is
 
     procedure Reload_Working_Set (Srch : in out Search) is
     begin
-        -- TODO: The file cache should watch files to know when it needs a refresh
-        -- such as examining last time modified timestamp.
+        -- TODO: The file cache should watch files to know when it needs a refresh such as examining last time modified
+        -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
             Refresh_Directory (Srch, Dir_Name);
@@ -235,4 +237,44 @@ package body SP.Contexts is
         end loop;
         return False;
     end Contains;
+
+    procedure Push (Srch : in out Search; Text : String) is
+        T : constant Case_Sensitive_Match_Filter := (Text => To_Unbounded_String (Text));
+        F : Filter_Ptr;
+    begin
+        F.Set (T);
+        Srch.Filters.Append (F);
+    end Push;
+
+    procedure Pop (Srch : in out Search) is
+        Filter_Being_Popped : constant Filter_Ptr :=
+            (if Srch.Filters.Is_Empty then Pointers.Null_Ref else Srch.Filters.Last_Element);
+    begin
+        if Filter_Being_Popped.Is_Null then
+            Ada.Text_IO.Put_Line ("No more filters to pop.");
+        else
+            Ada.Text_IO.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
+            Srch.Filters.Delete_Last;
+        end if;
+    end Pop;
+
+    function Get_Filter_Names (Srch : Search) return String_Vectors.Vector is
+    begin
+        return V : String_Vectors.Vector do
+            for F of Srch.Filters loop
+                V.Append (To_Unbounded_String (Image (F.Get)));
+            end loop;
+        end return;
+    end Get_Filter_Names;
+
+    overriding function Image (F : Case_Sensitive_Match_Filter) return String is
+        use Ada.Characters;
+    begin
+        return "Case Sensitive Match " & Latin_1.Quotation & To_String (F.Text) & Latin_1.Quotation;
+    end Image;
+
+    function Matches (F : Case_Sensitive_Match_Filter; Str : String) return Boolean is
+    begin
+        return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
+    end Matches;
 end SP.Contexts;
