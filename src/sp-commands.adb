@@ -129,12 +129,12 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Text_Help is
+    procedure List_Filters is
     begin
-        Put_Line ("List text to search for within the context size.");
-    end List_Text_Help;
+        Put_Line ("Lists the currently bound filters.");
+    end List_Filters;
 
-    procedure List_Text_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure List_Filters_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
         Filter_Names : constant String_Vectors.Vector := SP.Contexts.Get_Filter_Names (Srch);
     begin
         if not Command_Line.Is_Empty then
@@ -143,7 +143,7 @@ package body SP.Commands is
         for Name of Filter_Names loop
             Put_Line (To_String (Name));
         end loop;
-    end List_Text_Exec;
+    end List_Filters_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ begin
     Command_Map.Insert (To_Unbounded_String ("list-dirs"), (List_Dirs_Help'Access, List_Dirs_Exec'Access));
 
     Command_Map.Insert (To_Unbounded_String ("find-text"), (Find_Text_Help'Access, Find_Text_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("list-text"), (List_Text_Help'Access, List_Text_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("list-filters"), (List_Filters'Access, List_Filters_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("exclude-text"), (Exclude_Text_Help'Access, Exclude_Text_Exec'Access));
 
     Command_Map.Insert (To_Unbounded_String("pop"), (Pop_Help'Access, Pop_Exec'Access));
