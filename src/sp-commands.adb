@@ -1,5 +1,6 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Text_IO;
+with Ada.Strings.Unbounded.Text_IO;
 
 package body SP.Commands is
     use Ada.Text_IO;
@@ -17,14 +18,18 @@ package body SP.Commands is
     ----------------------------------------------------------------------------
 
     procedure Help_Help is
+        use Command_Maps;
+        use Ada.Strings.Unbounded.Text_IO;
     begin
-        Put_Line ("Help help");
+        for Cursor in Command_Map.Iterate loop
+            Put_Line (Key(Cursor));
+        end loop;
     end Help_Help;
 
     procedure Help_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
     begin
         pragma Unreferenced (Srch, Command_Line);
-        Put_Line ("Help");
+        Help_Help;
     end Help_Exec;
 
     ----------------------------------------------------------------------------

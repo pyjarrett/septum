@@ -71,6 +71,7 @@ package SP.Contexts is
     function Get_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
 private
+
     type Filter is interface;
     -- Search filters define which lines match.
 
