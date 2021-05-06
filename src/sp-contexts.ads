@@ -70,6 +70,8 @@ package SP.Contexts is
 
     function Get_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
+    function Matching_Files (Srch : in Search) return String_Vectors.Vector;
+
 private
 
     type Filter is interface;
@@ -94,6 +96,8 @@ private
 
     package Filter_List is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
+
+    function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
 
     -- The lines which match can determine the width of the context to be saved.
 

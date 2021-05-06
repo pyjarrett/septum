@@ -52,7 +52,7 @@ package body SP.Contexts is
     begin
         if Is_Directory then
             if Read_Lines (To_String (File_Name), Lines) then
-                Ada.Text_IO.Put_Line ("Next File is: " & To_String (File_Name));
+                --  Ada.Text_IO.Put_Line ("Next File_Name is: " & To_String (File_Name));
                 if File_Cache.Contains (File_Name) then
                     File_Cache.Replace (File_Name, Lines);
                 else
@@ -277,4 +277,27 @@ then
     begin
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
     end Matches;
+
+    function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
+    begin
+        --  for Line : Adada.Strings.Unbounded.Unbounded_String of Lines loop
+        --      if matches (F, To_String(Line)) then
+                --  Ada.Textxt_IO.Put_Line (To_String(Line));
+                --  return To_Stringrue;
+            --  end if;
+        --  end loop;
+        --  return Falselse;
+        return (For some Line of Lines => Matches (F, To_String(Line)));
+    end Matches;
+
+    function Matching_Files (Srch : in Search) return String_Vectors.Vector is
+    begin
+        return Result : String_Vectors.Vector do
+            for Cursor in Srch.File_Cache.Iterate loop
+                if (for all F of Srch.Filters => Matches (F.Get, File_Maps.Element (Cursor))) then
+                    Result.Append (File_Maps.Key (Cursor));
+                end if;
+            end loop;
+        end return;
+    end Matching_Files;
 end SP.Contexts;

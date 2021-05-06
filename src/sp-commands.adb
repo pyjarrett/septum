@@ -146,6 +146,22 @@ package body SP.Commands is
         SP.Contexts.Pop(Srch);
     end Pop_Exec;
 
+    ----------------------------------------------------------------------------
+
+    procedure Matching_Files_Help is
+    begin
+        Put_Line ("Lists the files currently matching all filters.");
+    end Matching_Files_Help;
+
+    procedure Matching_Files_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+        File_Names : String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
+    begin
+        for File of File_Names loop
+            Put_Line (To_String(File));
+        end loop;
+    end Matching_Files_Exec;
+
+
 begin
     Command_Map.Insert (To_Unbounded_String ("help"), (Help_Help'Access, Help_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("reload"), (Reload_Help'Access, Reload_Exec'Access));
@@ -156,4 +172,6 @@ begin
     Command_Map.Insert (To_Unbounded_String ("list-text"), (List_Text_Help'Access, List_Text_Exec'Access));
 
     Command_Map.Insert (To_Unbounded_String("pop"), (Pop_Help'Access, Pop_Exec'Access));
+
+    Command_Map.Insert (To_Unbounded_String ("matching-files"), (Matching_Files_Help'Access, Matching_Files_Exec'Access));
 end SP.Commands;
