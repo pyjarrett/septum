@@ -115,7 +115,7 @@ then
     end Contains;
 
     procedure Find_Text (Srch : in out Search; Text : String) is
-        T : constant Case_Sensitive_Match_Filter := (Text => To_Unbounded_String (Text));
+        T : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
         F : Filter_Ptr;
     begin
         F.Set (T);
@@ -123,13 +123,13 @@ then
     end Find_Text;
 
     procedure Exclude_Text (Srch : in out Search; Text : String) is
-        T  : constant Case_Sensitive_Match_Filter := (Text => To_Unbounded_String (Text));
+        T  : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
         W  : Filter_Ptr;
-        F  : Invert_Filter;
+        F  : Exclude_Filter(Exclude);
         WF : Filter_Ptr;
     begin
         W.Set (T);
-        F := (Wrapped => W);
+        F := (Action => Exclude, Wrapped => W);
         WF.Set (F);
 
         Srch.Filters.Append (WF);
@@ -156,6 +156,8 @@ then
         end return;
     end Get_Filter_Names;
 
+    ----------------------------------------------------------------------------
+
     overriding function Image (F : Case_Sensitive_Match_Filter) return String is
         use Ada.Characters;
     begin
@@ -167,19 +169,27 @@ then
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
     end Matches;
 
-    function Image (F : Invert_Filter) return String is
+    ----------------------------------------------------------------------------
+
+    function Image (F : Exclude_Filter) return String is
     begin
         return "Invert " & Image (F.Wrapped.Get);
     end Image;
 
-    function Matches (F : Invert_Filter; Str : String) return Boolean is
+    function Matches (F : Exclude_Filter; Str : String) return Boolean is
     begin
-        return not Matches (F.Wrapped.Get, Str);
+        return Matches (F.Wrapped.Get, Str);
     end Matches;
 
+    ----------------------------------------------------------------------------
+
     function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
+        Match : constant Boolean := (for some Line of Lines => Matches (F, To_String (Line)));
     begin
-        return (for some Line of Lines => Matches (F, To_String (Line)));
+        case F.Action is
+            when Keep => return Match;
+            when Exclude => return not Match;
+        end case;
     end Matches;
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector is
