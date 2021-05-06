@@ -22,7 +22,7 @@ package body SP.Commands is
         use Ada.Strings.Unbounded.Text_IO;
     begin
         for Cursor in Command_Map.Iterate loop
-            Put_Line (Key(Cursor));
+            Put_Line (Key (Cursor));
         end loop;
     end Help_Help;
 
@@ -157,7 +157,7 @@ package body SP.Commands is
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
         end if;
-        SP.Contexts.Pop(Srch);
+        SP.Contexts.Pop (Srch);
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
@@ -172,10 +172,9 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
         for File of File_Names loop
-            Put_Line (To_String(File));
+            Put_Line (To_String (File));
         end loop;
     end Matching_Files_Exec;
-
 
 begin
     Command_Map.Insert (To_Unbounded_String ("help"), (Help_Help'Access, Help_Exec'Access));
@@ -187,7 +186,8 @@ begin
     Command_Map.Insert (To_Unbounded_String ("list-filters"), (List_Filters'Access, List_Filters_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("exclude-text"), (Exclude_Text_Help'Access, Exclude_Text_Exec'Access));
 
-    Command_Map.Insert (To_Unbounded_String("pop"), (Pop_Help'Access, Pop_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("pop"), (Pop_Help'Access, Pop_Exec'Access));
 
-    Command_Map.Insert (To_Unbounded_String ("matching-files"), (Matching_Files_Help'Access, Matching_Files_Exec'Access));
+    Command_Map.Insert
+        (To_Unbounded_String ("matching-files"), (Matching_Files_Help'Access, Matching_Files_Exec'Access));
 end SP.Commands;
