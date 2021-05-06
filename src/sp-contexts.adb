@@ -34,7 +34,6 @@ package body SP.Contexts is
             or else Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name (Name);
     end Is_Current_Or_Parent_Directory;
 
-
     procedure Add_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         use Ada.Directories;
     begin
@@ -123,6 +122,19 @@ then
         Srch.Filters.Append (F);
     end Find_Text;
 
+    procedure Exclude_Text (Srch : in out Search; Text : String) is
+        T  : constant Case_Sensitive_Match_Filter := (Text => To_Unbounded_String (Text));
+        W  : Filter_Ptr;
+        F  : Invert_Filter;
+        WF : Filter_Ptr;
+    begin
+        W.Set (T);
+        F := (Wrapped => W);
+        WF.Set (F);
+
+        Srch.Filters.Append (WF);
+    end Exclude_Text;
+
     procedure Pop (Srch : in out Search) is
         Filter_Being_Popped : constant Filter_Ptr :=
             (if Srch.Filters.Is_Empty then Pointers.Null_Ref else Srch.Filters.Last_Element);
@@ -155,9 +167,19 @@ then
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
     end Matches;
 
+    function Image (F : Invert_Filter) return String is
+    begin
+        return "Invert " & Image (F.Wrapped.Get);
+    end Image;
+
+    function Matches (F : Invert_Filter; Str : String) return Boolean is
+    begin
+        return not Matches (F.Wrapped.Get, Str);
+    end Matches;
+
     function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
     begin
-        return (for some Line of Lines => Matches (F, To_String(Line)));
+        return (for some Line of Lines => Matches (F, To_String (Line)));
     end Matches;
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector is

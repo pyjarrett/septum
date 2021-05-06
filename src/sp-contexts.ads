@@ -30,6 +30,8 @@ package SP.Contexts is
 
     procedure Find_Text (Srch : in out Search; Text : String);
 
+    procedure Exclude_Text (Srch : in out Search; Text : String);
+
     procedure Pop (Srch : in out Search);
     -- Undoes the last search operations.
 
@@ -51,13 +53,23 @@ private
         Text : Ada.Strings.Unbounded.Unbounded_String;
     end record;
 
-    overriding function Image (F : Case_Sensitive_Match_Filter) return String;
-
-    overriding function Matches (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
 
     package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
 
     subtype Filter_Ptr is Pointers.Ref;
+
+    type Invert_Filter is new Filter with record
+        Wrapped : Filter_Ptr;
+    end record;
+
+    overriding function Image (F : Case_Sensitive_Match_Filter) return String;
+
+    overriding function Matches (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
+
+    overriding function Image (F : Invert_Filter) return String;
+
+    overriding function Matches (F : Invert_Filter; Str : String) return Boolean;
+
 
     package Filter_List is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");

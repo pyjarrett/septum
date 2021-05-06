@@ -115,6 +115,20 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Exclude_Text_Help is
+    begin
+        Put_Line ("Provides text to search for.");
+    end Exclude_Text_Help;
+
+    procedure Exclude_Text_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        for Word of Command_Line loop
+            SP.Contexts.Exclude_Text (Srch, To_String (Word));
+        end loop;
+    end Exclude_Text_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure List_Text_Help is
     begin
         Put_Line ("List text to search for within the context size.");
@@ -171,6 +185,7 @@ begin
 
     Command_Map.Insert (To_Unbounded_String ("find-text"), (Find_Text_Help'Access, Find_Text_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("list-text"), (List_Text_Help'Access, List_Text_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("exclude-text"), (Exclude_Text_Help'Access, Exclude_Text_Exec'Access));
 
     Command_Map.Insert (To_Unbounded_String("pop"), (Pop_Help'Access, Pop_Exec'Access));
 
