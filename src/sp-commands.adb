@@ -109,7 +109,7 @@ package body SP.Commands is
     procedure Find_Text_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
     begin
         for Word of Command_Line loop
-            SP.Contexts.Push (Srch, To_String (Word));
+            SP.Contexts.Find_Text (Srch, To_String (Word));
         end loop;
     end Find_Text_Exec;
 
@@ -154,8 +154,9 @@ package body SP.Commands is
     end Matching_Files_Help;
 
     procedure Matching_Files_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        File_Names : String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
+        File_Names : constant String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
     begin
+        pragma Unreferenced (Command_Line);
         for File of File_Names loop
             Put_Line (To_String(File));
         end loop;
