@@ -157,14 +157,7 @@ then
 
     function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
     begin
-        --  for Line : Adada.Strings.Unbounded.Unbounded_String of Lines loop
-        --      if matches (F, To_String(Line)) then
-                --  Ada.Textxt_IO.Put_Line (To_String(Line));
-                --  return To_Stringrue;
-            --  end if;
-        --  end loop;
-        --  return Falselse;
-        return (For some Line of Lines => Matches (F, To_String(Line)));
+        return (for some Line of Lines => Matches (F, To_String(Line)));
     end Matches;
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector is
