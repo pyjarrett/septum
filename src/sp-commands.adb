@@ -15,6 +15,61 @@ package body SP.Commands is
 
     Command_Map : Command_Maps.Map;
 
+    function Common_Prefix_Length (A : Unbounded_String; B : Unbounded_String) return Natural is
+    begin
+        return Count : Natural := 0 do
+            while Count < Length (A) and then Count < Length (B)
+                and then Element (A, Count + 1) = Element (B, Count + 1) loop
+                Count := Count + 1;
+            end loop;
+        end return;
+    end Common_Prefix_Length;
+
+    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String is
+        Best_Match      : Unbounded_String := Null_Unbounded_String;
+        Best_Match_Size : Natural          := 0;
+        Next_Match      : Unbounded_String;
+        Next_Match_Size : Natural          := 0;
+    begin
+        if Command_Map.Contains (Command_Name) then
+            return Command_Name;
+        end if;
+
+        for Cursor in Command_Map.Iterate loop
+            Next_Match      := Command_Maps.Key (Cursor);
+            Next_Match_Size := Common_Prefix_Length (Next_Match, Command_Name);
+            if Next_Match_Size = Best_Match_Size then
+                -- Two things with the same prefix, the prefix is ambiguous.
+                Best_Match_Size := 0;
+                Best_Match      := Null_Unbounded_String;
+            elsif Next_Match_Size > Best_Match_Size then
+                Best_Match_Size := Next_Match_Size;
+                Best_Match      := Next_Match;
+            end if;
+        end loop;
+        return Best_Match;
+    end Target_Command;
+
+    function Execute
+        (Srch : in out SP.Contexts.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
+         return Boolean is
+        Best_Command : constant Unbounded_String := Target_Command (Command_Name);
+    begin
+        if Command_Map.Contains (Best_Command) then
+            declare
+                It      : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
+                Command : constant Executable_Command  := Command_Maps.Element (It);
+            begin
+                if Best_Command /= Command_Name then
+                    Put_Line ("Resolved to: " & To_String (Best_Command));
+                end if;
+                Command.Exec_Proc.all (Srch, Parameters);
+                return True;
+            end;
+        end if;
+        return False;
+    end Execute;
+
     ----------------------------------------------------------------------------
 
     procedure Help_Help is
@@ -82,22 +137,6 @@ package body SP.Commands is
             Put_Line (To_String (Directory));
         end loop;
     end List_Dirs_Exec;
-
-    function Execute
-        (Srch : in out SP.Contexts.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
-         return Boolean is
-    begin
-        if Command_Map.Contains (Command_Name) then
-            declare
-                It      : constant Command_Maps.Cursor := Command_Map.Find (Command_Name);
-                Command : constant Executable_Command  := Command_Maps.Element (It);
-            begin
-                Command.Exec_Proc.all (Srch, Parameters);
-                return True;
-            end;
-        end if;
-        return False;
-    end Execute;
 
     ----------------------------------------------------------------------------
 
@@ -190,4 +229,5 @@ begin
 
     Command_Map.Insert
         (To_Unbounded_String ("matching-files"), (Matching_Files_Help'Access, Matching_Files_Exec'Access));
+
 end SP.Commands;
