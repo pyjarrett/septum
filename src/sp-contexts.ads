@@ -1,8 +1,7 @@
 with Ada.Containers.Ordered_Maps;
-with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
-with GNATCOLL.Refcount;
 
+with SP.Filters;
 with SP.Strings;
 
 package SP.Contexts is
@@ -41,42 +40,7 @@ package SP.Contexts is
 
 private
 
-    type Filter_Action is (Keep, Exclude);
-    -- Filters need to do different things. Some filters match line contents, whereas others want to remove any match
-    -- which has a match anywhere in the content. When a filter matches, some action with regards to the search should
-    -- be done, whether to include or to exclude the match from the results.
-
-    type Filter (Action : Filter_Action) is abstract tagged null record;
-    -- Search filters define which lines match and what to do about a match.
-
-    function Image (F : Filter) return String is abstract;
-    -- Describes the filter in an end-user type of way. TODO: This should be localized.
-
-    function Matches (F : Filter; Str : String) return Boolean is abstract;
-    -- Determine if a filter matches a string.
-
-    type Case_Sensitive_Match_Filter is new Filter with record
-        Text : Ada.Strings.Unbounded.Unbounded_String;
-    end record;
-
-    package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
-
-    subtype Filter_Ptr is Pointers.Ref;
-
-    type Exclude_Filter is new Filter with record
-        Wrapped : Filter_Ptr;
-    end record;
-
-    overriding function Image (F : Case_Sensitive_Match_Filter) return String;
-    overriding function Matches (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
-
-    overriding function Image (F : Exclude_Filter) return String;
-    overriding function Matches (F : Exclude_Filter; Str : String) return Boolean;
-
-    package Filter_List is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
-
-    function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
+    use SP.Filters;
 
     -- The lines which match can determine the width of the context to be saved.
 
