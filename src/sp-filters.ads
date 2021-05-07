@@ -35,6 +35,7 @@ package SP.Filters is
     -- Matches lines which don't have this text.
 
     function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
+    -- Looks for a match in any of the given lines.
 
 private
 
@@ -52,6 +53,5 @@ private
 
     overriding function Image (F : Exclude_Filter) return String;
     overriding function Matches_Line (F : Exclude_Filter; Str : String) return Boolean;
-
 
 end SP.Filters;

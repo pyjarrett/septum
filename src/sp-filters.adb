@@ -6,17 +6,17 @@ package body SP.Filters is
 
     function Find_Text (Text : String) return Filter_Ptr is
         Base : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
-        Ptr : Filter_Ptr;
+        Ptr  : Filter_Ptr;
     begin
         Ptr.Set (Base);
         return Ptr;
     end Find_Text;
 
     function Exclude_Text (Text : String) return Filter_Ptr is
-        Base  : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
-        Wrapped  : Filter_Ptr;
-        Excluded_Filter  : Exclude_Filter(Exclude);
-        Final : Filter_Ptr;
+        Base            : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
+        Wrapped         : Filter_Ptr;
+        Excluded_Filter : Exclude_Filter (Exclude);
+        Final           : Filter_Ptr;
     begin
         Wrapped.Set (Base);
         Excluded_Filter := (Action => Exclude, Wrapped => Wrapped);

@@ -114,12 +114,12 @@ then
 
     procedure Find_Text (Srch : in out Search; Text : String) is
     begin
-        Srch.Filters.Append (Filters.Find_Text(Text));
+        Srch.Filters.Append (Filters.Find_Text (Text));
     end Find_Text;
 
     procedure Exclude_Text (Srch : in out Search; Text : String) is
     begin
-        Srch.Filters.Append (Filters.Find_Text(Text));
+        Srch.Filters.Append (Filters.Find_Text (Text));
     end Exclude_Text;
 
     procedure Pop (Srch : in out Search) is
