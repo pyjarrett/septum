@@ -25,6 +25,10 @@ package SP.Contexts is
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
     function Search_Directories (Srch : in Search) return String_Vectors.Vector;
 
+    procedure Add_Extension (Srch : in out Search; Extension : String);
+    procedure Remove_Extension (Srch : in out Search; Extension : String);
+    function List_Extensions (Srch : in out Search) return String_Vectors.Vector;
+
     function Contains (Result : Search_Result; Str : String) return Boolean;
 
     procedure Find_Text (Srch : in out Search; Text : String);
@@ -56,6 +60,8 @@ private
         -- Cached contents of files.
 
         Filters : Filter_List.Vector;
+
+        Extensions : String_Sets.Set;
     end record;
 
 end SP.Contexts;

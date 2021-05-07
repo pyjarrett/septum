@@ -102,6 +102,31 @@ then
         end return;
     end Search_Directories;
 
+    procedure Add_Extension (Srch : in out Search; Extension : String) is
+        Ext : constant Unbounded_String := To_Unbounded_String(Extension);
+    begin
+        if not Srch.Extensions.Contains (Ext) then
+            Srch.Extensions.Insert (Ext);
+        end if;
+    end Add_Extension;
+
+    procedure Remove_Extension (Srch : in out Search; Extension : String) is
+        Ext : constant Unbounded_String := To_Unbounded_String(Extension);
+    begin
+        if Srch.Extensions.Contains (Ext) then
+            Srch.Extensions.Delete (Ext);
+        end if;
+    end Remove_Extension;
+
+    function List_Extensions (Srch : in out Search) return String_Vectors.Vector is
+    begin
+        return Exts : String_Vectors.Vector do
+            for Ext of Srch.Extensions loop
+                Exts.Append (Ext);
+            end loop;
+        end return;
+    end List_Extensions;
+
     function Contains (Result : Search_Result; Str : String) return Boolean is
     begin
         for Line of Result loop
@@ -156,16 +181,15 @@ then
 
     function Num_Cached_Files (Srch : in Search) return Natural is
     begin
-        return Natural (Srch.File_Cache.Length);
+        return Natural (Matching_Files(Srch).Length);
     end Num_Cached_Files;
 
     function Num_Cached_Bytes (Srch : in Search) return Natural is
+        Matched_Files : constant String_Vectors.Vector := Matching_Files(Srch);
     begin
         return Count : Natural := 0 do
-            for Cursor in Srch.File_Cache.Iterate loop
-                for Line of File_Maps.Element (Cursor) loop
-                    Count := Count + Length (Line);
-                end loop;
+            for File_Name of Matched_Files loop
+                Count := Count + Natural(Srch.File_Cache.Element (File_Name).Length);
             end loop;
         end return;
     end Num_Cached_Bytes;

@@ -141,6 +141,60 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Add_Extensions_Help is
+    begin
+        Put_Line ("Adds extension to the search list.");
+    end Add_Extensions_Help;
+
+    procedure Add_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide extensions to filter.");
+            return;
+        end if;
+
+        for Extension of Command_Line loop
+            SP.Contexts.Add_Extension (Srch, To_String (Extension));
+        end loop;
+    end Add_Extensions_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Remove_Extensions_Help is
+    begin
+        Put_Line ("Removes extension to the search list.");
+    end Remove_Extensions_Help;
+
+    procedure Remove_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide extensions to filter.");
+            return;
+        end if;
+
+        for Extension of Command_Line loop
+            SP.Contexts.Remove_Extension (Srch, To_String (Extension));
+        end loop;
+    end Remove_Extensions_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure List_Extensions_Help is
+    begin
+        Put_Line ("Lists extensions to filter by.");
+    end List_Extensions_Help;
+
+    procedure List_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+        Extensions : constant String_Vectors.Vector := SP.Contexts.List_Extensions (Srch);
+    begin
+        pragma Unreferenced (Command_Line);
+        for Ext of Extensions loop
+            Put_Line (To_String(Ext));
+        end loop;
+    end List_Extensions_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Find_Text_Help is
     begin
         Put_Line ("Provides text to search for.");
@@ -221,6 +275,10 @@ begin
     Command_Map.Insert (To_Unbounded_String ("reload"), (Reload_Help'Access, Reload_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("add-dirs"), (Add_Dirs_Help'Access, Add_Dirs_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("list-dirs"), (List_Dirs_Help'Access, List_Dirs_Exec'Access));
+
+    Command_Map.Insert (To_Unbounded_String ("add-exts"), (Add_Extensions_Help'Access, Add_Extensions_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("remove-exts"), (Remove_Extensions_Help'Access, Remove_Extensions_Exec'Access));
+    Command_Map.Insert (To_Unbounded_String ("list-exts"), (List_Extensions_Help'Access, List_Extensions_Exec'Access));
 
     Command_Map.Insert (To_Unbounded_String ("find-text"), (Find_Text_Help'Access, Find_Text_Exec'Access));
     Command_Map.Insert (To_Unbounded_String ("list-filters"), (List_Filters'Access, List_Filters_Exec'Access));
