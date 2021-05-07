@@ -12,7 +12,6 @@ package body SP.Interactive is
     use Ada.Text_IO;
 
     Quit_Commands  : String_Sets.Set;
-    Default_Prompt : constant String := "> ";
 
     procedure Build_Command_Map is
     begin
@@ -20,16 +19,24 @@ package body SP.Interactive is
         Quit_Commands.Insert (To_Unbounded_String ("exit"));
     end Build_Command_Map;
 
-    function Read_Prompt (Prompt : String) return String_Vectors.Vector is
+    procedure Write_Prompt (Srch : in Search) is
+        -- Writes the prompt and get ready to read user input.
+        Default_Prompt : constant String := "> ";
     begin
-        Put (Prompt);
+        New_Line;
+        Put_Line ("Files: " & Integer'Image(SP.Contexts.Num_Cached_Files(Srch)));
+        Put (Default_Prompt);
+    end Write_Prompt;
+
+    function Read_Command return String_Vectors.Vector is
+    begin
         declare
             Input : constant Unbounded_String := Get_Line;
         begin
             -- This might want to be a more complicated algorithm for splitting, such as handling quotes
             return Split (Input);
         end;
-    end Read_Prompt;
+    end Read_Command;
 
     function Execute (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) return Boolean is
         use Ada.Containers;
@@ -61,9 +68,11 @@ package body SP.Interactive is
         Add_Directory (Srch, Ada.Directories.Current_Directory);
         Reload_Working_Set (Srch);
 
-        Command_Line := Read_Prompt (Default_Prompt);
+        Write_Prompt (Srch);
+        Command_Line := Read_Command;
         while Execute (Srch, Command_Line) loop
-            Command_Line := Read_Prompt (Default_Prompt);
+            Write_Prompt (Srch);
+            Command_Line := Read_Command;
         end loop;
     end Main;
 end SP.Interactive;

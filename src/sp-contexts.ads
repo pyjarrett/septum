@@ -38,6 +38,8 @@ package SP.Contexts is
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector;
 
+    function Num_Cached_Files (Srch : in Search) return Natural;
+
 private
 
     use SP.Filters;

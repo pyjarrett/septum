@@ -153,4 +153,9 @@ then
             end loop;
         end return;
     end Matching_Files;
+
+    function Num_Cached_Files (Srch : in Search) return Natural is
+    begin
+        return Natural(Srch.File_Cache.Length);
+    end Num_Cached_Files;
 end SP.Contexts;
