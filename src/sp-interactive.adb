@@ -21,10 +21,12 @@ package body SP.Interactive is
 
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
-        Default_Prompt : constant String := "> ";
+        Default_Prompt : constant String := " > ";
     begin
         New_Line;
-        Put_Line ("Files: " & Integer'Image(SP.Contexts.Num_Cached_Files(Srch)));
+        Put ("Files: " & Integer'Image(SP.Contexts.Num_Cached_Files(Srch)));
+        Set_Col(20);
+        Put_Line ("Bytes: " & Integer'Image(SP.Contexts.Num_Cached_Bytes(Srch)));
         Put (Default_Prompt);
     end Write_Prompt;
 

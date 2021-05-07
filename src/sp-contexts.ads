@@ -40,6 +40,8 @@ package SP.Contexts is
 
     function Num_Cached_Files (Srch : in Search) return Natural;
 
+    function Num_Cached_Bytes (Srch : in Search) return Natural;
+
 private
 
     use SP.Filters;

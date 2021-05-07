@@ -156,6 +156,17 @@ then
 
     function Num_Cached_Files (Srch : in Search) return Natural is
     begin
-        return Natural(Srch.File_Cache.Length);
+        return Natural (Srch.File_Cache.Length);
     end Num_Cached_Files;
+
+    function Num_Cached_Bytes (Srch : in Search) return Natural is
+    begin
+        return Count : Natural := 0 do
+            for Cursor in Srch.File_Cache.Iterate loop
+                for Line of File_Maps.Element (Cursor) loop
+                    Count := Count + Length (Line);
+                end loop;
+            end loop;
+        end return;
+    end Num_Cached_Bytes;
 end SP.Contexts;

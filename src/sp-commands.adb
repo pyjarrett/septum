@@ -63,6 +63,7 @@ package body SP.Commands is
                 if Best_Command /= Command_Name then
                     Put_Line ("Resolved to: " & To_String (Best_Command));
                 end if;
+                New_Line;
                 Command.Exec_Proc.all (Srch, Parameters);
                 return True;
             end;
