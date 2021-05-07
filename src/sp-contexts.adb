@@ -172,9 +172,16 @@ then
     begin
         return Result : String_Vectors.Vector do
             for Cursor in Srch.File_Cache.Iterate loop
-                if (for all F of Srch.Filters => Matches (F.Get, File_Maps.Element (Cursor))) then
-                    Result.Append (File_Maps.Key (Cursor));
-                end if;
+                declare
+                    File_Name : constant Unbounded_String := File_Maps.Key(Cursor);
+                    File_Ext : constant String := Ada.Directories.Extension(To_String(File_Name));
+                begin
+                    if Srch.Extensions.Is_Empty or else Srch.Extensions.Contains(To_Unbounded_String(File_Ext)) then
+                        if (for all F of Srch.Filters => Matches (F.Get, File_Maps.Element (Cursor))) then
+                            Result.Append (File_Name);
+                        end if;
+                    end if;
+                end;
             end loop;
         end return;
     end Matching_Files;
