@@ -2,8 +2,10 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
-with SP.Strings;  use SP.Strings;
-with SP.Contexts; use SP.Contexts;
+with SP.Strings;
+use SP.Strings;
+with SP.Contexts;
+use SP.Contexts;
 with SP.Commands;
 
 package body SP.Interactive is
@@ -11,7 +13,7 @@ package body SP.Interactive is
     use Ada.Strings.Unbounded.Text_IO;
     use Ada.Text_IO;
 
-    Quit_Commands  : String_Sets.Set;
+    Quit_Commands : String_Sets.Set;
 
     procedure Build_Command_Map is
     begin
@@ -24,9 +26,16 @@ package body SP.Interactive is
         Default_Prompt : constant String := " > ";
     begin
         New_Line;
-        Put ("Files: " & Integer'Image(SP.Contexts.Num_Cached_Files(Srch)));
-        Set_Col(20);
-        Put_Line ("Bytes: " & Integer'Image(SP.Contexts.Num_Cached_Bytes(Srch)));
+        Put ("Files: " & Integer'Image (SP.Contexts.Num_Cached_Files (Srch)));
+        Set_Col (20);
+        Put_Line ("Bytes: " & Integer'Image (SP.Contexts.Num_Cached_Bytes (Srch)));
+        if not SP.Contexts.List_Extensions (Srch).Is_Empty then
+            Put ("Exts:  ");
+            for Ext of SP.Contexts.List_Extensions (Srch) loop
+                Put (Ext & " ");
+            end loop;
+        end if;
+        New_Line;
         Put (Default_Prompt);
     end Write_Prompt;
 

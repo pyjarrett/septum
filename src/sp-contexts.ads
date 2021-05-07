@@ -27,7 +27,7 @@ package SP.Contexts is
 
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);
-    function List_Extensions (Srch : in out Search) return String_Vectors.Vector;
+    function List_Extensions (Srch : in Search) return String_Vectors.Vector;
 
     function Contains (Result : Search_Result; Str : String) return Boolean;
 

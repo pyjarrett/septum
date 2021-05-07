@@ -118,7 +118,7 @@ then
         end if;
     end Remove_Extension;
 
-    function List_Extensions (Srch : in out Search) return String_Vectors.Vector is
+    function List_Extensions (Srch : in Search) return String_Vectors.Vector is
     begin
         return Exts : String_Vectors.Vector do
             for Ext of Srch.Extensions loop
