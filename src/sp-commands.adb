@@ -85,14 +85,33 @@ package body SP.Commands is
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
             Set_Col (25);
-            Put_Line (Element(Cursor).Simple_help);
+            Put_Line (Element (Cursor).Simple_Help);
         end loop;
     end Help_Help;
 
     procedure Help_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+        Command : constant Unbounded_String :=
+            (if Command_Line.Is_Empty then Null_Unbounded_String else Command_Line.First_Element);
+        Target : constant Unbounded_String := Target_Command (Command);
+        use Command_Maps;
     begin
-        pragma Unreferenced (Srch, Command_Line);
-        Help_Help;
+        pragma Unreferenced (Srch);
+
+        case Command_Line.Length is
+            when 0 =>
+                Help_Help;
+            when 1 =>
+                if Command_Map.Contains (Target) then
+                    declare
+                        Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
+                        Command : constant Executable_Command  := Command_Maps.Element (Cursor);
+                    begin
+                        Command.Help.all;
+                    end;
+                end if;
+            when others =>
+                Put_Line ("Unknown command");
+        end case;
     end Help_Exec;
 
     ----------------------------------------------------------------------------
@@ -289,17 +308,23 @@ begin
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
 
     Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
-    Make_Command ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
+    Make_Command
+        ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
 
     Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
-    Make_Command ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access, Remove_Extensions_Exec'Access);
+    Make_Command
+        ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access,
+         Remove_Extensions_Exec'Access);
     Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
 
     Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
-    Make_Command ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
+    Make_Command
+        ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
 
-    Make_Command ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access, Matching_Files_Exec'Access);
+    Make_Command
+        ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
+         Matching_Files_Exec'Access);
 end SP.Commands;
