@@ -4,7 +4,7 @@ with Ada.Text_IO;
 package body SP.Contexts is
     use Ada.Strings.Unbounded;
 
-    procedure Add_File (File_Cache : in out File_Maps.Map; Next_Entry : Ada.Directories.Directory_Entry_Type) is
+    procedure Cache_File (File_Cache : in out File_Maps.Map; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         -- Adds the contents of a file to the file cache.
         use Ada.Directories;
         Lines        : String_Vectors.Vector     := String_Vectors.Empty_Vector;
@@ -21,7 +21,7 @@ package body SP.Contexts is
                 end if;
             end if;
         end if;
-    end Add_File;
+    end Cache_File;
 
     function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
         --  Return true if the entry is "." or "..".
@@ -32,24 +32,20 @@ package body SP.Contexts is
             or else Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name (Name);
     end Is_Current_Or_Parent_Directory;
 
-    procedure Add_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
+    procedure Cache_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         use Ada.Directories;
     begin
-        if Kind (Next_Entry) =
-            Ordinary_File --and
-        --Uses_Extension (Srch, Extension (Simple_Name (Next_Entry)))
-
-then
-            Add_File (Srch.File_Cache, Next_Entry);
+        if Kind (Next_Entry) = Ordinary_File then
+            Cache_File (Srch.File_Cache, Next_Entry);
         end if;
 
         if Kind (Next_Entry) = Directory then
             -- Recursively add to the search path.
-            Refresh_Directory (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
+            Cache_Directory (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
         end if;
-    end Add_File;
+    end Cache_File;
 
-    procedure Refresh_Directory (Srch : in out Search; Dir_Name : Unbounded_String) is
+    procedure Cache_Directory (Srch : in out Search; Dir_Name : Unbounded_String) is
         use Ada.Directories;
         Dir_Search : Search_Type;
         Next_Entry : Directory_Entry_Type;
@@ -60,12 +56,12 @@ then
         while More_Entries (Dir_Search) loop
             Get_Next_Entry (Dir_Search, Next_Entry);
             if not Is_Current_Or_Parent_Directory (Next_Entry) then
-                Add_File (Srch, Next_Entry);
+                Cache_File (Srch, Next_Entry);
             end if;
         end loop;
         End_Search (Dir_Search);
         pragma Unreferenced (Dir_Search);
-    end Refresh_Directory;
+    end Cache_Directory;
 
     procedure Reload_Working_Set (Srch : in out Search) is
     begin
@@ -73,7 +69,7 @@ then
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Refresh_Directory (Srch, Dir_Name);
+            Cache_Directory (Srch, Dir_Name);
         end loop;
     end Reload_Working_Set;
 
@@ -86,24 +82,24 @@ then
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
-            Refresh_Directory (Srch, Unbounded_Name);
+            Cache_Directory (Srch, Unbounded_Name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
         end if;
     end Add_Directory;
 
-    function Search_Directories (Srch : in Search) return String_Vectors.Vector is
+    function List_Directories (Srch : in Search) return String_Vectors.Vector is
     begin
         return Result : String_Vectors.Vector do
             for Directory of Srch.Directories loop
                 Result.Append (Directory);
             end loop;
         end return;
-    end Search_Directories;
+    end List_Directories;
 
     procedure Add_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String(Extension);
+        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
         if not Srch.Extensions.Contains (Ext) then
             Srch.Extensions.Insert (Ext);
@@ -111,7 +107,7 @@ then
     end Add_Extension;
 
     procedure Remove_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String(Extension);
+        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
         if Srch.Extensions.Contains (Ext) then
             Srch.Extensions.Delete (Ext);
@@ -147,7 +143,7 @@ then
         Srch.Filters.Append (Filters.Find_Text (Text));
     end Exclude_Text;
 
-    procedure Pop (Srch : in out Search) is
+    procedure Pop_Filter (Srch : in out Search) is
         Filter_Being_Popped : constant Filter_Ptr :=
             (if Srch.Filters.Is_Empty then Pointers.Null_Ref else Srch.Filters.Last_Element);
     begin
@@ -157,26 +153,26 @@ then
             Ada.Text_IO.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
             Srch.Filters.Delete_Last;
         end if;
-    end Pop;
+    end Pop_Filter;
 
-    function Get_Filter_Names (Srch : Search) return String_Vectors.Vector is
+    function List_Filter_Names (Srch : Search) return String_Vectors.Vector is
     begin
         return V : String_Vectors.Vector do
             for F of Srch.Filters loop
                 V.Append (To_Unbounded_String (Image (F.Get)));
             end loop;
         end return;
-    end Get_Filter_Names;
+    end List_Filter_Names;
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector is
     begin
         return Result : String_Vectors.Vector do
             for Cursor in Srch.File_Cache.Iterate loop
                 declare
-                    File_Name : constant Unbounded_String := File_Maps.Key(Cursor);
-                    File_Ext : constant String := Ada.Directories.Extension(To_String(File_Name));
+                    File_Name : constant Unbounded_String := File_Maps.Key (Cursor);
+                    File_Ext  : constant String           := Ada.Directories.Extension (To_String (File_Name));
                 begin
-                    if Srch.Extensions.Is_Empty or else Srch.Extensions.Contains(To_Unbounded_String(File_Ext)) then
+                    if Srch.Extensions.Is_Empty or else Srch.Extensions.Contains (To_Unbounded_String (File_Ext)) then
                         if (for all F of Srch.Filters => Matches (F.Get, File_Maps.Element (Cursor))) then
                             Result.Append (File_Name);
                         end if;
@@ -188,15 +184,15 @@ then
 
     function Num_Cached_Files (Srch : in Search) return Natural is
     begin
-        return Natural (Matching_Files(Srch).Length);
+        return Natural (Matching_Files (Srch).Length);
     end Num_Cached_Files;
 
     function Num_Cached_Bytes (Srch : in Search) return Natural is
-        Matched_Files : constant String_Vectors.Vector := Matching_Files(Srch);
+        Matched_Files : constant String_Vectors.Vector := Matching_Files (Srch);
     begin
         return Count : Natural := 0 do
             for File_Name of Matched_Files loop
-                Count := Count + Natural(Srch.File_Cache.Element (File_Name).Length);
+                Count := Count + Natural (Srch.File_Cache.Element (File_Name).Length);
             end loop;
         end return;
     end Num_Cached_Bytes;

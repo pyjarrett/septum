@@ -175,7 +175,7 @@ package body SP.Commands is
         if not Command_Line.Is_Empty then
             Put_Line ("No arguments are allowed for directory listing.");
         end if;
-        for Directory of SP.Contexts.Search_Directories (Srch) loop
+        for Directory of SP.Contexts.List_Directories (Srch) loop
             Put_Line (To_String (Directory));
         end loop;
     end List_Dirs_Exec;
@@ -270,7 +270,7 @@ package body SP.Commands is
     end List_Filters;
 
     procedure List_Filters_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        Filter_Names : constant String_Vectors.Vector := SP.Contexts.Get_Filter_Names (Srch);
+        Filter_Names : constant String_Vectors.Vector := SP.Contexts.List_Filter_Names (Srch);
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
@@ -292,7 +292,7 @@ package body SP.Commands is
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
         end if;
-        SP.Contexts.Pop (Srch);
+        SP.Contexts.Pop_Filter (Srch);
     end Pop_Exec;
 
     ----------------------------------------------------------------------------

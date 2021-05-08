@@ -20,10 +20,11 @@ package SP.Contexts is
     subtype Search_Result is String_Vectors.Vector;
 
     procedure Reload_Working_Set (Srch : in out Search);
-    procedure Refresh_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
+    procedure Cache_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
-    function Search_Directories (Srch : in Search) return String_Vectors.Vector;
+    function List_Directories (Srch : in Search) return String_Vectors.Vector;
+    -- Lists top level search directories.
 
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);
@@ -35,10 +36,10 @@ package SP.Contexts is
 
     procedure Exclude_Text (Srch : in out Search; Text : String);
 
-    procedure Pop (Srch : in out Search);
+    procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 
-    function Get_Filter_Names (Srch : in Search) return String_Vectors.Vector;
+    function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector;
 
