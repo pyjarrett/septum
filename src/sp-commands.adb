@@ -5,9 +5,14 @@ with Ada.Strings.Unbounded.Text_IO;
 package body SP.Commands is
     use Ada.Text_IO;
 
+    type Help_Proc is not null access procedure;
+    type Exec_Proc is not null access procedure
+        (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector);
+
     type Executable_Command is record
-        Help_Proc : not null access procedure;
-        Exec_Proc : not null access procedure (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector);
+        Simple_Help : Unbounded_String;
+        Help        : Help_Proc;
+        Exec        : Exec_Proc;
     end record;
 
     package Command_Maps is new Ada.Containers.Ordered_Maps
@@ -64,7 +69,7 @@ package body SP.Commands is
                     Put_Line ("Resolved to: " & To_String (Best_Command));
                 end if;
                 New_Line;
-                Command.Exec_Proc.all (Srch, Parameters);
+                Command.Exec.all (Srch, Parameters);
                 return True;
             end;
         end if;
@@ -78,7 +83,9 @@ package body SP.Commands is
         use Ada.Strings.Unbounded.Text_IO;
     begin
         for Cursor in Command_Map.Iterate loop
-            Put_Line (Key (Cursor));
+            Put ("    " & Key (Cursor));
+            Set_Col (25);
+            Put_Line (Element(Cursor).Simple_help);
         end loop;
     end Help_Help;
 
@@ -189,7 +196,7 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
         for Ext of Extensions loop
-            Put_Line (To_String(Ext));
+            Put_Line (To_String (Ext));
         end loop;
     end List_Extensions_Exec;
 
@@ -270,23 +277,29 @@ package body SP.Commands is
         end loop;
     end Matching_Files_Exec;
 
+    ----------------------------------------------------------------------------
+
+    procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) is
+    begin
+        Command_Map.Insert (To_Unbounded_String (Command), (To_Unbounded_String (Simple_Help), Help, Exec));
+    end Make_Command;
+
 begin
-    Command_Map.Insert (To_Unbounded_String ("help"), (Help_Help'Access, Help_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("reload"), (Reload_Help'Access, Reload_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("add-dirs"), (Add_Dirs_Help'Access, Add_Dirs_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("list-dirs"), (List_Dirs_Help'Access, List_Dirs_Exec'Access));
+    Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
+    Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
 
-    Command_Map.Insert (To_Unbounded_String ("add-exts"), (Add_Extensions_Help'Access, Add_Extensions_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("remove-exts"), (Remove_Extensions_Help'Access, Remove_Extensions_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("list-exts"), (List_Extensions_Help'Access, List_Extensions_Exec'Access));
+    Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
+    Make_Command ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
 
-    Command_Map.Insert (To_Unbounded_String ("find-text"), (Find_Text_Help'Access, Find_Text_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("list-filters"), (List_Filters'Access, List_Filters_Exec'Access));
-    Command_Map.Insert (To_Unbounded_String ("exclude-text"), (Exclude_Text_Help'Access, Exclude_Text_Exec'Access));
+    Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
+    Make_Command ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access, Remove_Extensions_Exec'Access);
+    Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
 
-    Command_Map.Insert (To_Unbounded_String ("pop"), (Pop_Help'Access, Pop_Exec'Access));
+    Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
+    Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
 
-    Command_Map.Insert
-        (To_Unbounded_String ("matching-files"), (Matching_Files_Help'Access, Matching_Files_Exec'Access));
+    Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
 
+    Make_Command ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access, Matching_Files_Exec'Access);
 end SP.Commands;
