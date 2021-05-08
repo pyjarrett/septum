@@ -3,16 +3,26 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded.Text_IO;
 
 package body SP.Commands is
+    pragma Assertion_Policy (Pre => Check, Post => Check);
+
     use Ada.Text_IO;
 
     type Help_Proc is not null access procedure;
+    -- Prints a detailed help description for a command.
+
     type Exec_Proc is not null access procedure
         (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector);
+    -- Executes a command.
 
     type Executable_Command is record
         Simple_Help : Unbounded_String;
-        Help        : Help_Proc;
-        Exec        : Exec_Proc;
+        -- A brief help description.
+
+        Help : Help_Proc;
+        -- Prints a much longer help description.
+
+        Exec : Exec_Proc;
+        -- Executes the command.
     end record;
 
     package Command_Maps is new Ada.Containers.Ordered_Maps
@@ -20,7 +30,10 @@ package body SP.Commands is
 
     Command_Map : Command_Maps.Map;
 
-    function Common_Prefix_Length (A : Unbounded_String; B : Unbounded_String) return Natural is
+    function Common_Prefix_Length (A : Unbounded_String; B : Unbounded_String) return Natural with
+        Post => Common_Prefix_Length'Result < Natural'Max (Length (A), Length (B))
+    is
+    -- Finds the number of common starting characters between two strings.
     begin
         return Count : Natural := 0 do
             while Count < Length (A) and then Count < Length (B)
@@ -30,7 +43,9 @@ package body SP.Commands is
         end return;
     end Common_Prefix_Length;
 
-    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String is
+    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String with
+        Post => Target_Command'Result = Null_Unbounded_String or else Command_Map.Contains (Target_Command'Result)
+    is
         Best_Match      : Unbounded_String := Null_Unbounded_String;
         Best_Match_Size : Natural          := 0;
         Next_Match      : Unbounded_String;
@@ -298,7 +313,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) is
+    procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
+        Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
+    is
     begin
         Command_Map.Insert (To_Unbounded_String (Command), (To_Unbounded_String (Simple_Help), Help, Exec));
     end Make_Command;
