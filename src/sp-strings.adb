@@ -5,17 +5,17 @@ with Ada.Text_IO;
 package body SP.Strings is
     function Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector is
         --  Splits an unbounded string on spaces.
-        Start : Positive := 1;
-        Finish : Natural := 0;
+        Start  : Positive := 1;
+        Finish : Natural  := 0;
     begin
         return Result : String_Vectors.Vector do
             while Start <= Ada.Strings.Unbounded.Length (S) loop
                 Ada.Strings.Unbounded.Find_Token
                     (Source => S, Set => Ada.Strings.Maps.To_Set (" "), From => Start, Test => Ada.Strings.Outside,
-                     First => Start, Last => Finish);
+                     First  => Start, Last => Finish);
                 String_Vectors.Append
                     (Container => Result,
-                     New_Item =>
+                     New_Item  =>
                          Ada.Strings.Unbounded.To_Unbounded_String (Ada.Strings.Unbounded.Slice (S, Start, Finish)));
                 Start := Finish + 1;
             end loop;
@@ -46,5 +46,18 @@ package body SP.Strings is
             Ada.Text_IO.Put_Line ("Unable to read contents of: " & File_Name);
             return False;
     end Read_Lines;
+
+    function Common_Prefix_Length
+        (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
+        use Ada.Strings.Unbounded;
+        -- Finds the number of common starting characters between two strings.
+    begin
+        return Count : Natural := 0 do
+            while Count < Length (A) and then Count < Length (B)
+                and then Element (A, Count + 1) = Element (B, Count + 1) loop
+                Count := Count + 1;
+            end loop;
+        end return;
+    end Common_Prefix_Length;
 
 end SP.Strings;

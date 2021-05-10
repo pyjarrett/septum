@@ -31,19 +31,6 @@ package body SP.Commands is
 
     Command_Map : Command_Maps.Map;
 
-    function Common_Prefix_Length (A : Unbounded_String; B : Unbounded_String) return Natural with
-        Post => Common_Prefix_Length'Result < Natural'Max (Length (A), Length (B))
-    is
-    -- Finds the number of common starting characters between two strings.
-    begin
-        return Count : Natural := 0 do
-            while Count < Length (A) and then Count < Length (B)
-                and then Element (A, Count + 1) = Element (B, Count + 1) loop
-                Count := Count + 1;
-            end loop;
-        end return;
-    end Common_Prefix_Length;
-
     function Target_Command (Command_Name : Unbounded_String) return Unbounded_String with
         Post => Target_Command'Result = Null_Unbounded_String or else Command_Map.Contains (Target_Command'Result)
     is
