@@ -124,16 +124,6 @@ package body SP.Contexts is
         end return;
     end List_Extensions;
 
-    function Contains (Result : Search_Result; Str : String) return Boolean is
-    begin
-        for Line of Result loop
-            if Result.Contains (To_Unbounded_String (Str)) then
-                return True;
-            end if;
-        end loop;
-        return False;
-    end Contains;
-
     procedure Find_Text (Srch : in out Search; Text : String) is
     begin
         Srch.Filters.Append (Filters.Find_Text (Text));

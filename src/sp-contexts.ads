@@ -7,17 +7,11 @@ with SP.Strings;
 package SP.Contexts is
     use SP.Strings;
 
-    type Context_Width is new Natural;
-    Full_File_Width : constant := 0;
-
     package File_Maps is new Ada.Containers.Ordered_Maps
         (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
          "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
-    --  Gets the current set of matching files. Gets the current set of matching lines.
-
     type Search is private;
-    subtype Search_Result is String_Vectors.Vector;
 
     procedure Reload_Working_Set (Srch : in out Search);
     procedure Cache_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
@@ -29,8 +23,6 @@ package SP.Contexts is
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);
     function List_Extensions (Srch : in Search) return String_Vectors.Vector;
-
-    function Contains (Result : Search_Result; Str : String) return Boolean;
 
     procedure Find_Text (Srch : in out Search; Text : String);
 
