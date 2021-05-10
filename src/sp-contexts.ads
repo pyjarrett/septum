@@ -41,6 +41,8 @@ package SP.Contexts is
 
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
+    function Matching_Lines (Srch : in Search; File_Name : in Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector;
+
     function Matching_Files (Srch : in Search) return String_Vectors.Vector;
 
     function Num_Cached_Files (Srch : in Search) return Natural;

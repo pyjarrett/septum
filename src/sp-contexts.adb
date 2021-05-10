@@ -165,6 +165,18 @@ package body SP.Contexts is
         end return;
     end List_Filter_Names;
 
+    function Matching_Lines (Srch : in Search; File_Name : in Unbounded_String) return String_Vectors.Vector is
+        Lines : constant String_Vectors.Vector := Srch.File_Cache (File_Name);
+    begin
+        return Result : String_Vectors.Vector do
+            for Line of Lines loop
+                if (for all F of Srch.Filters => Matches_Line (F.Get, To_String(Line))) then
+                    Result.Append (Line);
+                end if;
+            end loop;
+        end return;
+    end Matching_Lines;
+
     function Matching_Files (Srch : in Search) return String_Vectors.Vector is
     begin
         return Result : String_Vectors.Vector do

@@ -301,6 +301,27 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Matching_Lines_Help is
+    begin
+        Put_Line ("Lists the lines currently matching all filters.");
+    end Matching_Lines_Help;
+
+    procedure Matching_Lines_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+        File_Names : constant String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
+    begin
+        pragma Unreferenced (Command_Line);
+        for File of File_Names loop
+            Put_Line (To_String(File));
+            for Line of SP.Contexts.Matching_Lines (Srch, File) loop
+                Set_Col (4);
+                Put_Line (To_String (Line));
+            end loop;
+            New_Line;
+        end loop;
+    end Matching_Lines_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Quit_Help is
     begin
         Put_Line ("Quits this program.");
@@ -341,6 +362,9 @@ begin
         ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
+
+    Make_Command ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
+Matching_Lines_Exec'Access);
 
     Make_Command
         ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
