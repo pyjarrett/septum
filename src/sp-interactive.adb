@@ -1,25 +1,14 @@
-with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
-with SP.Strings;
-use SP.Strings;
-with SP.Contexts;
-use SP.Contexts;
+with SP.Strings;  use SP.Strings;
+with SP.Contexts; use SP.Contexts;
 with SP.Commands;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
     use Ada.Strings.Unbounded.Text_IO;
     use Ada.Text_IO;
-
-    Quit_Commands : String_Sets.Set;
-
-    procedure Build_Command_Map is
-    begin
-        Quit_Commands.Insert (To_Unbounded_String ("quit"));
-        Quit_Commands.Insert (To_Unbounded_String ("exit"));
-    end Build_Command_Map;
 
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
@@ -49,24 +38,20 @@ package body SP.Interactive is
         end;
     end Read_Command;
 
-    function Execute (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) return Boolean is
-        use Ada.Containers;
+    procedure Execute (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
         Parameters   : String_Vectors.Vector     := Command_Line;
         Command_Name : constant Unbounded_String :=
             (if Parameters.Is_Empty then Null_Unbounded_String else Parameters.First_Element);
     begin
         if Command_Line.Is_Empty then
-            return True;
-        else
-            Parameters.Delete_First;
+            -- An empty command is always successfully executed.
+            return;
         end if;
 
-        if Command_Line.Length = 1 and then Quit_Commands.Contains (Command_Name) then
-            return False;
-        elsif not SP.Commands.Execute (Srch, Command_Name, Parameters) then
+        Parameters.Delete_First;
+        if not SP.Commands.Execute (Srch, Command_Name, Parameters) then
             Put_Line ("Unknown command: " & To_String (Command_Name));
         end if;
-        return True;
     end Execute;
 
     procedure Main is
@@ -75,15 +60,13 @@ package body SP.Interactive is
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Contexts.Search;
     begin
-        Build_Command_Map;
         Add_Directory (Srch, Ada.Directories.Current_Directory);
         Reload_Working_Set (Srch);
 
-        Write_Prompt (Srch);
-        Command_Line := Read_Command;
-        while Execute (Srch, Command_Line) loop
+        loop
             Write_Prompt (Srch);
             Command_Line := Read_Command;
+            Execute (Srch, Command_Line);
         end loop;
     end Main;
 end SP.Interactive;

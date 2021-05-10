@@ -1,6 +1,7 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded.Text_IO;
+with GNAT.OS_Lib;
 
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
@@ -313,6 +314,19 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Quit_Help is
+    begin
+        Put_Line ("Quits this program.");
+    end Quit_Help;
+
+    procedure Quit_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        pragma Unreferenced (Srch, Command_Line);
+        GNAT.OS_Lib.OS_Exit(Status => 0);
+    end Quit_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -344,4 +358,7 @@ begin
     Make_Command
         ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
          Matching_Files_Exec'Access);
+
+    Make_Command ("quit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
+    Make_Command ("exit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
 end SP.Commands;
