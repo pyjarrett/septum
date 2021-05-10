@@ -205,8 +205,20 @@ package body SP.Contexts is
     begin
         return Count : Natural := 0 do
             for File_Name of Matched_Files loop
-                Count := Count + Natural (Srch.File_Cache.Element (File_Name).Length);
+                for Line of Srch.File_Cache.Element (File_Name) loop
+                    Count := Count + Length(Line);
+                end loop;
             end loop;
         end return;
     end Num_Cached_Bytes;
+
+    function Num_Cached_Lines (Srch : in Search) return Natural is
+        Matched_Files : constant String_Vectors.Vector := Matching_Files (Srch);
+    begin
+        return Count : Natural := 0 do
+            for File_Name of Matched_Files loop
+                Count := Count + Natural (Srch.File_Cache.Element (File_Name).Length);
+            end loop;
+        end return;
+    end Num_Cached_Lines;
 end SP.Contexts;

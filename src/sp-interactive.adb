@@ -17,6 +17,8 @@ package body SP.Interactive is
         New_Line;
         Put ("Files: " & Integer'Image (SP.Contexts.Num_Cached_Files (Srch)));
         Set_Col (20);
+        Put ("Lines: " & Integer'Image (SP.Contexts.Num_Cached_Lines (Srch)));
+        Set_Col (40);
         Put_Line ("Bytes: " & Integer'Image (SP.Contexts.Num_Cached_Bytes (Srch)));
         if not SP.Contexts.List_Extensions (Srch).Is_Empty then
             Put ("Exts:  ");
