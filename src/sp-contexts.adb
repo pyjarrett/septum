@@ -51,7 +51,7 @@ package body SP.Contexts is
         Next_Entry : Directory_Entry_Type;
         Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
     begin
-        Ada.Text_IO.Put_Line ("Adding: " & To_String(Dir_Name));
+        Ada.Text_IO.Put_Line ("Adding: " & To_String (Dir_Name));
         Ada.Directories.Start_Search
             (Search => Dir_Search, Directory => To_String (Dir_Name), Pattern => "*", Filter => Filter);
         while More_Entries (Dir_Search) loop
@@ -165,19 +165,7 @@ package body SP.Contexts is
         end return;
     end List_Filter_Names;
 
-    function Matching_Lines (Srch : in Search; File_Name : in Unbounded_String) return String_Vectors.Vector is
-        Lines : constant String_Vectors.Vector := Srch.File_Cache (File_Name);
-    begin
-        return Result : String_Vectors.Vector do
-            for Line of Lines loop
-                if (for all F of Srch.Filters => Matches_Line (F.Get, To_String(Line))) then
-                    Result.Append (Line);
-                end if;
-            end loop;
-        end return;
-    end Matching_Lines;
-
-    function Matching_Files (Srch : in Search) return String_Vectors.Vector is
+    function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector is
     begin
         return Result : String_Vectors.Vector do
             for Cursor in Srch.File_Cache.Iterate loop
@@ -186,11 +174,33 @@ package body SP.Contexts is
                     File_Ext  : constant String           := Ada.Directories.Extension (To_String (File_Name));
                 begin
                     if Srch.Extensions.Is_Empty or else Srch.Extensions.Contains (To_Unbounded_String (File_Ext)) then
-                        if (for all F of Srch.Filters => Matches (F.Get, File_Maps.Element (Cursor))) then
-                            Result.Append (File_Name);
-                        end if;
+                        Result.Append (File_Name);
                     end if;
                 end;
+            end loop;
+        end return;
+    end Files_Matching_Extensions;
+
+    function Matching_Lines (Srch : in Search; File_Name : in Unbounded_String) return String_Vectors.Vector is
+        Lines : constant String_Vectors.Vector := Srch.File_Cache (File_Name);
+    begin
+        return Result : String_Vectors.Vector do
+            for Line of Lines loop
+                if (for all F of Srch.Filters => Matches_Line (F.Get, To_String (Line))) then
+                    Result.Append (Line);
+                end if;
+            end loop;
+        end return;
+    end Matching_Lines;
+
+    function Matching_Files (Srch : in Search) return String_Vectors.Vector is
+        Files : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
+    begin
+        return Result : String_Vectors.Vector do
+            for File of Files loop
+                if (for all F of Srch.Filters => Matches (F.Get, Srch.File_Cache(File))) then
+                    Result.Append (File);
+                end if;
             end loop;
         end return;
     end Matching_Files;
