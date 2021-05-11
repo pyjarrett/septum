@@ -12,7 +12,7 @@ package body SP.Commands is
     -- Prints a detailed help description for a command.
 
     type Exec_Proc is not null access procedure
-        (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector);
+        (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector);
     -- Executes a command.
 
     type Executable_Command is record
@@ -59,7 +59,7 @@ package body SP.Commands is
     end Target_Command;
 
     function Execute
-        (Srch : in out SP.Contexts.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
+        (Srch : in out SP.Searches.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
          return Boolean is
         Best_Command : constant Unbounded_String := Target_Command (Command_Name);
     begin
@@ -92,7 +92,7 @@ package body SP.Commands is
         end loop;
     end Help_Help;
 
-    procedure Help_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
         Command : constant Unbounded_String :=
             (if Command_Line.Is_Empty then Null_Unbounded_String else Command_Line.First_Element);
         Target : constant Unbounded_String := Target_Command (Command);
@@ -124,12 +124,12 @@ package body SP.Commands is
         Put_Line ("Reload help");
     end Reload_Help;
 
-    procedure Reload_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Refresh should have an empty command line.");
         end if;
-        SP.Contexts.Reload_Working_Set (Srch);
+        SP.Searches.Reload_Working_Set (Srch);
     end Reload_Exec;
 
     ----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ package body SP.Commands is
         Put_Line ("Adds a directory to the search list.");
     end Add_Dirs_Help;
 
-    procedure Add_Dirs_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide directories to add to the search path.");
@@ -147,7 +147,7 @@ package body SP.Commands is
         end if;
 
         for Directory of Command_Line loop
-            SP.Contexts.Add_Directory (Srch, To_String (Directory));
+            SP.Searches.Add_Directory (Srch, To_String (Directory));
         end loop;
     end Add_Dirs_Exec;
 
@@ -158,12 +158,12 @@ package body SP.Commands is
         Put_Line ("List the directories of the search list.");
     end List_Dirs_Help;
 
-    procedure List_Dirs_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure List_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("No arguments are allowed for directory listing.");
         end if;
-        for Directory of SP.Contexts.List_Directories (Srch) loop
+        for Directory of SP.Searches.List_Directories (Srch) loop
             Put_Line (To_String (Directory));
         end loop;
     end List_Dirs_Exec;
@@ -175,7 +175,7 @@ package body SP.Commands is
         Put_Line ("Adds extension to the search list.");
     end Add_Extensions_Help;
 
-    procedure Add_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Add_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide extensions to filter.");
@@ -183,7 +183,7 @@ package body SP.Commands is
         end if;
 
         for Extension of Command_Line loop
-            SP.Contexts.Add_Extension (Srch, To_String (Extension));
+            SP.Searches.Add_Extension (Srch, To_String (Extension));
         end loop;
     end Add_Extensions_Exec;
 
@@ -194,7 +194,7 @@ package body SP.Commands is
         Put_Line ("Removes extension to the search list.");
     end Remove_Extensions_Help;
 
-    procedure Remove_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide extensions to filter.");
@@ -202,7 +202,7 @@ package body SP.Commands is
         end if;
 
         for Extension of Command_Line loop
-            SP.Contexts.Remove_Extension (Srch, To_String (Extension));
+            SP.Searches.Remove_Extension (Srch, To_String (Extension));
         end loop;
     end Remove_Extensions_Exec;
 
@@ -213,8 +213,8 @@ package body SP.Commands is
         Put_Line ("Lists extensions to filter by.");
     end List_Extensions_Help;
 
-    procedure List_Extensions_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        Extensions : constant String_Vectors.Vector := SP.Contexts.List_Extensions (Srch);
+    procedure List_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        Extensions : constant String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
     begin
         pragma Unreferenced (Command_Line);
         for Ext of Extensions loop
@@ -229,10 +229,10 @@ package body SP.Commands is
         Put_Line ("Provides text to search for.");
     end Find_Text_Help;
 
-    procedure Find_Text_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         for Word of Command_Line loop
-            SP.Contexts.Find_Text (Srch, To_String (Word));
+            SP.Searches.Find_Text (Srch, To_String (Word));
         end loop;
     end Find_Text_Exec;
 
@@ -243,10 +243,10 @@ package body SP.Commands is
         Put_Line ("Provides text to search for.");
     end Exclude_Text_Help;
 
-    procedure Exclude_Text_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         for Word of Command_Line loop
-            SP.Contexts.Exclude_Text (Srch, To_String (Word));
+            SP.Searches.Exclude_Text (Srch, To_String (Word));
         end loop;
     end Exclude_Text_Exec;
 
@@ -257,8 +257,8 @@ package body SP.Commands is
         Put_Line ("Lists the currently bound filters.");
     end List_Filters;
 
-    procedure List_Filters_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        Filter_Names : constant String_Vectors.Vector := SP.Contexts.List_Filter_Names (Srch);
+    procedure List_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
@@ -275,12 +275,12 @@ package body SP.Commands is
         Put_Line ("Pops the last applied filter from the search.");
     end Pop_Help;
 
-    procedure Pop_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
         end if;
-        SP.Contexts.Pop_Filter (Srch);
+        SP.Searches.Pop_Filter (Srch);
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
@@ -290,8 +290,8 @@ package body SP.Commands is
         Put_Line ("Lists the files currently matching all filters.");
     end Matching_Files_Help;
 
-    procedure Matching_Files_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        File_Names : constant String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
+    procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
     begin
         pragma Unreferenced (Command_Line);
         for File of File_Names loop
@@ -306,13 +306,13 @@ package body SP.Commands is
         Put_Line ("Lists the lines currently matching all filters.");
     end Matching_Lines_Help;
 
-    procedure Matching_Lines_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
-        File_Names : constant String_Vectors.Vector := SP.Contexts.Matching_Files (Srch);
+    procedure Matching_Lines_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
     begin
         pragma Unreferenced (Command_Line);
         for File of File_Names loop
             Put_Line (To_String (File));
-            for Line of SP.Contexts.Matching_Lines (Srch, File) loop
+            for Line of SP.Searches.Matching_Lines (Srch, File) loop
                 Set_Col (4);
                 Put_Line (To_String (Line));
             end loop;
@@ -327,7 +327,7 @@ package body SP.Commands is
         Put_Line ("Quits this program.");
     end Quit_Help;
 
-    procedure Quit_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         pragma Unreferenced (Srch, Command_Line);
         GNAT.OS_Lib.OS_Exit (Status => 0);
@@ -340,16 +340,16 @@ package body SP.Commands is
         Put_Line ("List lines matching the current filter.");
     end Set_Context_Width_Help;
 
-    procedure Set_Context_Width_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+    procedure Set_Context_Width_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
         Context_Width : Natural := 0;
     begin
         case Natural (Command_Line.Length) is
             when 0 =>
                 Put_Line ("Removing context width restriction");
-                SP.Contexts.Set_Context_Width (Srch, SP.Contexts.No_Context_Width);
+                SP.Searches.Set_Context_Width (Srch, SP.Searches.No_Context_Width);
             when 1 =>
                 Context_Width := Natural'Value (To_String (Command_Line.First_Element));
-                SP.Contexts.Set_Context_Width (Srch, Context_Width);
+                SP.Searches.Set_Context_Width (Srch, Context_Width);
                 Put_Line ("Context width set to " & Context_Width'Image);
             when others =>
                 Put_Line

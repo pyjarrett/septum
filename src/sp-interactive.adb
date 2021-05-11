@@ -2,7 +2,7 @@ with Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 with SP.Strings;  use SP.Strings;
-with SP.Contexts; use SP.Contexts;
+with SP.Searches; use SP.Searches;
 with SP.Commands;
 
 package body SP.Interactive is
@@ -13,19 +13,19 @@ package body SP.Interactive is
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String := " > ";
-        Context_Width : constant Natural := SP.Contexts.Get_Context_Width (Srch);
+        Context_Width : constant Natural := SP.Searches.Get_Context_Width (Srch);
     begin
         New_Line;
-        Put ("Distance: " & (if Context_Width = SP.Contexts.No_Context_Width then "Any" else Context_Width'Image));
+        Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
         Set_Col (20);
-        Put ("Files: " & Integer'Image (SP.Contexts.Num_Cached_Files (Srch)));
+        Put ("Files: " & Integer'Image (SP.Searches.Num_Cached_Files (Srch)));
         Set_Col (40);
-        Put ("Lines: " & Integer'Image (SP.Contexts.Num_Cached_Lines (Srch)));
+        Put ("Lines: " & Integer'Image (SP.Searches.Num_Cached_Lines (Srch)));
         Set_Col (60);
-        Put_Line ("Bytes: " & Integer'Image (SP.Contexts.Num_Cached_Bytes (Srch)));
-        if not SP.Contexts.List_Extensions (Srch).Is_Empty then
+        Put_Line ("Bytes: " & Integer'Image (SP.Searches.Num_Cached_Bytes (Srch)));
+        if not SP.Searches.List_Extensions (Srch).Is_Empty then
             Put ("Exts:  ");
-            for Ext of SP.Contexts.List_Extensions (Srch) loop
+            for Ext of SP.Searches.List_Extensions (Srch) loop
                 Put (Ext & " ");
             end loop;
         end if;
@@ -43,7 +43,7 @@ package body SP.Interactive is
         end;
     end Read_Command;
 
-    procedure Execute (Srch : in out SP.Contexts.Search; Command_Line : String_Vectors.Vector) is
+    procedure Execute (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
         Parameters   : String_Vectors.Vector     := Command_Line;
         Command_Name : constant Unbounded_String :=
             (if Parameters.Is_Empty then Null_Unbounded_String else Parameters.First_Element);
@@ -63,7 +63,7 @@ package body SP.Interactive is
         -- The interactive loop through which the user starts a search context and then interatively refines it by
         -- pushing and popping operations.
         Command_Line : String_Vectors.Vector;
-        Srch         : SP.Contexts.Search;
+        Srch         : SP.Searches.Search;
     begin
         Add_Directory (Srch, Ada.Directories.Current_Directory);
         Reload_Working_Set (Srch);

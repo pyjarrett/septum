@@ -1,7 +1,7 @@
 with Ada.Directories.Hierarchical_File_Names;
 with Ada.Text_IO;
 
-package body SP.Contexts is
+package body SP.Searches is
     use Ada.Strings.Unbounded;
 
     procedure Cache_File (File_Cache : in out File_Maps.Map; Next_Entry : Ada.Directories.Directory_Entry_Type) is
@@ -228,4 +228,4 @@ package body SP.Contexts is
             end loop;
         end return;
     end Num_Cached_Lines;
-end SP.Contexts;
+end SP.Searches;

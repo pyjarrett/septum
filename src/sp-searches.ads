@@ -4,7 +4,7 @@ with Ada.Strings.Unbounded;
 with SP.Filters;
 with SP.Strings;
 
-package SP.Contexts is
+package SP.Searches is
     use SP.Strings;
 
     package File_Maps is new Ada.Containers.Ordered_Maps
@@ -69,4 +69,4 @@ private
         Context_Width : Natural := No_Context_Width;
     end record;
 
-end SP.Contexts;
+end SP.Searches;
