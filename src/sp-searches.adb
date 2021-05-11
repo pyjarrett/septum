@@ -131,7 +131,7 @@ package body SP.Searches is
 
     procedure Exclude_Text (Srch : in out Search; Text : String) is
     begin
-        Srch.Filters.Append (Filters.Find_Text (Text));
+        Srch.Filters.Append (Filters.Exclude_Text (Text));
     end Exclude_Text;
 
     procedure Pop_Filter (Srch : in out Search) is
@@ -195,12 +195,107 @@ package body SP.Searches is
     begin
         return Result : String_Vectors.Vector do
             for File of Files loop
-                if (for all F of Srch.Filters => Matches (F.Get, Srch.File_Cache(File))) then
+                if (for all F of Srch.Filters => Matches (F.Get, Srch.File_Cache (File))) then
                     Result.Append (File);
                 end if;
             end loop;
         end return;
     end Matching_Files;
+
+    function Matching_Contexts
+        (Srch : in Search; File_Name : in String; Lines : in SP.Contexts.Line_Matches.Set; Context_Width : Natural)
+         return SP.Contexts.Context_Vectors.Vector is
+        Num_Lines : constant Natural := Natural (Srch.File_Cache (To_Unbounded_String (File_Name)).Length);
+    begin
+        return C : SP.Contexts.Context_Vectors.Vector do
+            for Line of Lines loop
+                C.Append
+                    (SP.Contexts.From
+                         (File_Name     => File_Name, Line => Line, Num_Lines => Num_Lines,
+                          Context_Width => Context_Width));
+            end loop;
+        end return;
+    end Matching_Contexts;
+
+    function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
+        Files         : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
+        Current       : SP.Contexts.Context_Vectors.Vector;
+        Next          : SP.Contexts.Context_Vectors.Vector;
+        Merged        : SP.Contexts.Context_Vectors.Vector;
+        Lines         : SP.Contexts.Line_Matches.Set;
+        All_Cut_Lines : SP.Contexts.Line_Matches.Set;
+        First_Pass    : Boolean;
+        use Ada.Text_IO;
+    begin
+        return Result : SP.Contexts.Context_Vectors.Vector do
+            for File of Files loop
+                First_Pass := True;
+                for F of Srch.Filters loop
+                    Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache (File));
+
+                    case F.Get.Action is
+                        when Keep =>
+                            Next := Matching_Contexts (Srch, To_String (File), Lines, Srch.Context_Width);
+
+                            if First_Pass and then Merged.Is_Empty then
+                                First_Pass := False;
+                                Merged     := Next;
+                            else
+                                Current := Merged;
+                                Merged.Clear;
+                                for C of Current loop
+                                    for N of Next loop
+                                        if SP.Contexts.Overlap (C, N) then
+                                            Merged.Append (SP.Contexts.Merge (C, N));
+                                        end if;
+                                    end loop;
+                                end loop;
+                            end if;
+                        when Exclude =>
+                            All_Cut_Lines.Union (Lines);
+                    end case;
+                end loop;
+
+                for G of Merged loop
+                    declare
+                        Cut : Boolean := False;
+                    begin
+                        for A of All_Cut_Lines loop
+                            if SP.Contexts.Contains(G, A) then
+                                Cut := True;
+                                exit;
+                            end if;
+                        end loop;
+
+                        if not Cut then
+                            Put_Line("Adding to result.");
+                            Result.Append (G);
+                        end if;
+                    end;
+                end loop;
+            end loop;
+        end return;
+    end Matching_Contexts;
+
+    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector) is
+        use Ada.Text_IO;
+    begin
+        for C of Contexts loop
+            New_Line;
+            Put_Line (To_String (C.File_Name));
+            for Line_Num in C.Minimum .. C.Maximum loop
+                if C.Internal_Matches.Contains (Line_Num) then
+                    Put ("->");
+                end if;
+                Set_Col (3);
+                Put (Line_Num'Image);
+                Set_Col (7);
+                Put_Line (To_String (Srch.File_Cache.Element (C.File_Name).Element (Line_Num)));
+            end loop;
+            New_Line;
+        end loop;
+        Put_Line ("Matching contexts: " & Contexts.Length'Image);
+    end Print_Contexts;
 
     function Num_Cached_Files (Srch : in Search) return Natural is
     begin
@@ -213,7 +308,7 @@ package body SP.Searches is
         return Count : Natural := 0 do
             for File_Name of Matched_Files loop
                 for Line of Srch.File_Cache.Element (File_Name) loop
-                    Count := Count + Length(Line);
+                    Count := Count + Length (Line);
                 end loop;
             end loop;
         end return;

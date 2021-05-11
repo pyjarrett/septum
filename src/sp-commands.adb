@@ -2,6 +2,7 @@ with Ada.Containers.Ordered_Maps;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded.Text_IO;
 with GNAT.OS_Lib;
+with SP.Contexts;
 
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
@@ -322,6 +323,21 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Matching_Contexts_Help is
+    begin
+        Put_Line ("Lists the Contexts currently matching all filters.");
+    end Matching_Contexts_Help;
+
+    procedure Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        C : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts(Srch);
+    begin
+        pragma Unreferenced (Command_Line);
+        SP.Searches.Print_Contexts (Srch, C);
+    end Matching_Contexts_Exec;
+
+
+    ----------------------------------------------------------------------------
+
     procedure Quit_Help is
     begin
         Put_Line ("Quits this program.");
@@ -397,6 +413,10 @@ begin
     Make_Command
         ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
          Matching_Files_Exec'Access);
+
+    Make_Command
+        ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
+         Matching_Contexts_Exec'Access);
 
     Make_Command
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,

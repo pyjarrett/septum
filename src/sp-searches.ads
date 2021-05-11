@@ -1,6 +1,7 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 
+with SP.Contexts;
 with SP.Filters;
 with SP.Strings;
 
@@ -43,6 +44,10 @@ package SP.Searches is
 
     function Matching_Files (Srch : in Search) return String_Vectors.Vector;
 
+    function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
+
+    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector);
+
     function Num_Cached_Files (Srch : in Search) return Natural;
 
     function Num_Cached_Bytes (Srch : in Search) return Natural;
@@ -66,7 +71,7 @@ private
 
         Extensions : String_Sets.Set;
 
-        Context_Width : Natural := No_Context_Width;
+        Context_Width : Natural := 7;-- No_Context_Width;
     end record;
 
 end SP.Searches;

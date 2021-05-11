@@ -1,6 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with GNATCOLL.Refcount;
+with SP.Contexts;
 with SP.Strings;
 
 package SP.Filters is
@@ -36,6 +37,8 @@ package SP.Filters is
 
     function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     -- Looks for a match in any of the given lines.
+
+    function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set;
 
 private
 

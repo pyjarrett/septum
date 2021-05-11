@@ -62,4 +62,24 @@ package body SP.Filters is
         end case;
     end Matches;
 
+    ----------------------------------------------------------------------------
+
+    function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set is
+        Count : Integer := 1;
+    begin
+        return L : SP.Contexts.Line_Matches.Set do
+            for Line of Lines loop
+                declare
+                    Is_Match : constant Boolean := Matches_Line (F, To_String (Line));
+                begin
+                    if Is_Match then --then (Is_Match and then F.Action = Keep) or else (not Is_Match and then F.Action = Exclude) then
+                    --if (Is_Match and then F.Action = Keep) or else (not Is_Match and then F.Action = Exclude) then
+                        L.Insert (Count);
+                    end if;
+                end;
+                Count := Count + 1;
+            end loop;
+        end return;
+    end Matching_Lines;
+
 end SP.Filters;
