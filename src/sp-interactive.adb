@@ -13,12 +13,15 @@ package body SP.Interactive is
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String := " > ";
+        Context_Width : constant Natural := SP.Contexts.Get_Context_Width (Srch);
     begin
         New_Line;
-        Put ("Files: " & Integer'Image (SP.Contexts.Num_Cached_Files (Srch)));
+        Put ("Distance: " & (if Context_Width = SP.Contexts.No_Context_Width then "Any" else Context_Width'Image));
         Set_Col (20);
-        Put ("Lines: " & Integer'Image (SP.Contexts.Num_Cached_Lines (Srch)));
+        Put ("Files: " & Integer'Image (SP.Contexts.Num_Cached_Files (Srch)));
         Set_Col (40);
+        Put ("Lines: " & Integer'Image (SP.Contexts.Num_Cached_Lines (Srch)));
+        Set_Col (60);
         Put_Line ("Bytes: " & Integer'Image (SP.Contexts.Num_Cached_Bytes (Srch)));
         if not SP.Contexts.List_Extensions (Srch).Is_Empty then
             Put ("Exts:  ");

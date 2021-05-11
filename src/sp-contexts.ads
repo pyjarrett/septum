@@ -31,6 +31,10 @@ package SP.Contexts is
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 
+    No_Context_Width : constant := Natural'Last;
+    procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);
+    function Get_Context_Width (Srch : in Search) return Natural;
+
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
     function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector;
@@ -61,6 +65,8 @@ private
         Filters : Filter_List.Vector;
 
         Extensions : String_Sets.Set;
+
+        Context_Width : Natural := No_Context_Width;
     end record;
 
 end SP.Contexts;

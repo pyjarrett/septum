@@ -311,7 +311,7 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
         for File of File_Names loop
-            Put_Line (To_String(File));
+            Put_Line (To_String (File));
             for Line of SP.Contexts.Matching_Lines (Srch, File) loop
                 Set_Col (4);
                 Put_Line (To_String (Line));
@@ -330,8 +330,35 @@ package body SP.Commands is
     procedure Quit_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
     begin
         pragma Unreferenced (Srch, Command_Line);
-        GNAT.OS_Lib.OS_Exit(Status => 0);
+        GNAT.OS_Lib.OS_Exit (Status => 0);
     end Quit_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Set_Context_Width_Help is
+    begin
+        Put_Line ("List lines matching the current filter.");
+    end Set_Context_Width_Help;
+
+    procedure Set_Context_Width_Exec (Srch : in out SP.Contexts.Search; Command_Line : in String_Vectors.Vector) is
+        Context_Width : Natural := 0;
+    begin
+        case Natural (Command_Line.Length) is
+            when 0 =>
+                Put_Line ("Removing context width restriction");
+                SP.Contexts.Set_Context_Width (Srch, SP.Contexts.No_Context_Width);
+            when 1 =>
+                Context_Width := Natural'Value (To_String (Command_Line.First_Element));
+                SP.Contexts.Set_Context_Width (Srch, Context_Width);
+                Put_Line ("Context width set to " & Context_Width'Image);
+            when others =>
+                Put_Line
+                    ("Expected a single value for the context width or no value to remove context width restriction.");
+        end case;
+    exception
+        when Constraint_Error =>
+            Put_Line ("Invalid context width: " & To_String (Command_Line.First_Element));
+    end Set_Context_Width_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -363,12 +390,17 @@ begin
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
 
-    Make_Command ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
-Matching_Lines_Exec'Access);
+    Make_Command
+        ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
+         Matching_Lines_Exec'Access);
 
     Make_Command
         ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
          Matching_Files_Exec'Access);
+
+    Make_Command
+        ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
+         Set_Context_Width_Exec'Access);
 
     Make_Command ("quit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
     Make_Command ("exit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);

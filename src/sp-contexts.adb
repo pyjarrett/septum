@@ -146,6 +146,13 @@ package body SP.Contexts is
         end if;
     end Pop_Filter;
 
+    procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural) is
+    begin
+        Srch.Context_Width := Context_Width;
+    end Set_Context_Width;
+
+    function Get_Context_Width (Srch : in Search) return Natural is (Srch.Context_Width);
+
     function List_Filter_Names (Srch : Search) return String_Vectors.Vector is
     begin
         return V : String_Vectors.Vector do
