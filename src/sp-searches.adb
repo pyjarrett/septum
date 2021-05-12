@@ -261,24 +261,50 @@ package body SP.Searches is
                         end case;
                     end loop;
 
-                    -- Matching contexts of overlapping terms have been merged into single contexts. Remove those
-                    -- contexts with excluded lines to get the final result for this file.
-                    for G of Merged loop
-                        declare
-                            Cut : Boolean := False;
-                        begin
-                            for A of Excluded_Lines loop
-                                if SP.Contexts.Contains (G, A) then
-                                    Cut := True;
-                                    exit;
-                                end if;
-                            end loop;
+                    declare
+                        All_Matches_In_Contexts : SP.Contexts.Line_Matches.Set;
+                    begin
+                        -- Matching contexts of overlapping terms have been merged into single contexts. Remove those
+                        -- contexts with excluded lines to get the final result for this file.
+                        for G of Merged loop
+                            declare
+                                Cut : Boolean := False;
+                            begin
+                                for A of Excluded_Lines loop
+                                    if SP.Contexts.Contains (G, A) then
+                                        Cut := True;
+                                        exit;
+                                    end if;
+                                end loop;
 
-                            if not Cut then
-                                Result.Append (G);
-                            end if;
-                        end;
-                    end loop;
+                                if not Cut then
+                                    All_Matches_In_Contexts.Union (G.Internal_Matches);
+                                end if;
+                            end;
+                        end loop;
+
+                        for G of Merged loop
+                            declare
+                                Cut : Boolean := False;
+                            begin
+                                for A of Excluded_Lines loop
+                                    if SP.Contexts.Contains (G, A) then
+                                        Cut := True;
+                                        exit;
+                                    end if;
+                                end loop;
+
+                                if not Cut then
+                                    for M of All_Matches_In_Contexts loop
+                                        if SP.Contexts.Contains (G, M) and then not G.Internal_Matches.Contains(M) then
+                                            G.Internal_Matches.Insert(M);
+                                        end if;
+                                    end loop;
+                                    Result.Append(G);
+                                end if;
+                            end;
+                        end loop;
+                    end;
                 end;
             end loop;
         end return;
