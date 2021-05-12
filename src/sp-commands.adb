@@ -39,6 +39,7 @@ package body SP.Commands is
         Best_Match_Size : Natural          := 0;
         Next_Match      : Unbounded_String;
         Next_Match_Size : Natural          := 0;
+        Ambiguous       : Boolean          := False;
     begin
         if Command_Map.Contains (Command_Name) then
             return Command_Name;
@@ -49,14 +50,16 @@ package body SP.Commands is
             Next_Match_Size := Common_Prefix_Length (Next_Match, Command_Name);
             if Next_Match_Size = Best_Match_Size then
                 -- Two things with the same prefix, the prefix is ambiguous.
-                Best_Match_Size := 0;
                 Best_Match      := Null_Unbounded_String;
+                Ambiguous       := True;
             elsif Next_Match_Size > Best_Match_Size then
                 Best_Match_Size := Next_Match_Size;
                 Best_Match      := Next_Match;
+                Ambiguous       := False;
             end if;
         end loop;
-        return Best_Match;
+
+        return (if Ambiguous then Null_Unbounded_String else Best_Match);
     end Target_Command;
 
     function Execute
@@ -329,12 +332,11 @@ package body SP.Commands is
     end Matching_Contexts_Help;
 
     procedure Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-        C : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts(Srch);
+        C : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
     begin
         pragma Unreferenced (Command_Line);
         SP.Searches.Print_Contexts (Srch, C);
     end Matching_Contexts_Exec;
-
 
     ----------------------------------------------------------------------------
 
