@@ -50,8 +50,8 @@ package body SP.Commands is
             Next_Match_Size := Common_Prefix_Length (Next_Match, Command_Name);
             if Next_Match_Size = Best_Match_Size then
                 -- Two things with the same prefix, the prefix is ambiguous.
-                Best_Match      := Null_Unbounded_String;
-                Ambiguous       := True;
+                Best_Match := Null_Unbounded_String;
+                Ambiguous  := True;
             elsif Next_Match_Size > Best_Match_Size then
                 Best_Match_Size := Next_Match_Size;
                 Best_Match      := Next_Match;
@@ -388,18 +388,13 @@ package body SP.Commands is
     end Make_Command;
 
 begin
+
+    -- Actions
+
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
 
-    Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
-    Make_Command
-        ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
-
-    Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
-    Make_Command
-        ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access,
-         Remove_Extensions_Exec'Access);
-    Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
+    -- Filters
 
     Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
@@ -407,6 +402,8 @@ begin
         ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
+
+    -- Results
 
     Make_Command
         ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
@@ -420,9 +417,23 @@ begin
         ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
          Matching_Contexts_Exec'Access);
 
+    -- Global configuration
+
+    Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
+    Make_Command
+        ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
+
+    Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
+    Make_Command
+        ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access,
+         Remove_Extensions_Exec'Access);
+    Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
+
     Make_Command
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
          Set_Context_Width_Exec'Access);
+
+    -- Quit
 
     Make_Command ("quit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
     Make_Command ("exit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
