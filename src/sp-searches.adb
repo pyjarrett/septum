@@ -195,7 +195,7 @@ package body SP.Searches is
     begin
         return Result : String_Vectors.Vector do
             for File of Files loop
-                if (for all F of Srch.Filters => Matches (F.Get, Srch.File_Cache (File))) then
+                if (for all F of Srch.Filters => Matches_File (F.Get, Srch.File_Cache (File))) then
                     Result.Append (File);
                 end if;
             end loop;
@@ -218,61 +218,68 @@ package body SP.Searches is
     end Matching_Contexts;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
-        Files         : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
-        Current       : SP.Contexts.Context_Vectors.Vector;
-        Next          : SP.Contexts.Context_Vectors.Vector;
-        Merged        : SP.Contexts.Context_Vectors.Vector;
-        Lines         : SP.Contexts.Line_Matches.Set;
-        All_Cut_Lines : SP.Contexts.Line_Matches.Set;
-        First_Pass    : Boolean;
-        use Ada.Text_IO;
+        Files : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
     begin
         return Result : SP.Contexts.Context_Vectors.Vector do
             for File of Files loop
-                First_Pass := True;
-                for F of Srch.Filters loop
-                    Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache (File));
+                declare
+                    Excluded_Lines : SP.Contexts.Line_Matches.Set;
+                    First_Pass     : Boolean := True; -- The first filter pass has nothing to merge into.
+                    Lines          : SP.Contexts.Line_Matches.Set;
+                    Last           : SP.Contexts.Context_Vectors.Vector;
+                    Next           : SP.Contexts.Context_Vectors.Vector;
+                    Merged         : SP.Contexts.Context_Vectors.Vector;
+                begin
+                    -- Process the file using the given filters.
+                    for F of Srch.Filters loop
+                        Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache (File));
 
-                    case F.Get.Action is
-                        when Keep =>
-                            Next := Matching_Contexts (Srch, To_String (File), Lines, Srch.Context_Width);
+                        case F.Get.Action is
+                            -- No context should contain an excluded line. This could be more granular by finding
+                            -- contexts smaller than the given context width with no matching terms outside of the
+                            -- excluded terms.
+                            when Exclude =>
+                                Excluded_Lines.Union (Lines);
+                            when Keep =>
+                                Next := Matching_Contexts (Srch, To_String (File), Lines, Srch.Context_Width);
 
-                            if First_Pass and then Merged.Is_Empty then
-                                First_Pass := False;
-                                Merged     := Next;
-                            else
-                                Current := Merged;
-                                Merged.Clear;
-                                for C of Current loop
-                                    for N of Next loop
-                                        if SP.Contexts.Overlap (C, N) then
-                                            Merged.Append (SP.Contexts.Merge (C, N));
-                                        end if;
+                                -- First pass has nothing to merge onto.
+                                if First_Pass then
+                                    First_Pass := False;
+                                    Merged     := Next;
+                                else
+                                    Last := Merged;
+                                    Merged.Clear;
+                                    for L of Last loop
+                                        for N of Next loop
+                                            if SP.Contexts.Overlap (L, N) then
+                                                Merged.Append (SP.Contexts.Merge (L, N));
+                                            end if;
+                                        end loop;
                                     end loop;
-                                end loop;
-                            end if;
-                        when Exclude =>
-                            All_Cut_Lines.Union (Lines);
-                    end case;
-                end loop;
+                                end if;
+                        end case;
+                    end loop;
 
-                for G of Merged loop
-                    declare
-                        Cut : Boolean := False;
-                    begin
-                        for A of All_Cut_Lines loop
-                            if SP.Contexts.Contains(G, A) then
-                                Cut := True;
-                                exit;
-                            end if;
-                        end loop;
+                    -- Matching contexts of overlapping terms have been merged into single contexts. Remove those
+                    -- contexts with excluded lines to get the final result for this file.
+                    for G of Merged loop
+                        declare
+                            Cut : Boolean := False;
+                        begin
+                            for A of Excluded_Lines loop
+                                if SP.Contexts.Contains (G, A) then
+                                    Cut := True;
+                                    exit;
+                                end if;
+                            end loop;
 
-                        if not Cut then
-                            Put_Line("Adding to result.");
-                            Result.Append (G);
-                        end if;
-                    end;
-                end loop;
+                            if not Cut then
+                                Result.Append (G);
+                            end if;
+                        end;
+                    end loop;
+                end;
             end loop;
         end return;
     end Matching_Contexts;

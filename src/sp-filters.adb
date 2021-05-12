@@ -13,15 +13,11 @@ package body SP.Filters is
     end Find_Text;
 
     function Exclude_Text (Text : String) return Filter_Ptr is
-        Base            : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
-        Wrapped         : Filter_Ptr;
-        Excluded_Filter : Exclude_Filter (Exclude);
-        Final           : Filter_Ptr;
+        Base : constant Case_Sensitive_Match_Filter := (Action => Exclude, Text => To_Unbounded_String (Text));
+        Ptr  : Filter_Ptr;
     begin
-        Wrapped.Set (Base);
-        Excluded_Filter := (Action => Exclude, Wrapped => Wrapped);
-        Final.Set (Excluded_Filter);
-        return Final;
+        Ptr.Set (Base);
+        return Ptr;
     end Exclude_Text;
 
     ----------------------------------------------------------------------------
@@ -39,19 +35,7 @@ package body SP.Filters is
 
     ----------------------------------------------------------------------------
 
-    function Image (F : Exclude_Filter) return String is
-    begin
-        return "Invert " & Image (F.Wrapped.Get);
-    end Image;
-
-    function Matches_Line (F : Exclude_Filter; Str : String) return Boolean is
-    begin
-        return Matches_Line (F.Wrapped.Get, Str);
-    end Matches_Line;
-
-    ----------------------------------------------------------------------------
-
-    function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
+    function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
         Match : constant Boolean := (for some Line of Lines => Matches_Line (F, To_String (Line)));
     begin
         case F.Action is
@@ -60,24 +44,19 @@ package body SP.Filters is
             when Exclude =>
                 return not Match;
         end case;
-    end Matches;
+    end Matches_File;
 
     ----------------------------------------------------------------------------
 
     function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set is
-        Count : Integer := 1;
+        Line_Num : Integer := 1;
     begin
         return L : SP.Contexts.Line_Matches.Set do
             for Line of Lines loop
-                declare
-                    Is_Match : constant Boolean := Matches_Line (F, To_String (Line));
-                begin
-                    if Is_Match then --then (Is_Match and then F.Action = Keep) or else (not Is_Match and then F.Action = Exclude) then
-                    --if (Is_Match and then F.Action = Keep) or else (not Is_Match and then F.Action = Exclude) then
-                        L.Insert (Count);
-                    end if;
-                end;
-                Count := Count + 1;
+                if Matches_Line (F, To_String (Line)) then
+                    L.Insert (Line_Num);
+                end if;
+                Line_Num := Line_Num + 1;
             end loop;
         end return;
     end Matching_Lines;

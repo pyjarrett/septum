@@ -35,7 +35,7 @@ package SP.Filters is
     function Exclude_Text (Text : String) return Filter_Ptr;
     -- Matches lines which don't have this text.
 
-    function Matches (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
+    function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     -- Looks for a match in any of the given lines.
 
     function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set;
@@ -46,15 +46,7 @@ private
         Text : Ada.Strings.Unbounded.Unbounded_String;
     end record;
 
-    type Exclude_Filter is new Filter with record
-        -- A filter which inverts another filter.
-        Wrapped : Filter_Ptr;
-    end record;
-
     overriding function Image (F : Case_Sensitive_Match_Filter) return String;
     overriding function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
-
-    overriding function Image (F : Exclude_Filter) return String;
-    overriding function Matches_Line (F : Exclude_Filter; Str : String) return Boolean;
 
 end SP.Filters;
