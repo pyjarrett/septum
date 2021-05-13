@@ -54,6 +54,15 @@ package SP.Searches is
 
     function Num_Cached_Lines (Srch : in Search) return Natural;
 
+    protected type Concurrent_Context_Results is
+        entry Get_Results(Out_Results : out SP.Contexts.Context_Vectors.Vector);
+        procedure Start_Result;
+        procedure Add_Result(More : SP.Contexts.Context_Vectors.Vector);
+    private
+        Pending_Results : Natural := 0;
+        Results : SP.Contexts.Context_Vectors.Vector;
+    end Concurrent_Context_Results;
+
 private
 
     use SP.Filters;
