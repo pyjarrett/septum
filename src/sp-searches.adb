@@ -358,7 +358,7 @@ package body SP.Searches is
                 end if;
                 Set_Col (3);
                 Put (Line_Num'Image);
-                Set_Col (7);
+                Set_Col (13);
                 Put_Line (To_String (Srch.File_Cache.Element (C.File_Name).Element (Line_Num)));
             end loop;
             New_Line;
