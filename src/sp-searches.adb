@@ -1,6 +1,8 @@
 with Ada.Directories.Hierarchical_File_Names;
 with Ada.Text_IO;
 
+with GNATCOLL.Atomic;
+
 package body SP.Searches is
     use Ada.Strings.Unbounded;
 
@@ -225,7 +227,6 @@ package body SP.Searches is
         Merged         : SP.Contexts.Context_Vectors.Vector;
         Result         : SP.Contexts.Context_Vectors.Vector;
     begin
-        Concurrent_Results.Start_Result;
         -- Process the file using the given filters.
         for F of Srch.Filters loop
             Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache (File));
@@ -309,34 +310,37 @@ package body SP.Searches is
         Files          : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
         Merged_Results : Concurrent_Context_Results;
 
+        Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter := 0;
+        Next_Access : constant access GNATCOLL.Atomic.Atomic_Counter  := Next_File'Access;
+        One   : constant GNATCOLL.Atomic.Atomic_Counter := 1;
+
         task type Matching_Context_Search is
-            entry Run_Search (File : in Unbounded_String);
+            entry Start;
         end Matching_Context_Search;
 
         task body Matching_Context_Search is
-            Next_File : Unbounded_String;
+            Next_Index : Natural;
+            Next_File  : Unbounded_String;
         begin
+            accept Start;
             loop
-                select
-                    accept Run_Search (File : in Unbounded_String) do
-                        Next_File := File;
-                    end Run_Search;
-                or
-                    terminate;
-                end select;
-
-                Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
+                Next_Index := Natural(GNATColl.Atomic.Sync_Add_And_Fetch (Next_Access, One));
+                if Next_Index <= Natural(Files.Length) then
+                    Next_File := Files (Next_Index);
+                    Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
+                else
+                    exit;
+                end if;
             end loop;
         end Matching_Context_Search;
 
         Num_Tasks    : constant := 16;
         All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
-        Next         : Natural  := 0;
     begin
         return Result : SP.Contexts.Context_Vectors.Vector do
-            for File of Files loop
-                All_Searches (Next).Run_Search (File);
-                Next := (Next + 1) mod Num_Tasks;
+            Merged_Results.Wait_For(Natural(Files.Length));
+            for I in All_Searches'Range loop
+                All_Searches(I).Start;
             end loop;
             Merged_Results.Get_Results (Result);
         end return;
@@ -395,10 +399,10 @@ package body SP.Searches is
             Out_Results := Results;
         end Get_Results;
 
-        procedure Start_Result is
+        procedure Wait_For (Num_Results : Natural) is
         begin
-            Pending_Results := Pending_Results + 1;
-        end Start_Result;
+            Pending_Results := Num_Results;
+        end Wait_For;
 
         procedure Add_Result (More : SP.Contexts.Context_Vectors.Vector) is
         begin

@@ -56,7 +56,7 @@ package SP.Searches is
 
     protected type Concurrent_Context_Results is
         entry Get_Results(Out_Results : out SP.Contexts.Context_Vectors.Vector);
-        procedure Start_Result;
+        procedure Wait_For(Num_Results : Natural);
         procedure Add_Result(More : SP.Contexts.Context_Vectors.Vector);
     private
         Pending_Results : Natural := 0;
