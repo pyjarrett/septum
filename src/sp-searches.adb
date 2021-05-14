@@ -35,8 +35,7 @@ package body SP.Searches is
     procedure Cache_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
         use Ada.Directories;
         File_Ext : constant String :=
-            (if Kind (Next_Entry) = Directory then ""
-             else Ada.Directories.Extension (Full_Name (Next_Entry)));
+            (if Kind (Next_Entry) = Directory then "" else Ada.Directories.Extension (Full_Name (Next_Entry)));
     begin
         if Kind (Next_Entry) = Ordinary_File and then Srch.Extensions.Contains (To_Unbounded_String (File_Ext)) then
             Cache_File (Srch.File_Cache, Next_Entry);
@@ -311,35 +310,32 @@ package body SP.Searches is
         Merged_Results : Concurrent_Context_Results;
 
         task type Matching_Context_Search is
-            entry Run_Search
-                (Srch : in Search; File : in Unbounded_String; Concurrent_Results : in out Concurrent_Context_Results);
+            entry Run_Search (File : in Unbounded_String);
         end Matching_Context_Search;
 
         task body Matching_Context_Search is
+            Next_File : Unbounded_String;
         begin
             loop
                 select
-                    accept Run_Search
-                        (Srch               : in     Search; File : in Unbounded_String;
-                         Concurrent_Results : in out Concurrent_Context_Results)
-                    do
-                        Matching_Contexts_In_File (Srch, File, Concurrent_Results);
+                    accept Run_Search (File : in Unbounded_String) do
+                        Next_File := File;
                     end Run_Search;
                 or
                     terminate;
                 end select;
+
+                Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
             end loop;
         end Matching_Context_Search;
 
         Num_Tasks    : constant := 16;
         All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
         Next         : Natural  := 0;
-        --  Free is new Ada.Unchecked_Deallocation(Matching_Context_Search);
     begin
         return Result : SP.Contexts.Context_Vectors.Vector do
             for File of Files loop
-                --  All_Searches(Next).Do_Nothing; Matching_Contexts_In_File (Srchh, File, Merged_Results);
-                All_Searches (Next).Run_Search (Srch, File, Merged_Results);
+                All_Searches (Next).Run_Search (File);
                 Next := (Next + 1) mod Num_Tasks;
             end loop;
             Merged_Results.Get_Results (Result);
