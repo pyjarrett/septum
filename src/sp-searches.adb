@@ -150,6 +150,11 @@ package body SP.Searches is
         end if;
     end Pop_Filter;
 
+    procedure Clear_Filters (Srch : in out Search) is
+    begin
+        Srch.Filters.Clear;
+    end Clear_Filters;
+
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural) is
     begin
         Srch.Context_Width := Context_Width;

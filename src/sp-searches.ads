@@ -32,6 +32,8 @@ package SP.Searches is
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 
+    procedure Clear_Filters (Srch : in out Search);
+
     No_Context_Width : constant := Natural'Last;
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);
     function Get_Context_Width (Srch : in Search) return Natural;

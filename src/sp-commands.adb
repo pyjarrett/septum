@@ -289,6 +289,19 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Clear_Filters_Help is
+    begin
+        Put_Line ("Pops all filters.");
+    end Clear_Filters_Help;
+
+    procedure Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        pragma Unreferenced (Command_Line);
+        SP.Searches.Clear_Filters(Srch);
+    end Clear_Filters_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Matching_Files_Help is
     begin
         Put_Line ("Lists the files currently matching all filters.");
@@ -402,6 +415,7 @@ begin
         ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
+    Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);
 
     -- Results
 
