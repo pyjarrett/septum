@@ -103,6 +103,12 @@ package body SP.Searches is
         end return;
     end List_Directories;
 
+    procedure Clear_Directories (Srch : in out Search) is
+    begin
+        Srch.Directories.Clear;
+        Srch.File_Cache.Clear;
+    end Clear_Directories;
+
     procedure Add_Extension (Srch : in out Search; Extension : String) is
         Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin

@@ -20,6 +20,8 @@ package SP.Searches is
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
     function List_Directories (Srch : in Search) return String_Vectors.Vector;
     -- Lists top level search directories.
+    procedure Clear_Directories (Srch : in out Search)
+        with Post => List_Directories (Srch).Is_Empty;
 
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);

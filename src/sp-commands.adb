@@ -174,6 +174,21 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Clear_Dirs_Help is
+    begin
+        Put_Line ("Clears all search directories.");
+    end Clear_Dirs_Help;
+
+    procedure Clear_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("No arguments are allowed for clearing directories.");
+        end if;
+        SP.Searches.Clear_Directories (Srch);
+    end Clear_Dirs_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Extensions_Help is
     begin
         Put_Line ("Adds extension to the search list.");
@@ -297,7 +312,7 @@ package body SP.Commands is
     procedure Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
     begin
         pragma Unreferenced (Command_Line);
-        SP.Searches.Clear_Filters(Srch);
+        SP.Searches.Clear_Filters (Srch);
     end Clear_Filters_Exec;
 
     ----------------------------------------------------------------------------
@@ -436,6 +451,7 @@ begin
     Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
     Make_Command
         ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
+    Make_Command ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
 
     Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
