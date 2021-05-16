@@ -1,24 +1,29 @@
 with SP.Strings;
+with Ada.Containers.Ordered_Maps;
+with Ada.Strings.Unbounded;
 
 package SP.Cache is
-    type Async_File_Cache is limited private;
-    -- @TODO This probably needs to be protected type.
+    use Ada.Strings.Unbounded;
+    use SP.Strings;
 
-    function Has_Directory (A : in ASync_File_Cache; Dir : String) return Boolean;
+    package File_Maps is new Ada.Containers.Ordered_Maps
+        (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
+         "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
-    procedure Add_Directory (A : in out Async_File_Cache; Dir : String)
-        with Pre => not Has_Directory (A, Dir);
+    protected type Async_File_Cache is
 
-    -- File caching operations.  Loads files in the background as needed.
-    protected type File_Cache is
+        procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector);
 
-    end File_Cache;
+        function Num_Files return Natural;
 
-private
+    private
 
-    type Async_File_Cache is limited record
         Top_Level_Directories : SP.Strings.String_Sets.Set;
         -- A list of all top level directories which need to be searched.
-    end record;
+
+        Contents : File_Maps.Map;
+    end Async_File_Cache;
+
+    procedure Add_Directory (A : in out Async_File_Cache; Dir : String);
 
 end SP.Cache;

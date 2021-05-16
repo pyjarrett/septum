@@ -11,26 +11,28 @@ package body SP.Interactive is
     use Ada.Strings.Unbounded.Text_IO;
     use Ada.Text_IO;
 
-    procedure Write_Prompt (Srch : in Search) is
+    procedure Write_Prompt (Srch : in Search; File_Cache : SP.Cache.Async_File_Cache) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String  := " > ";
-        Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
+        --  Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
+        pragma Unreferenced (Srch);
     begin
-        New_Line;
-        Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
-        Set_Col (20);
-        Put ("Files: " & Integer'Image (SP.Searches.Num_Cached_Files (Srch)));
-        Set_Col (40);
-        Put ("Lines: " & Integer'Image (SP.Searches.Num_Cached_Lines (Srch)));
-        Set_Col (60);
-        Put_Line ("Bytes: " & Integer'Image (SP.Searches.Num_Cached_Bytes (Srch)));
-        if not SP.Searches.List_Extensions (Srch).Is_Empty then
-            Put ("Exts:  ");
-            for Ext of SP.Searches.List_Extensions (Srch) loop
-                Put (Ext & " ");
-            end loop;
-        end if;
-        New_Line;
+        Put_Line ("Files: " & File_Cache.Num_Files'Image);
+        --  New_Line;
+        --  Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
+        --  Set_Col (20);
+        --  Put ("Files: " & Integer'Image (SP.Searches.Num_Cached_Files (Srch)));
+        --  Set_Col (40);
+        --  Put ("Lines: " & Integer'Image (SP.Searches.Num_Cached_Lines (Srch)));
+        --  Set_Col (60);
+        --  Put_Line ("Bytes: " & Integer'Image (SP.Searches.Num_Cached_Bytes (Srch)));
+        --  if not SP.Searches.List_Extensions (Srch).Is_Empty then
+        --      Put ("Exts:  ");
+        --      for Ext of SP.Searches.List_Extensions (Srch) loop
+        --          Put (Ext & " ");
+        --      end loop;
+        --  end if;
+        --  New_Line;
         Put (Default_Prompt);
     end Write_Prompt;
 
@@ -68,11 +70,11 @@ package body SP.Interactive is
         Mega_Cache   : SP.Cache.Async_File_Cache;
     begin
         SP.Cache.Add_Directory (Mega_Cache, Ada.Directories.Current_Directory);
-        Add_Directory (Srch, Ada.Directories.Current_Directory);
-        Reload_Working_Set (Srch);
+        --Add_Directory (Srch, Ada.Directories.Current_Directory);
+        --Reload_Working_Set (Srch);
 
         loop
-            Write_Prompt (Srch);
+            Write_Prompt (Srch, Mega_Cache);
             Command_Line := Read_Command;
             Execute (Srch, Command_Line);
         end loop;
