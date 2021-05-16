@@ -55,7 +55,7 @@ package body SP.Searches is
         Next_Entry : Directory_Entry_Type;
         Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
     begin
-        Ada.Text_IO.Put_Line ("Adding: " & To_String (Dir_Name));
+        --  Ada.Text_IO.Put_Line ("Adding: " & To_String (Dir_Name));
         Ada.Directories.Start_Search
             (Search => Dir_Search, Directory => To_String (Dir_Name), Pattern => "*", Filter => Filter);
         while More_Entries (Dir_Search) loop

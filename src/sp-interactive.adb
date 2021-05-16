@@ -1,6 +1,7 @@
 with Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
+with SP.Cache;
 with SP.Strings;  use SP.Strings;
 with SP.Searches; use SP.Searches;
 with SP.Commands;
@@ -12,8 +13,8 @@ package body SP.Interactive is
 
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
-        Default_Prompt : constant String := " > ";
-        Context_Width : constant Natural := SP.Searches.Get_Context_Width (Srch);
+        Default_Prompt : constant String  := " > ";
+        Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
     begin
         New_Line;
         Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
@@ -64,7 +65,9 @@ package body SP.Interactive is
         -- pushing and popping operations.
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Searches.Search;
+        Mega_Cache   : SP.Cache.Async_File_Cache;
     begin
+        SP.Cache.Add_Directory (Mega_Cache, Ada.Directories.Current_Directory);
         Add_Directory (Srch, Ada.Directories.Current_Directory);
         Reload_Working_Set (Srch);
 
