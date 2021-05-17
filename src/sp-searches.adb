@@ -1,4 +1,4 @@
-with Ada.Directories.Hierarchical_File_Names;
+with Ada.Directories;
 with Ada.Text_IO;
 
 with GNATCOLL.Atomic;
@@ -6,75 +6,13 @@ with GNATCOLL.Atomic;
 package body SP.Searches is
     use Ada.Strings.Unbounded;
 
-    procedure Cache_File (File_Cache : in out File_Maps.Map; Next_Entry : Ada.Directories.Directory_Entry_Type) is
-        -- Adds the contents of a file to the file cache.
-        use Ada.Directories;
-        Lines         : String_Vectors.Vector     := String_Vectors.Empty_Vector;
-        File_Name     : constant Unbounded_String := To_Unbounded_String (Full_Name (Next_Entry));
-        Not_Directory : constant Boolean          := Kind (Next_Entry) /= Directory;
-    begin
-        if Not_Directory then
-            if Read_Lines (To_String (File_Name), Lines) then
-                --  Ada.Text_IO.Put_Line ("Next File_Name is: " & To_String (File_Name));
-                if File_Cache.Contains (File_Name) then
-                    File_Cache.Replace (File_Name, Lines);
-                else
-                    File_Cache.Insert (File_Name, Lines);
-                end if;
-            end if;
-        end if;
-    end Cache_File;
-
-    function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
-        --  Return true if the entry is "." or "..".
-        Name : constant String := Ada.Directories.Simple_Name (Dir_Entry);
-    begin
-        return
-            Ada.Directories.Hierarchical_File_Names.Is_Parent_Directory_Name (Name)
-            or else Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name (Name);
-    end Is_Current_Or_Parent_Directory;
-
-    procedure Cache_File (Srch : in out Search; Next_Entry : Ada.Directories.Directory_Entry_Type) is
-        use Ada.Directories;
-        File_Ext : constant String :=
-            (if Kind (Next_Entry) = Directory then "" else Ada.Directories.Extension (Full_Name (Next_Entry)));
-    begin
-        if Kind (Next_Entry) = Ordinary_File and then Srch.Extensions.Contains (To_Unbounded_String (File_Ext)) then
-            Cache_File (Srch.File_Cache, Next_Entry);
-        end if;
-
-        if Kind (Next_Entry) = Directory then
-            -- Recursively add to the search path.
-            Cache_Directory (Srch, To_Unbounded_String (Full_Name (Next_Entry)));
-        end if;
-    end Cache_File;
-
-    procedure Cache_Directory (Srch : in out Search; Dir_Name : Unbounded_String) is
-        use Ada.Directories;
-        Dir_Search : Search_Type;
-        Next_Entry : Directory_Entry_Type;
-        Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
-    begin
-        --  Ada.Text_IO.Put_Line ("Adding: " & To_String (Dir_Name));
-        Ada.Directories.Start_Search
-            (Search => Dir_Search, Directory => To_String (Dir_Name), Pattern => "*", Filter => Filter);
-        while More_Entries (Dir_Search) loop
-            Get_Next_Entry (Dir_Search, Next_Entry);
-            if not Is_Current_Or_Parent_Directory (Next_Entry) then
-                Cache_File (Srch, Next_Entry);
-            end if;
-        end loop;
-        End_Search (Dir_Search);
-        pragma Unreferenced (Dir_Search);
-    end Cache_Directory;
-
     procedure Reload_Working_Set (Srch : in out Search) is
     begin
         -- TODO: The file cache should watch files to know when it needs a refresh such as examining last time modified
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Cache_Directory (Srch, Dir_Name);
+            Add_Directory (Srch, To_String(Dir_Name));
         end loop;
     end Reload_Working_Set;
 
@@ -87,7 +25,7 @@ package body SP.Searches is
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
-            Cache_Directory (Srch, Unbounded_Name);
+            SP.Cache.Add_Directory (Srch.File_Cache, Dir_name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
@@ -177,46 +115,6 @@ package body SP.Searches is
         end return;
     end List_Filter_Names;
 
-    function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector is
-    begin
-        return Result : String_Vectors.Vector do
-            for Cursor in Srch.File_Cache.Iterate loop
-                declare
-                    File_Name : constant Unbounded_String := File_Maps.Key (Cursor);
-                    File_Ext  : constant String           := Ada.Directories.Extension (To_String (File_Name));
-                begin
-                    if Srch.Extensions.Is_Empty or else Srch.Extensions.Contains (To_Unbounded_String (File_Ext)) then
-                        Result.Append (File_Name);
-                    end if;
-                end;
-            end loop;
-        end return;
-    end Files_Matching_Extensions;
-
-    function Matching_Lines (Srch : in Search; File_Name : in Unbounded_String) return String_Vectors.Vector is
-        Lines : constant String_Vectors.Vector := Srch.File_Cache (File_Name);
-    begin
-        return Result : String_Vectors.Vector do
-            for Line of Lines loop
-                if (for all F of Srch.Filters => Matches_Line (F.Get, To_String (Line))) then
-                    Result.Append (Line);
-                end if;
-            end loop;
-        end return;
-    end Matching_Lines;
-
-    function Matching_Files (Srch : in Search) return String_Vectors.Vector is
-        Files : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
-    begin
-        return Result : String_Vectors.Vector do
-            for File of Files loop
-                if (for all F of Srch.Filters => Matches_File (F.Get, Srch.File_Cache (File))) then
-                    Result.Append (File);
-                end if;
-            end loop;
-        end return;
-    end Matching_Files;
-
     function Matching_Contexts
         (File_Name : String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)
          return SP.Contexts.Context_Vectors.Vector is
@@ -240,7 +138,7 @@ package body SP.Searches is
     begin
         -- Process the file using the given filters.
         for F of Srch.Filters loop
-            Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache (File));
+            Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache.Lines (File));
 
             case F.Get.Action is
                 -- No context should contain an excluded line. This could be more granular by finding contexts smaller
@@ -250,7 +148,7 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (To_String (File), Natural (Srch.File_Cache (File).Length), Lines, Srch.Context_Width);
+                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines, Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
                     if First_Pass then
@@ -318,7 +216,7 @@ package body SP.Searches is
     end Matching_Contexts_In_File;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
-        Files          : constant String_Vectors.Vector := Files_Matching_Extensions (Srch);
+        Files          : constant String_Vectors.Vector := Srch.File_Cache.Files;
         Merged_Results : Concurrent_Context_Results;
 
         Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter := 0;
@@ -370,39 +268,12 @@ package body SP.Searches is
                 Set_Col (3);
                 Put (Line_Num'Image);
                 Set_Col (13);
-                Put_Line (To_String (Srch.File_Cache.Element (C.File_Name).Element (Line_Num)));
+                Put_Line (To_String (Srch.File_Cache.File_Line (C.File_Name, Line_Num)));
             end loop;
             New_Line;
         end loop;
         Put_Line ("Matching contexts: " & Contexts.Length'Image);
     end Print_Contexts;
-
-    function Num_Cached_Files (Srch : in Search) return Natural is
-    begin
-        return Natural (Matching_Files (Srch).Length);
-    end Num_Cached_Files;
-
-    function Num_Cached_Bytes (Srch : in Search) return Natural is
-        Matched_Files : constant String_Vectors.Vector := Matching_Files (Srch);
-    begin
-        return Count : Natural := 0 do
-            for File_Name of Matched_Files loop
-                for Line of Srch.File_Cache.Element (File_Name) loop
-                    Count := Count + Length (Line);
-                end loop;
-            end loop;
-        end return;
-    end Num_Cached_Bytes;
-
-    function Num_Cached_Lines (Srch : in Search) return Natural is
-        Matched_Files : constant String_Vectors.Vector := Matching_Files (Srch);
-    begin
-        return Count : Natural := 0 do
-            for File_Name of Matched_Files loop
-                Count := Count + Natural (Srch.File_Cache.Element (File_Name).Length);
-            end loop;
-        end return;
-    end Num_Cached_Lines;
 
     protected body Concurrent_Context_Results is
         entry Get_Results (Out_Results : out SP.Contexts.Context_Vectors.Vector) when Pending_Results = 0 is

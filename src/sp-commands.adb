@@ -317,41 +317,41 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Matching_Files_Help is
-    begin
-        Put_Line ("Lists the files currently matching all filters.");
-    end Matching_Files_Help;
+    --  procedure Matching_Files_Help Is_Empty
+    --  begin
+    --      Put_Line ("Lists the files currently matching all filters.");
+    --  end Matching_Files_Help;
 
-    procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-        File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
-    begin
-        pragma Unreferenced (Command_Line);
-        for File of File_Names loop
-            Put_Line (To_String (File));
-        end loop;
-    end Matching_Files_Exec;
+    --  procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    --      File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
+    --  begin
+    --      pragma Unreferenced (Command_Line);
+    --      for File of File_Names loop
+    --          Put_Line (To_String (File));
+    --      end loop;
+    --  end Matching_Files_Exec;
 
     ----------------------------------------------------------------------------
 
-    procedure Matching_Lines_Help is
-    begin
-        Put_Line ("Lists the lines currently matching all filters.");
-    end Matching_Lines_Help;
-
-    procedure Matching_Lines_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-        File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
-    begin
-        pragma Unreferenced (Command_Line);
-        for File of File_Names loop
-            Put_Line (To_String (File));
-            for Line of SP.Searches.Matching_Lines (Srch, File) loop
-                Set_Col (4);
-                Put_Line (To_String (Line));
-            end loop;
-            New_Line;
-        end loop;
-    end Matching_Lines_Exec;
-
+    --  procedure Matching_Lines_Help is
+    --  begin
+    --      Put_Line ("Lists the lines currently matching all filters.");
+    --  end Matching_Lines_Help;
+    --
+    --  procedure Matching_Lines_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    --      File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
+    --  begin
+    --      pragma Unreferenced (Command_Line);
+    --      for File of File_Names loop
+    --          Put_Line (To_String (File));
+    --          for Line of SP.Searches.Matching_Lines (Srch, File) loop
+    --              Set_Col (4);
+    --              Put_Line (To_String (Line));
+    --          end loop;
+    --          New_Line;
+    --      end loop;
+    --  end Matching_Lines_Exec;
+    --
     ----------------------------------------------------------------------------
 
     procedure Matching_Contexts_Help is
@@ -434,13 +434,13 @@ begin
 
     -- Results
 
-    Make_Command
-        ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
-         Matching_Lines_Exec'Access);
-
-    Make_Command
-        ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
-         Matching_Files_Exec'Access);
+    --  Make_Command
+    --      ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
+    --       Matching_Lines_Exec'Access);
+    --
+    --  Make_Command
+    --      ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
+    --       Matching_Files_Exec'Access);
 
     Make_Command
         ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,

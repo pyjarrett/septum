@@ -11,10 +11,17 @@ package SP.Cache is
          "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
     protected type Async_File_Cache is
+        procedure Clear;
 
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector);
 
         function Num_Files return Natural;
+
+        function Lines (File_Name : in Unbounded_String) return String_Vectors.Vector;
+
+        function Files return String_Vectors.Vector;
+
+        function File_Line (File_Name : in Unbounded_String; Line : in Positive) return Unbounded_String;
 
     private
 

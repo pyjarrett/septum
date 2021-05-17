@@ -3,6 +3,7 @@ with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
 with Ada.Text_IO;
 
+with SP.Cache;
 with SP.File_System;
 
 package body SP.Cache is
@@ -28,6 +29,11 @@ package body SP.Cache is
     end Cache_File;
 
     protected body Async_File_Cache is
+        procedure Clear is
+        begin
+            Contents.Clear;
+        end Clear;
+
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector) is
         begin
             if Contents.Contains (File_Name) then
@@ -39,8 +45,27 @@ package body SP.Cache is
 
         function Num_Files return Natural is
         begin
-            return Natural(Contents.Length);
+            return Natural (Contents.Length);
         end Num_Files;
+
+        function Lines (File_Name : in Unbounded_String) return String_Vectors.Vector is
+        begin
+            return Contents (File_Name);
+        end Lines;
+
+        function Files return String_Vectors.Vector is
+        begin
+            return Result : String_Vectors.Vector do
+                for Cursor in Contents.Iterate loop
+                    Result.Append (SP.Cache.File_Maps.Key (Cursor));
+                end loop;
+            end return;
+        end Files;
+
+        function File_Line (File_Name : in Unbounded_String; Line : in Positive) return Unbounded_String is
+        begin
+            return Contents.Element (File_Name).Element (Line);
+        end File_Line;
 
     end Async_File_Cache;
 
@@ -53,7 +78,6 @@ package body SP.Cache is
         Dir_Queue  : String_Unbounded_Queue.Queue;
         File_Queue : String_Unbounded_Queue.Queue;
     begin
-        --  A.Top_Level_Directoriesevel_Directories.Insert (Ada.Strings.Unbounded.To_Unbounded_String (Dir));
         Dir_Queue.Enqueue (New_Item => Ada.Strings.Unbounded.To_Unbounded_String (Dir));
         declare
             task type Dir_Loader_Task is

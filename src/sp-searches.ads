@@ -1,6 +1,7 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 
+with SP.Cache;
 with SP.Contexts;
 with SP.Filters;
 with SP.Strings;
@@ -12,10 +13,9 @@ package SP.Searches is
         (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
          "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
-    type Search is private;
+    type Search is limited private;
 
     procedure Reload_Working_Set (Srch : in out Search);
-    procedure Cache_Directory (Srch : in out Search; Dir_Name : Ada.Strings.Unbounded.Unbounded_String);
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
     function List_Directories (Srch : in Search) return String_Vectors.Vector;
@@ -42,21 +42,9 @@ package SP.Searches is
 
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
-    function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector;
-
-    function Matching_Lines (Srch : in Search; File_Name : in Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector;
-
-    function Matching_Files (Srch : in Search) return String_Vectors.Vector;
-
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 
     procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector);
-
-    function Num_Cached_Files (Srch : in Search) return Natural;
-
-    function Num_Cached_Bytes (Srch : in Search) return Natural;
-
-    function Num_Cached_Lines (Srch : in Search) return Natural;
 
     protected type Concurrent_Context_Results is
         entry Get_Results(Out_Results : out SP.Contexts.Context_Vectors.Vector);
@@ -73,11 +61,11 @@ private
 
     -- The lines which match can determine the width of the context to be saved.
 
-    type Search is record
+    type Search is limited record
         Directories : String_Sets.Set;
         -- A list of all directories to search.
 
-        File_Cache : File_Maps.Map;
+        File_Cache : SP.Cache.Async_File_Cache;
         -- Cached contents of files.
 
         Filters : Filter_List.Vector;
