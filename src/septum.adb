@@ -4,11 +4,11 @@ with GNAT.Traceback.Symbolic;
 
 with SP.Interactive;
 
-procedure Main is
+procedure Septum is
 begin
     SP.Interactive.Main;
 exception
     when Err : others =>
         Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (Err));
         Ada.Text_IO.Put_Line ("Exception traceback: " & GNAT.Traceback.Symbolic.Symbolic_Traceback (Err));
-end Main;
+end Septum;
