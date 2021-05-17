@@ -1,7 +1,6 @@
 with Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
-with SP.Cache;
 with SP.Strings;  use SP.Strings;
 with SP.Searches; use SP.Searches;
 with SP.Commands;
@@ -11,13 +10,12 @@ package body SP.Interactive is
     use Ada.Strings.Unbounded.Text_IO;
     use Ada.Text_IO;
 
-    procedure Write_Prompt (Srch : in Search; File_Cache : SP.Cache.Async_File_Cache) is
+    procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String  := " > ";
         --  Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
-        pragma Unreferenced (Srch);
     begin
-        Put_Line ("Files: " & File_Cache.Num_Files'Image);
+        Put_Line ("Files: " & SP.Searches.Num_Files (Srch)'Image);
         --  New_Line;
         --  Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
         --  Set_Col (20);
@@ -67,14 +65,13 @@ package body SP.Interactive is
         -- pushing and popping operations.
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Searches.Search;
-        Mega_Cache   : SP.Cache.Async_File_Cache;
     begin
-        SP.Cache.Add_Directory (Mega_Cache, Ada.Directories.Current_Directory);
-        --Add_Directory (Srch, Ada.Directories.Current_Directory);
+        --  SP.Cache.Add_Directory (Mega_Cache, Ada.Directories.Current_Directory);
+        Add_Directory (Srch, Ada.Directories.Current_Directory);
         --Reload_Working_Set (Srch);
 
         loop
-            Write_Prompt (Srch, Mega_Cache);
+            Write_Prompt (Srch);
             Command_Line := Read_Command;
             Execute (Srch, Command_Line);
         end loop;

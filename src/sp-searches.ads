@@ -46,6 +46,8 @@ package SP.Searches is
 
     procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector);
 
+    function Num_Files (Srch : in Search) return Natural;
+
     protected type Concurrent_Context_Results is
         entry Get_Results(Out_Results : out SP.Contexts.Context_Vectors.Vector);
         procedure Wait_For(Num_Results : Natural);

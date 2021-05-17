@@ -13,7 +13,7 @@ package body SP.Cache is
         Ext : constant Ada.Strings.Unbounded.Unbounded_String :=
             To_Unbounded_String (Ada.Directories.Extension (File_Name));
         Known_Text : constant array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String :=
-            (+"ads", +"adb", +"c", +"cpp", +"h", +"hpp", +"hh");
+            (+"ads", +"adb", +"c", +"cpp", +"h", +"hpp", +"hh", +"cs");
     begin
         return (for some X of Known_Text => Ext = X);
     end Is_Text;
@@ -23,8 +23,10 @@ package body SP.Cache is
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
         if Read_Lines (To_String (File_Name), Lines) then
-            --Ada.Text_IO.Put_Line ("Asynchronous file caching of: " & To_String (File_Name));
+            --  Ada.Text_IOO.Put_Line ("Asynchronous file caching of: " & To_String (File_Name));
             File_Cache.Cache_File (File_Name, Lines);
+            --  Ada.Text_IOO.Put_Line (File_Cache.Files.Length'Image);
+            --  Ada.Text_IO.Put_Line (File_Cache.Num_Files'Image);
         end if;
     end Cache_File;
 
@@ -180,6 +182,8 @@ package body SP.Cache is
                 Id := Id + 1;
                 FL.Wake (Id);
             end loop;
+
+            Ada.Text_IO.Put_Line (A.Files.Length'Image);
         end;
     end Add_Directory;
 

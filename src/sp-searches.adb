@@ -275,6 +275,11 @@ package body SP.Searches is
         Put_Line ("Matching contexts: " & Contexts.Length'Image);
     end Print_Contexts;
 
+    function Num_Files (Srch : in Search) return Natural is
+    begin
+        return Srch.File_Cache.Num_Files;
+    end Num_Files;
+
     protected body Concurrent_Context_Results is
         entry Get_Results (Out_Results : out SP.Contexts.Context_Vectors.Vector) when Pending_Results = 0 is
         begin
