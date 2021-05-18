@@ -1,14 +1,13 @@
 with Ada.Directories;
-with Ada.Strings.Unbounded.Text_IO;
-with Ada.Text_IO;
-with SP.Strings;  use SP.Strings;
-with SP.Searches; use SP.Searches;
+with Ada.Strings.Unbounded;
 with SP.Commands;
+with SP.Searches; use SP.Searches;
+with SP.Strings;  use SP.Strings;
+with SP.Terminal;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
-    use Ada.Strings.Unbounded.Text_IO;
-    use Ada.Text_IO;
+    use SP.Terminal;
 
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
@@ -56,7 +55,7 @@ package body SP.Interactive is
 
         Parameters.Delete_First;
         if not SP.Commands.Execute (Srch, Command_Name, Parameters) then
-            Put_Line ("Unknown command: " & To_String (Command_Name));
+            Put_Line ("Unknown command: " & Command_Name);
         end if;
     end Execute;
 

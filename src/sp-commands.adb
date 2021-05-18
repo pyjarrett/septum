@@ -1,13 +1,12 @@
 with Ada.Containers.Ordered_Maps;
-with Ada.Text_IO;
-with Ada.Strings.Unbounded.Text_IO;
 with GNAT.OS_Lib;
 with SP.Contexts;
+with SP.Terminal;
 
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
 
-    use Ada.Text_IO;
+    use SP.Terminal;
 
     type Help_Proc is not null access procedure;
     -- Prints a detailed help description for a command.
@@ -87,7 +86,6 @@ package body SP.Commands is
 
     procedure Help_Help is
         use Command_Maps;
-        use Ada.Strings.Unbounded.Text_IO;
     begin
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));

@@ -1,10 +1,10 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
-with Ada.Text_IO;
 
 with SP.Cache;
 with SP.File_System;
+with SP.Terminal;
 
 package body SP.Cache is
     function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
@@ -23,10 +23,7 @@ package body SP.Cache is
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
         if Read_Lines (To_String (File_Name), Lines) then
-            --  Ada.Text_IOO.Put_Line ("Asynchronous file caching of: " & To_String (File_Name));
             File_Cache.Cache_File (File_Name, Lines);
-            --  Ada.Text_IOO.Put_Line (File_Cache.Files.Length'Image);
-            --  Ada.Text_IO.Put_Line (File_Cache.Num_Files'Image);
         end if;
     end Cache_File;
 
@@ -39,7 +36,7 @@ package body SP.Cache is
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector) is
         begin
             if Contents.Contains (File_Name) then
-                Ada.Text_IO.Put_Line ("Already contains: " & To_String (File_Name));
+                SP.Terminal.Put_Line ("Already contains: " & To_String (File_Name));
             else
                 Contents.Insert (File_Name, Lines);
             end if;
@@ -91,9 +88,9 @@ package body SP.Cache is
                 Elem     : Ada.Strings.Unbounded.Unbounded_String;
                 Contents : SP.File_System.Dir_Contents;
             begin
-                Ada.Text_IO.Put_Line ("Starting the directory loading task.");
+                SP.Terminal.Put_Line ("Starting the directory loading task.");
                 loop
-                    Ada.Text_IO.Put_Line ("Directory loading task is waiting.");
+                    SP.Terminal.Put_Line ("Directory loading task is waiting.");
 
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
                     -- program from continuing.
@@ -108,11 +105,11 @@ package body SP.Cache is
                     loop
                         select
                             Dir_Queue.Dequeue (Elem);
-                            --  Ada.Text_IO.Put_Line (Id'Image & " dequeued: " & Ada.Strings.Unbounded.To_String
+                            --  SP.Terminal.Put_Line (Id'Image & " dequeued: " & Ada.Strings.Unbounded.To_String
                             --  (Elem));
                         or
                             delay 1.0;
-                            Ada.Text_IO.Put_Line (Id'image & " no more elements.");
+                            SP.Terminal.Put_Line (Id'image & " no more elements.");
                             exit;
                         end select;
 
@@ -124,7 +121,7 @@ package body SP.Cache is
                         for File of Contents.Files loop
                             File_Queue.Enqueue (File);
                         end loop;
-                        --  Ada.Text_IO.Put_Line ("FILES: " & File_Queue.Current_Use'Image);
+                        --  SP.Terminal.Put_Line ("FILES: " & File_Queue.Current_Use'Image);
                     end loop;
                 end loop;
             end Dir_Loader_Task;
@@ -137,9 +134,9 @@ package body SP.Cache is
                 --Id : Natural := 0;
                 Elem : Ada.Strings.Unbounded.Unbounded_String;
             begin
-                Ada.Text_IO.Put_Line ("Starting the directory loading task.");
+                SP.Terminal.Put_Line ("Starting the directory loading task.");
                 loop
-                    Ada.Text_IO.Put_Line ("Directory loading task is waiting.");
+                    SP.Terminal.Put_Line ("Directory loading task is waiting.");
 
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
                     -- program from continuing.
@@ -155,10 +152,10 @@ package body SP.Cache is
                     loop
                         select
                             File_Queue.Dequeue (Elem);
-                        --Ada.Text_IO.Put_Line (Id'Image & " dequeued FILE: " & Ada.Strings.Unbounded.To_String (Elem));
+                        --SP.Terminal.Put_Line (Id'Image & " dequeued FILE: " & Ada.Strings.Unbounded.To_String (Elem));
                         or
                             delay 1.0;
-                            --Ada.Text_IO.Put_Line (Id'image & " no more FILES.");
+                            --SP.Terminal.Put_Line (Id'image & " no more FILES.");
                             exit;
                         end select;
 
@@ -183,7 +180,7 @@ package body SP.Cache is
                 FL.Wake (Id);
             end loop;
 
-            Ada.Text_IO.Put_Line (A.Files.Length'Image);
+            SP.Terminal.Put_Line (A.Files.Length'Image);
         end;
     end Add_Directory;
 
