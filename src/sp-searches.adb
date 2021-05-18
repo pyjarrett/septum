@@ -3,8 +3,11 @@ with Ada.Text_IO;
 
 with GNATCOLL.Atomic;
 
+with SP.Terminal;
+
 package body SP.Searches is
     use Ada.Strings.Unbounded;
+    use SP.Terminal;
 
     procedure Reload_Working_Set (Srch : in out Search) is
     begin
@@ -12,7 +15,7 @@ package body SP.Searches is
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Add_Directory (Srch, To_String(Dir_Name));
+            Add_Directory (Srch, To_String (Dir_Name));
         end loop;
     end Reload_Working_Set;
 
@@ -25,7 +28,7 @@ package body SP.Searches is
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
-            SP.Cache.Add_Directory (Srch.File_Cache, Dir_name);
+            SP.Cache.Add_Directory (Srch.File_Cache, Dir_Name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
@@ -127,6 +130,7 @@ package body SP.Searches is
     end Matching_Contexts;
 
     procedure Matching_Contexts_In_File
+        -- TODO: This code is a horrible mess and needs to be split up.
         (Srch : in Search; File : in Unbounded_String; Concurrent_Results : in out Concurrent_Context_Results) is
         Excluded_Lines : SP.Contexts.Line_Matches.Set;
         First_Pass     : Boolean := True; -- The first filter pass has nothing to merge into.
@@ -148,7 +152,8 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines, Srch.Context_Width);
+                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines,
+                             Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
                     if First_Pass then
@@ -170,6 +175,7 @@ package body SP.Searches is
 
         declare
             All_Matches_In_Contexts : SP.Contexts.Line_Matches.Set;
+            Matching_Contexts       : SP.Contexts.Context_Vectors.Vector;
         begin
             -- Matching contexts of overlapping terms have been merged into single contexts. Remove those contexts with
             -- excluded lines to get the final result for this file.
@@ -177,6 +183,7 @@ package body SP.Searches is
                 declare
                     Cut : Boolean := False;
                 begin
+                    -- Matching contexts cannot contain any excluded lines.
                     for A of Excluded_Lines loop
                         if SP.Contexts.Contains (G, A) then
                             Cut := True;
@@ -186,28 +193,32 @@ package body SP.Searches is
 
                     if not Cut then
                         All_Matches_In_Contexts.Union (G.Internal_Matches);
+                        Matching_Contexts.Append (G);
                     end if;
                 end;
             end loop;
 
-            for G of Merged loop
+            -- Merge down
+            for C of Matching_Contexts loop
                 declare
-                    Cut : Boolean := False;
+                    Duplicate : Boolean := False;
+                    use type SP.Contexts.Context_Match;
                 begin
-                    for A of Excluded_Lines loop
-                        if SP.Contexts.Contains (G, A) then
-                            Cut := True;
+                    for D of Matching_Contexts loop
+                        if C /= D and then SP.Contexts.Contains(D, C) then
+                            Duplicate := True;
                             exit;
                         end if;
                     end loop;
 
-                    if not Cut then
+                    if not Duplicate then
+                        -- It's nice to have the lines which contain a match to be marked as such.
                         for M of All_Matches_In_Contexts loop
-                            if SP.Contexts.Contains (G, M) and then not G.Internal_Matches.Contains (M) then
-                                G.Internal_Matches.Insert (M);
+                            if SP.Contexts.Contains (C, M) and then not C.Internal_Matches.Contains (M) then
+                                C.Internal_Matches.Insert (M);
                             end if;
                         end loop;
-                        Result.Append (G);
+                        Result.Append (C);
                     end if;
                 end;
             end loop;
@@ -219,9 +230,9 @@ package body SP.Searches is
         Files          : constant String_Vectors.Vector := Srch.File_Cache.Files;
         Merged_Results : Concurrent_Context_Results;
 
-        Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter := 0;
-        Next_Access : constant access GNATCOLL.Atomic.Atomic_Counter  := Next_File'Access;
-        One   : constant GNATCOLL.Atomic.Atomic_Counter := 1;
+        Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter         := 0;
+        Next_Access : constant access GNATCOLL.Atomic.Atomic_Counter := Next_File'Access;
+        One         : constant GNATCOLL.Atomic.Atomic_Counter        := 1;
 
         task type Matching_Context_Search is
             entry Start;
@@ -233,8 +244,8 @@ package body SP.Searches is
         begin
             accept Start;
             loop
-                Next_Index := Natural(GNATColl.Atomic.Sync_Add_And_Fetch (Next_Access, One));
-                if Next_Index <= Natural(Files.Length) then
+                Next_Index := Natural (GNATCOLL.Atomic.Sync_Add_And_Fetch (Next_Access, One));
+                if Next_Index <= Natural (Files.Length) then
                     Next_File := Files (Next_Index);
                     Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
                 else
@@ -243,20 +254,19 @@ package body SP.Searches is
             end loop;
         end Matching_Context_Search;
 
-        Num_Tasks    : constant := 16;
+        Num_Tasks    : constant := 1;
         All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
     begin
         return Result : SP.Contexts.Context_Vectors.Vector do
-            Merged_Results.Wait_For(Natural(Files.Length));
+            Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
-                All_Searches(I).Start;
+                All_Searches (I).Start;
             end loop;
             Merged_Results.Get_Results (Result);
         end return;
     end Matching_Contexts;
 
     procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector) is
-        use Ada.Text_IO;
     begin
         for C of Contexts loop
             New_Line;

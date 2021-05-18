@@ -46,6 +46,13 @@ package body SP.Contexts is
         return A.Minimum <= Line_Num and then Line_Num <= A.Maximum;
     end Contains;
 
+    function Contains (A, B : Context_Match) return Boolean is
+        -- Does A fully contain B?
+        use type Ada.Strings.Unbounded.Unbounded_String;
+    begin
+        return A.File_Name = B.File_Name and then A.Minimum <= B.Minimum and then B.Maximum <= A.Maximum;
+    end Contains;
+
     function Merge (A, B : Context_Match) return Context_Match is
         use Line_Matches;
     begin
@@ -56,5 +63,23 @@ package body SP.Contexts is
             C.Maximum          := Positive'Min (A.Maximum, B.Maximum);
         end return;
     end Merge;
+
+    function Image (A : Context_Match) return String is
+        use Ada.Strings.Unbounded;
+    begin
+        return
+            To_String
+                (A.File_Name & ": " & A.Minimum'Image & " -> " & A.Maximum'Image & "  " &
+                 A.Internal_Matches.Length'Image & " matches");
+    end Image;
+
+    function "=" (A, B : Context_Match) return Boolean is
+        use Ada.Strings.Unbounded;
+        use SP.Contexts.Line_Matches;
+    begin
+        return
+            A.File_Name = B.File_Name and then A.Minimum = B.Minimum and then B.Maximum = A.Maximum
+            and then A.Internal_Matches = B.Internal_Matches;
+    end "=";
 
 end SP.Contexts;

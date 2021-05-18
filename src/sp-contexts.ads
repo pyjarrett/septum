@@ -19,11 +19,11 @@ package SP.Contexts is
         Post => Is_Valid (From'Result);
 
     function Real_Min (C : Context_Match) return Positive with
-        Pre => Is_Valid (C),
+        Pre  => Is_Valid (C),
         Post => C.Minimum <= Real_Min'Result and then Real_Min'Result <= C.Maximum;
 
     function Real_Max (C : Context_Match) return Positive with
-        Pre => Is_Valid (C),
+        Pre  => Is_Valid (C),
         Post => C.Minimum <= Real_Max'Result and then Real_Max'Result <= C.Maximum;
 
     function Is_Valid (C : Context_Match) return Boolean;
@@ -34,9 +34,18 @@ package SP.Contexts is
     function Contains (A : Context_Match; Line_Num : Positive) return Boolean with
         Pre => Is_Valid (A);
 
+    function Contains (A, B : Context_Match) return Boolean with
+        Pre => Is_Valid (A) and then Is_Valid (B);
+
     function Merge (A, B : Context_Match) return Context_Match with
         Pre  => Is_Valid (A) and then Is_Valid (B),
         Post => Is_Valid (Merge'Result);
+
+    function Image (A : Context_Match) return String with
+        Pre => Is_Valid (A);
+
+    function "="(A, B : Context_Match) return Boolean with
+        Pre => Is_Valid (A) and then Is_Valid (B);
 
     package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
 
