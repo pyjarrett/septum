@@ -12,24 +12,13 @@ package body SP.Interactive is
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String  := " > ";
-        --  Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
+        Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
     begin
-        Put_Line ("Files: " & SP.Searches.Num_Files (Srch)'Image);
-        --  New_Line;
-        --  Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
-        --  Set_Col (20);
-        --  Put ("Files: " & Integer'Image (SP.Searches.Num_Cached_Files (Srch)));
-        --  Set_Col (40);
-        --  Put ("Lines: " & Integer'Image (SP.Searches.Num_Cached_Lines (Srch)));
-        --  Set_Col (60);
-        --  Put_Line ("Bytes: " & Integer'Image (SP.Searches.Num_Cached_Bytes (Srch)));
-        --  if not SP.Searches.List_Extensions (Srch).Is_Empty then
-        --      Put ("Exts:  ");
-        --      for Ext of SP.Searches.List_Extensions (Srch) loop
-        --          Put (Ext & " ");
-        --      end loop;
-        --  end if;
-        --  New_Line;
+        New_Line;
+        Put ("Files: " & SP.Searches.Num_Files (Srch)'Image);
+        Set_Col (20);
+        Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
+        New_Line;
         Put (Default_Prompt);
     end Write_Prompt;
 
@@ -65,9 +54,7 @@ package body SP.Interactive is
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Searches.Search;
     begin
-        --  SP.Cache.Add_Directory (Mega_Cache, Ada.Directories.Current_Directory);
         Add_Directory (Srch, Ada.Directories.Current_Directory);
-        --Reload_Working_Set (Srch);
 
         loop
             Write_Prompt (Srch);
