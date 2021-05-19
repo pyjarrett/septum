@@ -8,8 +8,11 @@ with SP.Terminal;
 
 package body SP.Cache is
     function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
+    -- Convenience function for converting strings to unbounded.
 
     function Is_Text (File_Name : String) return Boolean is
+        -- This is probably better written to look at encoding (such as invalid sequences in UTF-8, etc.)
+        -- instead of being a hodgepodge of various formats I know that I care about right now.
         Ext : constant Ada.Strings.Unbounded.Unbounded_String :=
             To_Unbounded_String (Ada.Directories.Extension (File_Name));
         Known_Text : constant array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String :=
@@ -68,7 +71,7 @@ package body SP.Cache is
 
     end Async_File_Cache;
 
-    procedure Add_Directory (A : in out Async_File_Cache; Dir : String) is
+    procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) is
         package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
             (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
         package String_Unbounded_Queue is new Ada.Containers.Unbounded_Synchronized_Queues
@@ -80,24 +83,18 @@ package body SP.Cache is
         Dir_Queue.Enqueue (New_Item => Ada.Strings.Unbounded.To_Unbounded_String (Dir));
         declare
             task type Dir_Loader_Task is
-                entry Wake (New_Id : Natural);
+                entry Wake;
             end Dir_Loader_Task;
 
             task body Dir_Loader_Task is
-                Id       : Natural := 0;
                 Elem     : Ada.Strings.Unbounded.Unbounded_String;
                 Contents : SP.File_System.Dir_Contents;
             begin
-                SP.Terminal.Put_Line ("Starting the directory loading task.");
                 loop
-                    SP.Terminal.Put_Line ("Directory loading task is waiting.");
-
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
                     -- program from continuing.
                     select
-                        accept Wake (New_Id : Natural) do
-                            Id := New_Id;
-                        end Wake;
+                        accept Wake;
                     or
                         terminate;
                     end select;
@@ -105,11 +102,8 @@ package body SP.Cache is
                     loop
                         select
                             Dir_Queue.Dequeue (Elem);
-                            --  SP.Terminal.Put_Line (Id'Image & " dequeued: " & Ada.Strings.Unbounded.To_String
-                            --  (Elem));
                         or
                             delay 1.0;
-                            SP.Terminal.Put_Line (Id'image & " no more elements.");
                             exit;
                         end select;
 
@@ -121,30 +115,22 @@ package body SP.Cache is
                         for File of Contents.Files loop
                             File_Queue.Enqueue (File);
                         end loop;
-                        --  SP.Terminal.Put_Line ("FILES: " & File_Queue.Current_Use'Image);
                     end loop;
                 end loop;
             end Dir_Loader_Task;
 
             task type File_Loader_Task is
-                entry Wake (New_Id : Natural);
+                entry Wake;
             end File_Loader_Task;
 
             task body File_Loader_Task is
-                --Id : Natural := 0;
                 Elem : Ada.Strings.Unbounded.Unbounded_String;
             begin
-                SP.Terminal.Put_Line ("Starting the directory loading task.");
                 loop
-                    SP.Terminal.Put_Line ("Directory loading task is waiting.");
-
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
                     -- program from continuing.
                     select
-                        accept Wake (New_Id : Natural) do
-                            --Id := New_Id;
-                            pragma Unreferenced (New_Id);
-                        end Wake;
+                        accept Wake;
                     or
                         terminate;
                     end select;
@@ -152,10 +138,8 @@ package body SP.Cache is
                     loop
                         select
                             File_Queue.Dequeue (Elem);
-                        --SP.Terminal.Put_Line (Id'Image & " dequeued FILE: " & Ada.Strings.Unbounded.To_String (Elem));
                         or
                             delay 1.0;
-                            --SP.Terminal.Put_Line (Id'image & " no more FILES.");
                             exit;
                         end select;
 
@@ -166,22 +150,18 @@ package body SP.Cache is
                 end loop;
             end File_Loader_Task;
 
-            Dir_Loader  : array (1 .. 12) of Dir_Loader_Task;
-            File_Loader : array (1 .. 12) of File_Loader_Task;
-            Id          : Natural := 0;
+            Num_CPUs : constant := 12;
+            Dir_Loader  : array (1 .. Num_CPUs) of Dir_Loader_Task;
+            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
             for DL of Dir_Loader loop
-                Id := Id + 1;
-                DL.Wake (Id);
+                DL.Wake;
             end loop;
 
             for FL of File_Loader loop
-                Id := Id + 1;
-                FL.Wake (Id);
+                FL.Wake;
             end loop;
-
-            SP.Terminal.Put_Line (A.Files.Length'Image);
         end;
-    end Add_Directory;
+    end Add_Directory_Recursively;
 
 end SP.Cache;

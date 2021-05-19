@@ -3,6 +3,11 @@ with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 
 package SP.Cache is
+    -- Provides a means to load entire directory structures into memory and then use it as needed. This is intended for
+    -- text files only, in particular, to speed text searches of large read-only code bases.
+    --
+    -- While `Async_File_Cache` provides parallel loading, access to the cache itself is protected.
+
     use Ada.Strings.Unbounded;
     use SP.Strings;
 
@@ -11,6 +16,10 @@ package SP.Cache is
          "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
 
     protected type Async_File_Cache is
+        -- The available in-memory contents of files loaded from files.
+        --
+        -- TODO: Add monitoring of files for changes.
+
         procedure Clear;
 
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector);
@@ -31,6 +40,7 @@ package SP.Cache is
         Contents : File_Maps.Map;
     end Async_File_Cache;
 
-    procedure Add_Directory (A : in out Async_File_Cache; Dir : String);
+    procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String);
+    -- Adds a directory and all of its recursive subdirectories into the file cache.
 
 end SP.Cache;

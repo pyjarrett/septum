@@ -28,7 +28,7 @@ package body SP.Searches is
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
-            SP.Cache.Add_Directory (Srch.File_Cache, Dir_Name);
+            SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
