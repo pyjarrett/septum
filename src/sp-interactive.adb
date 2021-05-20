@@ -32,22 +32,6 @@ package body SP.Interactive is
         end;
     end Read_Command;
 
-    procedure Execute (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
-        Parameters   : String_Vectors.Vector     := Command_Line;
-        Command_Name : constant Unbounded_String :=
-            (if Parameters.Is_Empty then Null_Unbounded_String else Parameters.First_Element);
-    begin
-        if Command_Line.Is_Empty then
-            -- An empty command is always successfully executed.
-            return;
-        end if;
-
-        Parameters.Delete_First;
-        if not SP.Commands.Execute (Srch, Command_Name, Parameters) then
-            Put_Line ("Unknown command: " & Command_Name);
-        end if;
-    end Execute;
-
     procedure Main is
         -- The interactive loop through which the user starts a search context and then interatively refines it by
         -- pushing and popping operations.
@@ -59,7 +43,9 @@ package body SP.Interactive is
         loop
             Write_Prompt (Srch);
             Command_Line := Read_Command;
-            Execute (Srch, Command_Line);
+            if not SP.Commands.Execute (Srch, Command_Line) then
+                Put_Line ("Unknown command");
+            end if;
         end loop;
     end Main;
 end SP.Interactive;

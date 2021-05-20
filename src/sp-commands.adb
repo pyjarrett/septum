@@ -1,4 +1,5 @@
 with Ada.Containers.Ordered_Maps;
+with Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 with SP.Contexts;
 with SP.Terminal;
@@ -6,6 +7,7 @@ with SP.Terminal;
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
 
+    use Ada.Strings.Unbounded;
     use SP.Terminal;
 
     type Help_Proc is not null access procedure;
@@ -61,15 +63,16 @@ package body SP.Commands is
         return (if Ambiguous then Null_Unbounded_String else Best_Match);
     end Target_Command;
 
-    function Execute
-        (Srch : in out SP.Searches.Search; Command_Name : Unbounded_String; Parameters : String_Vectors.Vector)
-         return Boolean is
+    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean is
+        Command_Name : constant Unbounded_String :=
+            (if Command_Line.Is_Empty then To_Unbounded_String ("") else Command_Line.First_Element);
         Best_Command : constant Unbounded_String := Target_Command (Command_Name);
     begin
         if Command_Map.Contains (Best_Command) then
             declare
-                It      : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
-                Command : constant Executable_Command  := Command_Maps.Element (It);
+                It         : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
+                Command    : constant Executable_Command  := Command_Maps.Element (It);
+                Parameters : constant String_Vectors.Vector        := Command_Line;
             begin
                 if Best_Command /= Command_Name then
                     Put_Line ("Resolved to: " & To_String (Best_Command));
@@ -315,43 +318,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    --  procedure Matching_Files_Help Is_Empty
-    --  begin
-    --      Put_Line ("Lists the files currently matching all filters.");
-    --  end Matching_Files_Help;
-
-    --  procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-    --      File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
-    --  begin
-    --      pragma Unreferenced (Command_Line);
-    --      for File of File_Names loop
-    --          Put_Line (To_String (File));
-    --      end loop;
-    --  end Matching_Files_Exec;
-
-    ----------------------------------------------------------------------------
-
-    --  procedure Matching_Lines_Help is
-    --  begin
-    --      Put_Line ("Lists the lines currently matching all filters.");
-    --  end Matching_Lines_Help;
-    --
-    --  procedure Matching_Lines_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-    --      File_Names : constant String_Vectors.Vector := SP.Searches.Matching_Files (Srch);
-    --  begin
-    --      pragma Unreferenced (Command_Line);
-    --      for File of File_Names loop
-    --          Put_Line (To_String (File));
-    --          for Line of SP.Searches.Matching_Lines (Srch, File) loop
-    --              Set_Col (4);
-    --              Put_Line (To_String (Line));
-    --          end loop;
-    --          New_Line;
-    --      end loop;
-    --  end Matching_Lines_Exec;
-    --
-    ----------------------------------------------------------------------------
-
     procedure Matching_Contexts_Help is
     begin
         Put_Line ("Lists the Contexts currently matching all filters.");
@@ -432,14 +398,6 @@ begin
 
     -- Results
 
-    --  Make_Command
-    --      ("matching-lines", "Lists lines matching the current filter.", Matching_Lines_Help'Access,
-    --       Matching_Lines_Exec'Access);
-    --
-    --  Make_Command
-    --      ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
-    --       Matching_Files_Exec'Access);
-
     Make_Command
         ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
          Matching_Contexts_Exec'Access);
@@ -449,7 +407,8 @@ begin
     Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
     Make_Command
         ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
-    Make_Command ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
+    Make_Command
+        ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
 
     Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
