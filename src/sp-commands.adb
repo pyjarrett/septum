@@ -273,6 +273,34 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Find_Regex_Help is
+    begin
+        Put_Line ("Provides regex to search for.");
+    end Find_Regex_Help;
+
+    procedure Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Find_Regex (Srch, To_String (Word));
+        end loop;
+    end Find_Regex_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Exclude_Regex_Help is
+    begin
+        Put_Line ("Provides Regex to search for.");
+    end Exclude_Regex_Help;
+
+    procedure Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Exclude_Regex (Srch, To_String (Word));
+        end loop;
+    end Exclude_Regex_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure List_Filters is
     begin
         Put_Line ("Lists the currently bound filters.");
@@ -390,9 +418,12 @@ begin
     -- Filters
 
     Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
-    Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
     Make_Command
-        ("exclude-text", "Adds text to exclude from the search.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
+        ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
+    Make_Command
+        ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
     Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);

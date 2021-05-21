@@ -85,6 +85,24 @@ package body SP.Searches is
         Srch.Filters.Append (Filters.Exclude_Text (Text));
     end Exclude_Text;
 
+    procedure Find_Regex (Srch : in out Search; Text : String) is
+        F : constant Filter_Ptr := Filters.Find_Regex (Text);
+        use type Filter_Ptr;
+    begin
+        if F /= Pointers.Null_Ref then
+            Srch.Filters.Append (F);
+        end if;
+    end Find_Regex;
+
+    procedure Exclude_Regex (Srch : in out Search; Text : String) is
+        F : constant Filter_Ptr := Filters.Exclude_Regex (Text);
+        use type Filter_Ptr;
+    begin
+        if F /= Pointers.Null_Ref then
+            Srch.Filters.Append (F);
+        end if;
+    end Exclude_Regex;
+
     procedure Pop_Filter (Srch : in out Search) is
         Filter_Being_Popped : constant Filter_Ptr :=
             (if Srch.Filters.Is_Empty then Pointers.Null_Ref else Srch.Filters.Last_Element);

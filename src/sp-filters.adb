@@ -1,6 +1,8 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 
+with SP.Terminal;
+
 package body SP.Filters is
     use Ada.Strings.Unbounded;
 
@@ -20,6 +22,42 @@ package body SP.Filters is
         return Ptr;
     end Exclude_Text;
 
+    function Find_Regex (Text : String) return Filter_Ptr is
+        Matcher : Rc_Regex.Ref;
+        Ptr     : Filter_Ptr;
+    begin
+        Matcher.Set (GNAT.Regpat.Compile (Text));
+        declare
+            Base : constant Regex_Filter := (Action => Keep, Source => To_Unbounded_String(Text), Regex => Matcher);
+        begin
+            Ptr.Set (Base);
+        end;
+        return Ptr;
+    exception
+        -- Unable to compile the regular expression.
+        when GNAT.Regpat.Expression_Error =>
+            SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
+            return Pointers.Null_Ref;
+    end Find_Regex;
+
+    function Exclude_Regex (Text : String) return Filter_Ptr is
+        Matcher : Rc_Regex.Ref;
+        Ptr     : Filter_Ptr;
+    begin
+        Matcher.Set (GNAT.Regpat.Compile (Text));
+        declare
+            Base : constant Regex_Filter := (Action => Exclude, Source => To_Unbounded_String(Text), Regex => Matcher);
+        begin
+            Ptr.Set (Base);
+        end;
+        return Ptr;
+    exception
+        -- Unable to compile the regular expression.
+        when GNAT.Regpat.Expression_Error =>
+            SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
+            return Pointers.Null_Ref;
+    end Exclude_Regex;
+
     ----------------------------------------------------------------------------
 
     overriding function Image (F : Case_Sensitive_Match_Filter) return String is
@@ -31,6 +69,18 @@ package body SP.Filters is
     function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean is
     begin
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
+    end Matches_Line;
+
+    ----------------------------------------------------------------------------
+
+    function Image (F : Regex_Filter) return String is
+    begin
+        return Ada.Strings.Unbounded.To_String (F.Source);
+    end Image;
+
+    function Matches_Line (F : Regex_Filter; Str : String) return Boolean is
+    begin
+        return GNAT.Regpat.Match (F.Regex.Get, Str);
     end Matches_Line;
 
     ----------------------------------------------------------------------------

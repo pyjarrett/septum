@@ -31,6 +31,10 @@ package SP.Searches is
 
     procedure Exclude_Text (Srch : in out Search; Text : String);
 
+    procedure Find_Regex (Srch : in out Search; Text : String);
+
+    procedure Exclude_Regex (Srch : in out Search; Text : String);
+
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 

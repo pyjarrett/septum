@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with GNAT.Regpat;
 with GNATCOLL.Refcount;
 with SP.Contexts;
 with SP.Strings;
@@ -29,11 +30,19 @@ package SP.Filters is
     package Filter_List is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
 
+    package Rc_Regex is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => GNAT.Regpat.Pattern_Matcher);
+
     function Find_Text (Text : String) return Filter_Ptr;
     -- Matches lines which match this text.
 
     function Exclude_Text (Text : String) return Filter_Ptr;
     -- Matches lines which don't have this text.
+
+    function Find_Regex (Text : String) return Filter_Ptr;
+    -- Matches lines which match this regex.
+
+    function Exclude_Regex (Text : String) return Filter_Ptr;
+    -- Matches lines which don't have this regex.
 
     function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     -- Looks for a match in any of the given lines.
@@ -46,7 +55,15 @@ private
         Text : Ada.Strings.Unbounded.Unbounded_String;
     end record;
 
+    type Regex_Filter is new Filter with record
+        Source : Ada.Strings.Unbounded.Unbounded_String;
+        Regex : Rc_Regex.Ref;
+    end record;
+
     overriding function Image (F : Case_Sensitive_Match_Filter) return String;
     overriding function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
+
+    overriding function Image (F : Regex_Filter) return String;
+    overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean;
 
 end SP.Filters;
