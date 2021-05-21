@@ -1,26 +1,30 @@
-with Ada.Strings.Maps;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
+with Ada.Characters.Latin_1;
+
+with GNAT.OS_Lib;
 
 package body SP.Strings is
-    function Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector is
-        --  Splits an unbounded string on spaces.
-        Start  : Positive := 1;
-        Finish : Natural  := 0;
+    function Shell_Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector is
+        use Ada.Strings.Unbounded;
+        use GNAT.OS_Lib;
+        Args : Argument_List_Access := Argument_String_To_List (To_String (S));
     begin
         return Result : String_Vectors.Vector do
-            while Start <= Ada.Strings.Unbounded.Length (S) loop
-                Ada.Strings.Unbounded.Find_Token
-                    (Source => S, Set => Ada.Strings.Maps.To_Set (" "), From => Start, Test => Ada.Strings.Outside,
-                     First  => Start, Last => Finish);
-                String_Vectors.Append
-                    (Container => Result,
-                     New_Item  =>
-                         Ada.Strings.Unbounded.To_Unbounded_String (Ada.Strings.Unbounded.Slice (S, Start, Finish)));
-                Start := Finish + 1;
+            for Arg : GNAT.OS_Lib.String_Access of Args.all loop
+                declare
+                    Real_Arg : constant Unbounded_String := To_Unbounded_String (Arg.all);
+                begin
+                    if SP.Strings.Is_Quoted (Arg.all) then
+                        Result.Append(To_Unbounded_String (Slice(Real_Arg, 2, Length(Real_Arg) - 1)));
+                    else
+                        Result.Append (Real_Arg);
+                    end if;
+                end;
             end loop;
+            GNAT.OS_Lib.Free (Args);
         end return;
-    end Split;
+    end Shell_Split;
 
     function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
         --  Reads all the lines from a file.
@@ -59,5 +63,12 @@ package body SP.Strings is
             end loop;
         end return;
     end Common_Prefix_Length;
+
+    function Is_Quoted (S : String) return Boolean is
+        use Ada.Characters.Latin_1;
+        Quote_Types : constant array (Positive range <>) of Character := (Quotation, Apostrophe);
+    begin
+        return S'Length > 0 and then S (S'First) = S (S'Last) and then (for some X of Quote_Types => X = S (S'First));
+    end Is_Quoted;
 
 end SP.Strings;

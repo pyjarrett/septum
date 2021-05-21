@@ -30,7 +30,7 @@ package body SP.Interactive is
             Input : constant Unbounded_String := Get_Line;
         begin
             -- This might want to be a more complicated algorithm for splitting, such as handling quotes
-            return Split (Input);
+            return Shell_Split (Input);
         end;
     end Read_Command;
 
@@ -53,7 +53,7 @@ package body SP.Interactive is
 
         for Command of Commands loop
             declare
-                Command_Line : constant String_Vectors.Vector := Split(Command);
+                Command_Line : constant String_Vectors.Vector := Shell_Split(Command);
             begin
                 Put_Line (" > " & Command);
                 if not SP.Commands.Execute (Srch, Command_Line) then
