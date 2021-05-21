@@ -138,7 +138,7 @@ package body SP.Searches is
     begin
         return V : String_Vectors.Vector do
             for F of Srch.Filters loop
-                V.Append (To_Unbounded_String (Image (F.Get)));
+                V.Append (To_Unbounded_String (F.Get.Action'Image & " : " & Image (F.Get)));
             end loop;
         end return;
     end List_Filter_Names;
