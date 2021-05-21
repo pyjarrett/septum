@@ -5,6 +5,8 @@ with GNATCOLL.Atomic;
 
 with SP.Terminal;
 
+with System.Multiprocessors;
+
 package body SP.Searches is
     use Ada.Strings.Unbounded;
     use SP.Terminal;
@@ -279,10 +281,12 @@ package body SP.Searches is
             end loop;
         end Matching_Context_Search;
 
-        Num_Tasks    : constant := 1;
+        Num_Tasks    : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
+        use System.Multiprocessors;
         All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
     begin
         return Result : SP.Contexts.Context_Vectors.Vector do
+            Put_Line ("Searching with" & Num_Tasks'Image & " tasks.");
             Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
                 All_Searches (I).Start;

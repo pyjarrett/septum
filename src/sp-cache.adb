@@ -6,6 +6,8 @@ with SP.Cache;
 with SP.File_System;
 with SP.Terminal;
 
+with System.Multiprocessors;
+
 package body SP.Cache is
     function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
     -- Convenience function for converting strings to unbounded.
@@ -19,12 +21,12 @@ package body SP.Cache is
         Known_Text : constant array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String :=
             (+"ads", +"adb",          -- Ada
              +"c", +"h",              -- c
-             +"cpp", "C",             -- C++
+             +"cpp", +"C",             -- C++
              +"hpp", +"hh", +"inl",
              +"cs",                   -- C#
              +"hs",                   -- Haskell
              +"py",                   -- Python
-             +"rs",                   -- Rust
+             +"rs"                    -- Rust
             );
     begin
         return (for some X of Known_Text => Ext = X);
@@ -159,10 +161,11 @@ package body SP.Cache is
                 end loop;
             end File_Loader_Task;
 
-            Num_CPUs : constant := 12;
+            Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
             Dir_Loader  : array (1 .. Num_CPUs) of Dir_Loader_Task;
             File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
+            SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             for DL of Dir_Loader loop
                 DL.Wake;
             end loop;
