@@ -127,6 +127,13 @@ package body SP.Searches is
 
     function Get_Context_Width (Srch : in Search) return Natural is (Srch.Context_Width);
 
+    procedure Set_Max_Results (Srch : in out Search; Max_Results : Natural) is
+    begin
+        Srch.Max_Results := Max_Results;
+    end Set_Max_Results;
+
+    function Get_Max_Results (Srch : in Search) return Natural is (Srch.Max_Results);
+
     function List_Filter_Names (Srch : Search) return String_Vectors.Vector is
     begin
         return V : String_Vectors.Vector do
@@ -286,6 +293,11 @@ package body SP.Searches is
 
     procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector) is
     begin
+        if Natural(Contexts.Length) > Srch.Max_Results then
+            Put_Line ("Found" & Contexts.Length'Image & " results.");
+            return;
+        end if;
+
         for C of Contexts loop
             New_Line;
             Put_Line (To_String (C.File_Name));

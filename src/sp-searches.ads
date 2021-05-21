@@ -44,6 +44,10 @@ package SP.Searches is
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);
     function Get_Context_Width (Srch : in Search) return Natural;
 
+    No_Max_Results : constant := Natural'Last;
+    procedure Set_Max_Results (Srch : in out Search; Max_Results : Natural);
+    function Get_Max_Results (Srch : in Search) return Natural;
+
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
@@ -79,6 +83,8 @@ private
         Extensions : String_Sets.Set;
 
         Context_Width : Natural := 7;-- No_Context_Width;
+
+        Max_Results : Natural := No_Max_Results;
     end record;
 
 end SP.Searches;

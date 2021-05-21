@@ -401,6 +401,33 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Set_Max_Results_Help is
+    begin
+        Put_Line ("Sets the maximum number of results which can be returned.");
+    end Set_Max_Results_Help;
+
+    procedure Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        Max_Results : Natural := 0;
+    begin
+        case Natural (Command_Line.Length) is
+            when 0 =>
+                Put_Line ("Removing max results restriction.");
+                SP.Searches.Set_Max_Results (Srch, SP.Searches.No_Max_Results);
+            when 1 =>
+                Max_Results := Natural'Value (To_String (Command_Line.First_Element));
+                SP.Searches.Set_Max_Results (Srch, Max_Results);
+                Put_Line ("Maximum results set to " & Max_Results'Image);
+            when others =>
+                Put_Line
+                    ("Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
+        end case;
+    exception
+        when Constraint_Error =>
+            Put_Line ("Invalid number of maximum results: " & To_String (Command_Line.First_Element));
+    end Set_Max_Results_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -451,6 +478,8 @@ begin
     Make_Command
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
          Set_Context_Width_Exec'Access);
+    Make_Command
+        ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.", Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
 
     -- Quit
 
