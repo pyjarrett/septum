@@ -72,8 +72,9 @@ package body SP.Commands is
             declare
                 It         : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
                 Command    : constant Executable_Command  := Command_Maps.Element (It);
-                Parameters : constant String_Vectors.Vector        := Command_Line;
+                Parameters : String_Vectors.Vector        := Command_Line;
             begin
+                Parameters.Delete_First;
                 if Best_Command /= Command_Name then
                     Put_Line ("Resolved to: " & To_String (Best_Command));
                 end if;
