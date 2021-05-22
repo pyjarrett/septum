@@ -93,7 +93,7 @@ package body SP.Commands is
     begin
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
-            Set_Col (25);
+            Set_Col (30);
             Put_Line (Element (Cursor).Simple_Help);
         end loop;
     end Help_Help;
