@@ -423,14 +423,18 @@ package body SP.Commands is
     end Set_Max_Results_Help;
 
     procedure Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-        Max_Results : Natural := 0;
+        Max_Results : Natural := SP.Searches.No_Max_Results;
     begin
         case Natural (Command_Line.Length) is
             when 0 =>
-                Put_Line ("Removing max results restriction.");
+                Put_Line ("Removing maximum result restriction");
                 SP.Searches.Set_Max_Results (Srch, SP.Searches.No_Max_Results);
             when 1 =>
                 Max_Results := Natural'Value (To_String (Command_Line.First_Element));
+                if Max_Results = 0 then
+                    Put_Line ("Must return at least 1 result.");
+                    return;
+                end if;
                 SP.Searches.Set_Max_Results (Srch, Max_Results);
                 Put_Line ("Maximum results set to " & Max_Results'Image);
             when others =>
