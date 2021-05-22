@@ -55,9 +55,9 @@ package body SP.Interactive is
 
     procedure Load_Local_Config (Srch : in out SP.Searches.Search) is
         use GNATCOLL.VFS;
-        Config : constant Virtual_File := GNATCOLL.VFS.Get_Home_Directory / ".septum";
-        Config_File_Name : constant String := +Config.Full_Name;
-        Commands : String_Vectors.Vector;
+        Config           : constant Virtual_File := GNATCOLL.VFS.Get_Home_Directory / ".septum";
+        Config_File_Name : constant String       := +Config.Full_Name;
+        Commands         : String_Vectors.Vector;
     begin
         if not Is_Readable (Config) then
             Put_Line ("No config to read at: " & Config_File_Name);
@@ -72,7 +72,7 @@ package body SP.Interactive is
 
         for Command of Commands loop
             declare
-                Command_Line : constant String_Vectors.Vector := Shell_Split(Command);
+                Command_Line : constant String_Vectors.Vector := Shell_Split (Command);
             begin
                 Put_Line (" > " & Command);
                 if not SP.Commands.Execute (Srch, Command_Line) then
