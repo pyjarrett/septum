@@ -88,6 +88,9 @@ package body SP.Interactive is
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Searches.Search;
     begin
+        Put_Line ("septum v" & SP.Version);
+        New_Line;
+
         Load_Local_Config (Srch);
         Add_Directory (Srch, Ada.Directories.Current_Directory);
 
