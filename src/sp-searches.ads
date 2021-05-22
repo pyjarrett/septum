@@ -48,6 +48,9 @@ package SP.Searches is
     procedure Set_Max_Results (Srch : in out Search; Max_Results : Natural);
     function Get_Max_Results (Srch : in Search) return Natural;
 
+    procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean);
+    function Get_Print_Line_Numbers (Srch : in Search) return Boolean;
+
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
@@ -86,6 +89,8 @@ private
         Context_Width : Natural := 7;-- No_Context_Width;
 
         Max_Results : Natural := No_Max_Results;
+
+        Print_Line_Numbers : Boolean := True;
     end record;
 
 end SP.Searches;

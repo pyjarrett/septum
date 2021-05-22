@@ -150,8 +150,8 @@ package body SP.Commands is
         if not Command_Line.Is_Empty then
             Put_Line ("Stats should have an empty command line.");
         end if;
-        Put_Line ("Files: " & SP.Searches.Num_Files(Srch)'Image);
-        Put_Line ("Lines: " & SP.Searches.Num_Lines(Srch)'Image);
+        Put_Line ("Files: " & SP.Searches.Num_Files (Srch)'Image);
+        Put_Line ("Lines: " & SP.Searches.Num_Lines (Srch)'Image);
     end Stats_Exec;
 
     ----------------------------------------------------------------------------
@@ -448,6 +448,34 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Enable_Line_Numbers_Help is
+    begin
+        Put_Line ("Enables line numbers in context output.");
+    end Enable_Line_Numbers_Help;
+
+    procedure Enable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Print_Line_Numbers (Srch, True);
+    end Enable_Line_Numbers_Exec;
+
+    procedure Disable_Line_Numbers_Help is
+    begin
+        Put_Line ("Disables line numbers in context output.");
+    end Disable_Line_Numbers_Help;
+
+    procedure Disable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Print_Line_Numbers (Srch, False);
+    end Disable_Line_Numbers_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -466,11 +494,9 @@ begin
     -- Filters
 
     Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
-    Make_Command
-        ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
     Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
-    Make_Command
-        ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
@@ -500,7 +526,15 @@ begin
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
          Set_Context_Width_Exec'Access);
     Make_Command
-        ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.", Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
+        ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.",
+         Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
+
+    Make_Command
+        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Enable_Line_Numbers_Help'Access,
+         Enable_Line_Numbers_Exec'Access);
+    Make_Command
+        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Disable_Line_Numbers_Help'Access,
+         Disable_Line_Numbers_Exec'Access);
 
     -- Quit
 

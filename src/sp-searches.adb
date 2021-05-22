@@ -136,6 +136,13 @@ package body SP.Searches is
 
     function Get_Max_Results (Srch : in Search) return Natural is (Srch.Max_Results);
 
+    procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean) is
+    begin
+        Srch.Print_Line_Numbers := Enabled;
+    end Set_Print_Line_Numbers;
+
+    function Get_Print_Line_Numbers (Srch : in Search) return Boolean is (Srch.Print_Line_Numbers);
+
     function List_Filter_Names (Srch : Search) return String_Vectors.Vector is
     begin
         return V : String_Vectors.Vector do
@@ -310,8 +317,12 @@ package body SP.Searches is
                     Put ("->");
                 end if;
                 Set_Col (3);
-                Put (Line_Num'Image);
-                Set_Col (13);
+                if Srch.Print_Line_Numbers then
+                    Put (Line_Num'Image);
+                    Set_Col (13);
+                else
+                    Set_Col(5);
+                end if;
                 Put_Line (To_String (Srch.File_Cache.File_Line (C.File_Name, Line_Num)));
             end loop;
             New_Line;
