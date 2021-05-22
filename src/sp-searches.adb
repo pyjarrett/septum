@@ -324,6 +324,11 @@ package body SP.Searches is
         return Srch.File_Cache.Num_Files;
     end Num_Files;
 
+    function Num_Lines (Srch : in Search) return Natural is
+    begin
+        return Srch.File_Cache.Num_Lines;
+    end Num_Lines;
+
     protected body Concurrent_Context_Results is
         entry Get_Results (Out_Results : out SP.Contexts.Context_Vectors.Vector) when Pending_Results = 0 is
         begin

@@ -140,6 +140,22 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Stats_Help is
+    begin
+        Put_Line ("Prints statistics about the file cache.");
+    end Stats_Help;
+
+    procedure Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Stats should have an empty command line.");
+        end if;
+        Put_Line ("Files: " & SP.Searches.Num_Files(Srch)'Image);
+        Put_Line ("Lines: " & SP.Searches.Num_Lines(Srch)'Image);
+    end Stats_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Dirs_Help is
     begin
         Put_Line ("Adds a directory to the search list.");
@@ -441,6 +457,7 @@ begin
 
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
+    Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
 
     -- Filters
 

@@ -26,6 +26,8 @@ package SP.Cache is
 
         function Num_Files return Natural;
 
+        function Num_Lines return Natural;
+
         function Lines (File_Name : in Unbounded_String) return String_Vectors.Vector;
 
         function Files return String_Vectors.Vector;

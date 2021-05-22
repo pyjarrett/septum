@@ -61,6 +61,15 @@ package body SP.Cache is
             return Natural (Contents.Length);
         end Num_Files;
 
+        function Num_Lines return Natural is
+        begin
+            return N : Natural := 0 do
+                for Cursor in Contents.Iterate loop
+                    N := N + Natural(File_Maps.Element (Cursor).Length);
+                end loop;
+            end return;
+        end Num_Lines;
+
         function Lines (File_Name : in Unbounded_String) return String_Vectors.Vector is
         begin
             return Contents (File_Name);
