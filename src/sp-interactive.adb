@@ -17,14 +17,11 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -------------------------------------------------------------------------------
 
-with Ada.Directories;
 with Ada.Strings.Unbounded;
 with SP.Commands;
 with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
-
-with GNATCOLL.VFS;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
@@ -53,35 +50,6 @@ package body SP.Interactive is
         end;
     end Read_Command;
 
-    procedure Load_Local_Config (Srch : in out SP.Searches.Search) is
-        use GNATCOLL.VFS;
-        Config           : constant Virtual_File := GNATCOLL.VFS.Get_Home_Directory / ".septum";
-        Config_File_Name : constant String       := +Config.Full_Name;
-        Commands         : String_Vectors.Vector;
-    begin
-        if not Is_Readable (Config) then
-            Put_Line ("No config to read at: " & Config_File_Name);
-            return;
-        end if;
-
-        Put_Line ("Loading commands from local config: " & Config_File_Name);
-
-        if not SP.Strings.Read_Lines (+Config.Full_Name, Commands) then
-            Put_Line ("Unable to load configuration file from: " & Config_File_Name);
-        end if;
-
-        for Command of Commands loop
-            declare
-                Command_Line : constant String_Vectors.Vector := Shell_Split (Command);
-            begin
-                Put_Line (" > " & Command);
-                if not SP.Commands.Execute (Srch, Command_Line) then
-                    Put_Line ("Unable to execute: " & Command);
-                end if;
-            end;
-        end loop;
-    end Load_Local_Config;
-
     procedure Main is
         -- The interactive loop through which the user starts a search context and then interatively refines it by
         -- pushing and popping operations.
@@ -90,8 +58,6 @@ package body SP.Interactive is
     begin
         Put_Line ("septum v" & SP.Version);
         New_Line;
-
-        Load_Local_Config (Srch);
 
         loop
             Write_Prompt (Srch);

@@ -7,7 +7,7 @@ project Septum is
    for Main use ("septum.adb");
 
    package Compiler is
-      for Switches ("ada") use ("-gnatf", "-g", "-gnata", "-gnat12", "-fstack-check", "-gnato", "-gnatVa", "-gnatw.oat");
+      for Switches ("ada") use ("-gnatf", "-g", "-gnata", "-gnat12", "-fstack-check", "-gnato", "-O3", "-gnatVa", "-gnatw.oat");
    end Compiler;
 
    package Binder is

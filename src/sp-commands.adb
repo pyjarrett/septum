@@ -20,6 +20,7 @@
 with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
+with GNATCOLL.VFS;
 with SP.Contexts;
 with SP.Terminal;
 
@@ -104,6 +105,35 @@ package body SP.Commands is
         end if;
         return False;
     end Execute;
+
+    procedure Load_Local_Config (Srch : in out SP.Searches.Search; File : String) is
+        use GNATCOLL.VFS;
+        Config           : constant Virtual_File := GNATCOLL.VFS.Create(+File);
+        Config_File_Name : constant String       := +Config.Full_Name;
+        Commands         : String_Vectors.Vector;
+    begin
+        if not Is_Readable (Config) then
+            Put_Line ("No config to read at: " & Config_File_Name);
+            return;
+        end if;
+
+        Put_Line ("Loading commands from: " & Config_File_Name);
+
+        if not SP.Strings.Read_Lines (+Config.Full_Name, Commands) then
+            Put_Line ("Unable to load configuration file from: " & Config_File_Name);
+        end if;
+
+        for Command of Commands loop
+            declare
+                Command_Line : constant String_Vectors.Vector := Shell_Split (Command);
+            begin
+                Put_Line (" > " & Command);
+                if not SP.Commands.Execute (Srch, Command_Line) then
+                    Put_Line ("Unable to execute: " & Command);
+                end if;
+            end;
+        end loop;
+    end Load_Local_Config;
 
     ----------------------------------------------------------------------------
 
