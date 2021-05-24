@@ -92,7 +92,6 @@ package body SP.Interactive is
         New_Line;
 
         Load_Local_Config (Srch);
-        Add_Directory (Srch, Ada.Directories.Current_Directory);
 
         loop
             Write_Prompt (Srch);
