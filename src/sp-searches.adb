@@ -30,13 +30,25 @@ package body SP.Searches is
     use Ada.Strings.Unbounded;
     use SP.Terminal;
 
+    procedure Load_Directory (Srch : in out Search; Dir_Name : String) is
+        use Ada.Directories;
+        Path_Exists    : constant Boolean          := Exists (Dir_Name);
+        Is_Directory   : constant Boolean          := Path_Exists and then Kind (Dir_Name) = Directory;
+    begin
+        if Is_Directory then
+            SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
+        else
+            Ada.Text_IO.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
+        end if;
+    end Load_Directory;
+
     procedure Reload_Working_Set (Srch : in out Search) is
     begin
         -- TODO: The file cache should watch files to know when it needs a refresh such as examining last time modified
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Add_Directory (Srch, To_String (Dir_Name));
+            Load_Directory (Srch, To_String (Dir_Name));
         end loop;
     end Reload_Working_Set;
 
@@ -49,7 +61,7 @@ package body SP.Searches is
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
-            SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
+            Load_Directory (Srch, Dir_Name);
             Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
         else
             Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");

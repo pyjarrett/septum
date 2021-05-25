@@ -35,8 +35,10 @@ package SP.Searches is
     type Search is limited private;
 
     procedure Reload_Working_Set (Srch : in out Search);
+    -- Dumps currently loaded search text and loads it again.
 
     procedure Add_Directory (Srch : in out Search; Dir_Name : String);
+
     function List_Directories (Srch : in Search) return String_Vectors.Vector;
     -- Lists top level search directories.
     procedure Clear_Directories (Srch : in out Search)

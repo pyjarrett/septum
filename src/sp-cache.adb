@@ -69,7 +69,8 @@ package body SP.Cache is
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector) is
         begin
             if Contents.Contains (File_Name) then
-                SP.Terminal.Put_Line ("Already contains: " & To_String (File_Name));
+                SP.Terminal.Put_Line ("Replacing contents of " & To_String (File_Name));
+                Contents.Replace (File_Name, Lines);
             else
                 Contents.Insert (File_Name, Lines);
             end if;
