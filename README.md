@@ -16,53 +16,40 @@ for needs to be done in an incremental fashion.
 Septum is a stack of applied search filters that you can push and pop interactively
 as you search.
 
+# Usage
 
-# Example
+      add-dirs                 Adds directory to the search list.
+      add-exts                 Adds extensions to filter by.
+      clear-dirs               Removes all directories from the search list.
+      clear-filters            Pops all filters.
+      disable-line-numbers     Disables prefixing of lines with line numbers.
+      enable-line-numbers      Enables prefixing of lines with line numbers.
+      exclude-regex            Adds regex to exclude.
+      exclude-text             Adds text to exclude.
+      exit                     Exits the search program.
+      find-regex               Adds filter regex.
+      find-text                Adds filter text.
+      help                     Print commands or help for a specific command
+      list-dirs                List the directories in the search list.
+      list-exts                List current extensions.
+      list-filters             Lists all applied filters.
+      matching-contexts        Lists contexts matching the current filter.
+      pop                      Pops the last applied filter.
+      quit                     Exits the search program.
+      reload                   Reloads the file cache.
+      remove-exts              Removes extensions from the search.
+      set-context-width        Sets the width of the context in which to find matches.
+      set-max-results          Sets the maximum results returned before only the total number of results are returned.
+      stats                    Print file cache statistics.
 
-    > add-dirs D:/dev/calendon/src
-    
-    Loading with 12 tasks.
-    Added D:/dev/calendon/src to search path.
-    
-     > find-regex ^\s*#\s*if
-     > find-text clang
-     > exclude-text pop 
-     > matching-contexts
-    
-    D:\dev\calendon\src\calendon\compat-spng.h
-       2        #define CN_COMPAT_SPNG_H
-       3
-    -> 4        #ifdef __GNUC__
-       5            #pragma GCC diagnostic push
-       6            #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
-       7        #endif
-       8
-    -> 9        #ifdef __clang__
-    -> 10           #pragma clang diagnostic push
-    -> 11           #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
-       12       #endif
-       13
-    -> 14       #ifdef _MSC_VER
-       15           #pragma warning(push)
-       16           // "different 'const' qualifiers"
-       
-       D:\dev\calendon\src\calendon\utf8.h
-       24        * represent a single UTF code point.
-       25        */
-       26
-       27       #include <calendon/cn.h>
-       28
-       29       #include <stdio.h>
-       30
-    -> 31       #if defined(__clang__)
-    -> 32           #pragma clang diagnostic push
-    -> 33           #pragma clang diagnostic ignored "-Wpointer-sign"
-       34       #endif
-       35
-    -> 36       #ifdef __cplusplus
-       37       extern "C" {
-       38       #endif
-       
+## Example
+
+      > add-dirs D:/dev/calendon/src
+      > find-regex ^\s*#\s*if
+      > find-text clang
+      > exclude-text pop
+      > matching-contexts
+
        D:\dev\calendon\src\tests\unit\test-utf8.c
        1        #include <calendon/test.h>
        2
@@ -81,3 +68,13 @@ as you search.
        15           CN_TEST_UNIT("Bytes in UTF-8 code point") {
 
 Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
+
+# Installation
+
+> Septum is currently available as a prerelease alpha.
+
+**Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
+
+```powershell
+choco install septum --pre
+```
