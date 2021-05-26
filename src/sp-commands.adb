@@ -426,6 +426,30 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Matching_Files_Help is
+    begin
+        Put_Line ("Lists files currently matchign all filters.");
+    end Matching_Files_Help;
+
+    procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+        Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
+        Files : String_Sets.Set;
+    begin
+        pragma Unreferenced (Command_Line);
+        for Context of Contexts loop
+            if not Files.Contains (Context.File_Name) then
+                Files.Insert (Context.File_Name);
+            end if;
+        end loop;
+
+        SP.Terminal.New_Line;
+        for File of Files loop
+            SP.Terminal.Put_Line (File);
+        end loop;
+    end Matching_Files_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Quit_Help is
     begin
         Put_Line ("Quits this program.");
@@ -556,6 +580,9 @@ begin
     Make_Command
         ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
          Matching_Contexts_Exec'Access);
+    Make_Command
+        ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
+         Matching_Files_Exec'Access);
 
     -- Global configuration
 
