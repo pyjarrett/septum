@@ -333,30 +333,40 @@ package body SP.Searches is
         end return;
     end Matching_Contexts;
 
-    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector) is
+    procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        if Natural(Contexts.Length) > Srch.Max_Results then
+        Put_Line (To_String (Context.File_Name));
+        for Line_Num in Context.Minimum .. Context.Maximum loop
+            if Context.Internal_Matches.Contains (Line_Num) then
+                Put ("->");
+            end if;
+            Set_Col (3);
+            if Srch.Print_Line_Numbers then
+                Put (Line_Num'Image);
+                Set_Col (13);
+            else
+                Set_Col(5);
+            end if;
+            Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+        end loop;
+        New_Line;
+    end Print_Context;
+
+    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector; First_Num : Natural := No_Limit) is
+        Max_Results : constant Natural := Srch.Max_Results;
+        Num_Results_Printed : Natural := 0;
+    begin
+        if Natural(Contexts.Length) > Max_Results and then First_Num > Max_Results then
             Put_Line ("Found" & Contexts.Length'Image & " results.");
             return;
         end if;
 
         for C of Contexts loop
             New_Line;
-            Put_Line (To_String (C.File_Name));
-            for Line_Num in C.Minimum .. C.Maximum loop
-                if C.Internal_Matches.Contains (Line_Num) then
-                    Put ("->");
-                end if;
-                Set_Col (3);
-                if Srch.Print_Line_Numbers then
-                    Put (Line_Num'Image);
-                    Set_Col (13);
-                else
-                    Set_Col(5);
-                end if;
-                Put_Line (To_String (Srch.File_Cache.File_Line (C.File_Name, Line_Num)));
-            end loop;
-            New_Line;
+            Print_Context (Srch, C);
+
+            Num_Results_Printed := Num_Results_Printed + 1;
+            exit when First_Num /= No_Limit and then Num_Results_Printed >= First_Num;
         end loop;
         Put_Line ("Matching contexts: " & Contexts.Length'Image);
     end Print_Contexts;

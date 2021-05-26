@@ -83,6 +83,15 @@ package body SP.Commands is
         return (if Ambiguous then Null_Unbounded_String else Best_Match);
     end Target_Command;
 
+    function Try_Parse (Str : String; Value : in out Positive) return Boolean is
+    begin
+        Value := Positive'Value (Str);
+        return True;
+    exception
+        when Constraint_Error =>
+            return False;
+    end Try_Parse;
+
     function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean is
         Command_Name : constant Unbounded_String :=
             (if Command_Line.Is_Empty then To_Unbounded_String ("") else Command_Line.First_Element);
@@ -415,20 +424,35 @@ package body SP.Commands is
     procedure Matching_Contexts_Help is
     begin
         Put_Line ("Lists the Contexts currently matching all filters.");
+        New_Line;
+        Put_Line ("matching-lines        Prints up to max-results results");
+        Put_Line ("matching-lines N      Prints the first min(N, max-results) results");
     end Matching_Contexts_Help;
 
     procedure Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
-        C : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
+        Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
+        Count : Positive := Positive'Last;
     begin
-        pragma Unreferenced (Command_Line);
-        SP.Searches.Print_Contexts (Srch, C);
+        case Command_Line.Length is
+        when 1 =>
+            if not Try_Parse (To_String(Command_Line.First_Element), Count) then
+                SP.Terminal.Put_Line ("Bad number of results to give.");
+                return;
+            end if;
+        when 0 =>
+            null;
+        when others =>
+            SP.Terminal.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
+            return;
+        end case;
+        SP.Searches.Print_Contexts (Srch, Contexts, Count);
     end Matching_Contexts_Exec;
 
     ----------------------------------------------------------------------------
 
     procedure Matching_Files_Help is
     begin
-        Put_Line ("Lists files currently matchign all filters.");
+        Put_Line ("Lists files currently matching all filters.");
     end Matching_Files_Help;
 
     procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
