@@ -21,6 +21,6 @@ package SP.Debug is
 
     procedure Print_Command_Line;
 
-    Enabled : Boolean := True;
+    Enabled : Boolean := False;
 
 end SP.Debug;
