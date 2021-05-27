@@ -19,6 +19,7 @@
 
 with Ada.Strings.Unbounded;
 with SP.Commands;
+with SP.Config;
 with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
@@ -55,9 +56,17 @@ package body SP.Interactive is
         -- pushing and popping operations.
         Command_Line : String_Vectors.Vector;
         Srch         : SP.Searches.Search;
+        Configs      : constant String_Vectors.Vector := SP.Config.Config_Locations;
     begin
         Put_Line ("septum v" & SP.Version);
         New_Line;
+
+        for Config of Configs loop
+            if not SP.Commands.Run_Commands_From_File (Srch, To_String(Config)) then
+                Put_Line ("Failing running commands from: " & To_String(Config));
+                return;
+            end if;
+        end loop;
 
         loop
             Write_Prompt (Srch);

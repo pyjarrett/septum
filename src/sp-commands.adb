@@ -115,7 +115,7 @@ package body SP.Commands is
         return False;
     end Execute;
 
-    procedure Load_Local_Config (Srch : in out SP.Searches.Search; File : String) is
+    function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Boolean is
         use GNATCOLL.VFS;
         Config           : constant Virtual_File := GNATCOLL.VFS.Create(+File);
         Config_File_Name : constant String       := +Config.Full_Name;
@@ -123,7 +123,7 @@ package body SP.Commands is
     begin
         if not Is_Readable (Config) then
             Put_Line ("No config to read at: " & Config_File_Name);
-            return;
+            return False;
         end if;
 
         Put_Line ("Loading commands from: " & Config_File_Name);
@@ -136,13 +136,17 @@ package body SP.Commands is
             declare
                 Command_Line : constant String_Vectors.Vector := Shell_Split (Command);
             begin
+                New_Line;
                 Put_Line (" > " & Command);
                 if not SP.Commands.Execute (Srch, Command_Line) then
                     Put_Line ("Unable to execute: " & Command);
+                    return False;
                 end if;
             end;
         end loop;
-    end Load_Local_Config;
+
+        return True;
+    end Run_Commands_From_File;
 
     ----------------------------------------------------------------------------
 
