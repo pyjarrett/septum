@@ -46,6 +46,7 @@ package SP.Searches is
 
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);
+    procedure Clear_Extensions (Srch : in out Search);
     function List_Extensions (Srch : in Search) return String_Vectors.Vector;
 
     procedure Find_Text (Srch : in out Search; Text : String);

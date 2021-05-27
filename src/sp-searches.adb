@@ -99,6 +99,11 @@ package body SP.Searches is
         end if;
     end Remove_Extension;
 
+    procedure Clear_Extensions (Srch : in out Search) is
+    begin
+        Srch.Extensions.Clear;
+    end Clear_Extensions;
+
     function List_Extensions (Srch : in Search) return String_Vectors.Vector is
     begin
         return Exts : String_Vectors.Vector do
@@ -291,8 +296,28 @@ package body SP.Searches is
         Concurrent_Results.Add_Result (Result);
     end Matching_Contexts_In_File;
 
+    function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector is
+    begin
+        return Result : String_Vectors.Vector do
+            if Srch.Extensions.Is_Empty then
+                Result := Srch.File_Cache.Files;
+                return;
+            end if;
+
+            for File of Srch.File_Cache.Files loop
+                declare
+                    Extension : constant String := Ada.Directories.Extension (To_String(File));
+                begin
+                    if Srch.Extensions.Contains (To_Unbounded_String(Extension)) then
+                        Result.Append (File);
+                    end if;
+                end;
+            end loop;
+        end return;
+    end Files_Matching_Extensions;
+
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
-        Files          : constant String_Vectors.Vector := Srch.File_Cache.Files;
+        Files          : constant String_Vectors.Vector := Files_Matching_Extensions(Srch);
         Merged_Results : Concurrent_Context_Results;
 
         Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter         := 0;

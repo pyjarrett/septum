@@ -290,6 +290,23 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Clear_Extensions_Help is
+    begin
+        Put_Line ("Clears extension to the search list.");
+    end Clear_Extensions_Help;
+
+    procedure Clear_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("No arguments allowed for clearing extension filtering.");
+            return;
+        end if;
+
+        SP.Searches.Clear_Extensions (Srch);
+    end Clear_Extensions_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Remove_Extensions_Help is
     begin
         Put_Line ("Removes extension to the search list.");
@@ -298,7 +315,7 @@ package body SP.Commands is
     procedure Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
     begin
         if Command_Line.Is_Empty then
-            Put_Line ("Must provide extensions to filter.");
+            Put_Line ("Must provide extensions to remove from the filter.");
             return;
         end if;
 
@@ -626,6 +643,7 @@ begin
     Make_Command
         ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access,
          Remove_Extensions_Exec'Access);
+    Make_Command ("clear-exts", "Clears extension filters.", Clear_Extensions_Help'Access, Clear_Extensions_Exec'Access);
     Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
 
     Make_Command
