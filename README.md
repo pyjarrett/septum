@@ -16,32 +16,6 @@ for needs to be done in an incremental fashion.
 Septum is a stack of applied search filters that you can push and pop interactively
 as you search.
 
-# Usage
-
-      add-dirs                 Adds directory to the search list.
-      add-exts                 Adds extensions to filter by.
-      clear-dirs               Removes all directories from the search list.
-      clear-filters            Pops all filters.
-      disable-line-numbers     Disables prefixing of lines with line numbers.
-      enable-line-numbers      Enables prefixing of lines with line numbers.
-      exclude-regex            Adds regex to exclude.
-      exclude-text             Adds text to exclude.
-      exit                     Exits the search program.
-      find-regex               Adds filter regex.
-      find-text                Adds filter text.
-      help                     Print commands or help for a specific command
-      list-dirs                List the directories in the search list.
-      list-exts                List current extensions.
-      list-filters             Lists all applied filters.
-      matching-contexts        Lists contexts matching the current filter.
-      pop                      Pops the last applied filter.
-      quit                     Exits the search program.
-      reload                   Reloads the file cache.
-      remove-exts              Removes extensions from the search.
-      set-context-width        Sets the width of the context in which to find matches.
-      set-max-results          Sets the maximum results returned before only the total number of results are returned.
-      stats                    Print file cache statistics.
-
 ## Example
 
       > add-dirs D:/dev/calendon/src
