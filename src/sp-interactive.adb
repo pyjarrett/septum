@@ -31,12 +31,28 @@ package body SP.Interactive is
     procedure Write_Prompt (Srch : in Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String  := " > ";
+        Extensions     : constant String_Vectors.Vector := List_Extensions (Srch);
         Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
+        Max_Results    : constant Natural := SP.Searches.Get_Max_Results (Srch);
+        Second_Col     : constant := 30;
     begin
         New_Line;
-        Put ("Files: " & SP.Searches.Num_Files (Srch)'Image);
-        Set_Col (20);
-        Put ("Distance: " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
+        Put ("Files:     " & SP.Searches.Num_Files (Srch)'Image);
+        Set_Col (Second_Col);
+        Put ("Extensions: ");
+        if Extensions.Is_Empty then
+            Put ("Any");
+        else
+            Put ("(only) ");
+            for Extension of Extensions loop
+                Put (Extension);
+                Put (" ");
+            end loop;
+        end if;
+        New_Line;
+        Put ("Distance:  " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
+        Set_Col (Second_Col);
+        Put ("Max Results: " & (if Max_Results = SP.Searches.No_Max_Results then "Unlimited" else Max_Results'Image));
         New_Line;
         Put (Default_Prompt);
     end Write_Prompt;

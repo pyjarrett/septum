@@ -639,9 +639,9 @@ begin
     Make_Command
         ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
 
-    Make_Command ("add-exts", "Adds extensions to filter by.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
+    Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
-        ("remove-exts", "Removes extensions from the search.", Remove_Extensions_Help'Access,
+        ("remove-exts", "Removes an extension filter from the search.", Remove_Extensions_Help'Access,
          Remove_Extensions_Exec'Access);
     Make_Command ("clear-exts", "Clears extension filters.", Clear_Extensions_Help'Access, Clear_Extensions_Exec'Access);
     Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
