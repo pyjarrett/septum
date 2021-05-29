@@ -448,8 +448,8 @@ package body SP.Commands is
     begin
         Put_Line ("Lists the Contexts currently matching all filters.");
         New_Line;
-        Put_Line ("matching-lines        Prints up to max-results results");
-        Put_Line ("matching-lines N      Prints the first min(N, max-results) results");
+        Put_Line ("match-contexts        Prints up to max-results results");
+        Put_Line ("match-contexts N      Prints the first min(N, max-results) results");
     end Matching_Contexts_Help;
 
     procedure Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
@@ -625,10 +625,10 @@ begin
     -- Results
 
     Make_Command
-        ("matching-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
+        ("match-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
          Matching_Contexts_Exec'Access);
     Make_Command
-        ("matching-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
+        ("match-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
          Matching_Files_Exec'Access);
 
     -- Global configuration

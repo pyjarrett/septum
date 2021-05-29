@@ -22,7 +22,7 @@ as you search.
       > find-regex ^\s*#\s*if
       > find-text clang
       > exclude-text pop
-      > matching-contexts
+      > match-contexts
 
        D:\dev\calendon\src\tests\unit\test-utf8.c
        1        #include <calendon/test.h>
