@@ -101,4 +101,15 @@ package body SP.Contexts is
             and then A.Internal_Matches = B.Internal_Matches;
     end "=";
 
+    function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set is
+    begin
+        return Files : SP.Strings.String_Sets.Set do
+            for Context of V loop
+                if not Files.Contains (Context.File_Name) then
+                    Files.Insert (Context.File_Name);
+                end if;
+            end loop;
+        end return;
+    end Files_In;
+
 end SP.Contexts;

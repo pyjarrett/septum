@@ -480,19 +480,16 @@ package body SP.Commands is
 
     procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
-        Files : String_Sets.Set;
+        Files : constant String_Sets.Set := SP.Contexts.Files_In (Contexts);
     begin
         pragma Unreferenced (Command_Line);
-        for Context of Contexts loop
-            if not Files.Contains (Context.File_Name) then
-                Files.Insert (Context.File_Name);
-            end if;
-        end loop;
 
         SP.Terminal.New_Line;
         for File of Files loop
             SP.Terminal.Put_Line (File);
         end loop;
+        New_Line;
+        Put_Line ("Matching files:" & Files.Length'Image);
     end Matching_Files_Exec;
 
     ----------------------------------------------------------------------------

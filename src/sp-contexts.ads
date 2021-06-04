@@ -21,6 +21,8 @@ with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+with SP.Strings;
+
 package SP.Contexts is
 
     package Line_Matches is new Ada.Containers.Ordered_Sets (Element_Type => Positive);
@@ -67,5 +69,7 @@ package SP.Contexts is
         Pre => Is_Valid (A) and then Is_Valid (B);
 
     package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
+
+    function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
 
 end SP.Contexts;

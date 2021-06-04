@@ -394,6 +394,7 @@ package body SP.Searches is
             exit when First_Num /= No_Limit and then Num_Results_Printed >= First_Num;
         end loop;
         Put_Line ("Matching contexts: " & Contexts.Length'Image);
+        Put_Line ("Matching files:" & SP.Contexts.Files_In (Contexts).Length'Image);
     end Print_Contexts;
 
     function Num_Files (Srch : in Search) return Natural is
