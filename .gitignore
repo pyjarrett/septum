@@ -3,3 +3,5 @@
 
 # Ada Library Information
 *.ali
+
+obj/
