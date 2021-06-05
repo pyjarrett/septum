@@ -54,3 +54,20 @@ Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
 ```powershell
 choco install septum --pre
 ```
+
+# Design principles
+
+septum shall:
+
+- provide features to help search large codebases
+- aim to be performant
+- only read the search tree, except for .septum/ directories
+
+# Contributing
+
+Septum aims to help every developers everywhere.  You're encouraged to recommend
+features, report bugs, or submit pull requests.
+
+# License
+
+Septum is released under the [GPLv3 License](http://www.gnu.org/licenses/gpl-3.0.html)
