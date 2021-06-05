@@ -1,5 +1,7 @@
 # septum
 
+[![Build Status](https://github.com/pyjarrett/septum/actions/workflows/ada.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
+
 Context-based code search tool
 
 ## What does this do?
