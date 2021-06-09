@@ -1,0 +1,9 @@
+name = "septum"
+description = "An interactive context-based text search tool for large codebases."
+version = "0.0.1"
+
+authors = ["Paul Jarrett"]
+maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
+maintainers-logins = ["pyjarrett"]
+
+executables = ["septum"]
