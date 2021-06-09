@@ -22,10 +22,11 @@ with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
 
 with SP.Cache;
-with SP.File_System;
 with SP.Terminal;
 
 with System.Multiprocessors;
+
+with Dir_Iterators.Recursive;
 
 package body SP.Cache is
     function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
@@ -117,45 +118,18 @@ package body SP.Cache is
         package String_Unbounded_Queue is new Ada.Containers.Unbounded_Synchronized_Queues
             (Queue_Interfaces => String_Queue_Interface);
 
-        Dir_Queue  : String_Unbounded_Queue.Queue;
         File_Queue : String_Unbounded_Queue.Queue;
     begin
-        Dir_Queue.Enqueue (New_Item => Ada.Strings.Unbounded.To_Unbounded_String (Dir));
         declare
-            task type Dir_Loader_Task is
-                entry Wake;
-            end Dir_Loader_Task;
-
+            task Dir_Loader_Task is end;
             task body Dir_Loader_Task is
-                Elem     : Ada.Strings.Unbounded.Unbounded_String;
-                Contents : SP.File_System.Dir_Contents;
+                Dir_Walk   : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir);
+                use type Ada.Directories.File_Kind;
             begin
-                loop
-                    -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
-                    -- program from continuing.
-                    select
-                        accept Wake;
-                    or
-                        terminate;
-                    end select;
-
-                    loop
-                        select
-                            Dir_Queue.Dequeue (Elem);
-                        or
-                            delay 1.0;
-                            exit;
-                        end select;
-
-                        Contents := SP.File_System.Contents (Ada.Strings.Unbounded.To_String (Elem));
-                        for Dir of Contents.Subdirs loop
-                            Dir_Queue.Enqueue (Dir);
-                        end loop;
-
-                        for File of Contents.Files loop
-                            File_Queue.Enqueue (File);
-                        end loop;
-                    end loop;
+                for Dir_Entry of Dir_Walk loop
+                    if Ada.Directories.Kind (Dir_Entry) = Ada.Directories.Ordinary_File then
+                        File_Queue.Enqueue (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name(Dir_Entry)));
+                    end if;
                 end loop;
             end Dir_Loader_Task;
 
@@ -191,14 +165,9 @@ package body SP.Cache is
             end File_Loader_Task;
 
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
-            Dir_Loader  : array (1 .. Num_CPUs) of Dir_Loader_Task;
             File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
-            for DL of Dir_Loader loop
-                DL.Wake;
-            end loop;
-
             for FL of File_Loader loop
                 FL.Wake;
             end loop;

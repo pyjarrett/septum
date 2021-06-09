@@ -3,4 +3,13 @@
 [solution]
 [solution.context]
 solved = true
+[[solution.state]]
+crate = "file_iterators"
+fulfilment = "linked"
+pinned = false
+transitivity = "direct"
+versions = "*"
+[solution.state.link]
+kind = "softlink"
+path = "file:D:\\dev\\ada\\file_iterators"
 
