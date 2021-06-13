@@ -4,12 +4,32 @@
 [solution.context]
 solved = true
 [[solution.state]]
-crate = "file_iterators"
-fulfilment = "linked"
+crate = "dir_iterators"
+fulfilment = "solved"
 pinned = false
 transitivity = "direct"
 versions = "*"
-[solution.state.link]
-kind = "softlink"
-path = "file:D:\\dev\\ada\\file_iterators"
+[solution.state.release]
+authors = [
+"Paul Jarrett",
+]
+description = "Ways of moving around directory trees"
+licenses = "Apache-2.0"
+maintainers = [
+"Paul Jarrett <jarrett.paul.young@gmail.com>",
+]
+maintainers-logins = [
+"pyjarrett",
+]
+name = "dir_iterators"
+tags = [
+"dir",
+"files",
+"walk",
+]
+version = "0.0.1"
+website = "https://github.com/pyjarrett/dir_iterators"
+[solution.state.release.origin]
+commit = "2e1fcc63ab6a31437096d352d5fe88f3702c1a77"
+url = "git+https://github.com/pyjarrett/dir_iterators.git"
 

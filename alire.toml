@@ -8,5 +8,6 @@ maintainers-logins = ["pyjarrett"]
 
 executables = ["septum"]
 
+
 [[depends-on]]  # This line was added by `alr with`
-file_iterators = "~0.0.0"  # This line was added by `alr with`
+dir_iterators = "~0.0.1"  # This line was added by `alr with`

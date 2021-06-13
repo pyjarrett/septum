@@ -1,4 +1,4 @@
-name: Sanity check
+name: Build
 
 on:
   push:
@@ -24,5 +24,7 @@ jobs:
          with:
            distrib: community
            target: native
+       - name: alire-project/setup-alire
+         uses: alire-project/setup-alire@latest-stable
        - name: Build
-         run: gprbuild septum -j0 -p
+         run: alr build

@@ -1,6 +1,6 @@
 -- begin auto-gpr-with --
 --  This section was automatically added by Alire
-with "../dir_iterators/dir_iterators.gpr";
+with "dir_iterators.gpr";
 -- end auto-gpr-with --
 with "gnatcoll.gpr";
 
