@@ -21,6 +21,8 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Text_IO.Unbounded_IO;
 
+with GNATCOLL.Terminal;
+
 package SP.Terminal is
     -- Functions for operations to the terminal. This hides the usage of Ada.Text_IO and may silently ignore
     -- capabilities if the terminal does not support them, such as if coloring text or line clearing is added.
@@ -40,10 +42,16 @@ package SP.Terminal is
 
     procedure Set_Col (Spacing : in Ada.Text_IO.Positive_Count) renames Ada.Text_IO.Set_Col;
 
+    procedure Clear_Line;
+
     -- I'm not convinced that these aren't useful. I haven't figured out how best to deal with the really long and
     -- verbose terminology of Ada.Strings.Unbounded.Unbounded_String.
 
     --  function "&" (A : String; B : Unbounded_String) return Unbounded_String renames Ada.Strings.Unbounded."&";
     --  function "&" (Ada : Unbounded_String; B : String) return Unbounded_String renames Ada.Strings.Unbounded."&";
+
+private
+
+    Stdout_Term_Info : GNATCOLL.Terminal.Terminal_Info;
 
 end SP.Terminal;

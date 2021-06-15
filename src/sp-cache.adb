@@ -20,6 +20,7 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
+with Ada.Text_IO;
 
 with SP.Cache;
 with SP.Terminal;
@@ -39,15 +40,20 @@ package body SP.Cache is
         Ext : constant Ada.Strings.Unbounded.Unbounded_String :=
             To_Unbounded_String (Ada.Directories.Extension (File_Name));
         Known_Text : constant array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String :=
-            (+"ads", +"adb",          -- Ada
-             +"c", +"h",              -- c
-             +"cpp", +"C",             -- C++
-             +"hpp", +"hh", +"inl",
-             +"cs",                   -- C#
-             +"hs",                   -- Haskell
-             +"py",                   -- Python
-             +"rs"                    -- Rust
-            );
+            (+"ads", -- Ada
+             +"adb",
+             +"c",   -- c
+             +"h",
+             +"cpp", -- C++
+             +"C",
+             +"hpp",
+             +"hh",
+             +"inl",
+             +"cs",  -- C#
+             +"hs",  -- Haskell
+             +"py",  -- Python
+             +"rs"   -- Rust
+        );
     begin
         return (for some X of Known_Text => Ext = X);
     end Is_Text;
@@ -86,7 +92,7 @@ package body SP.Cache is
         begin
             return N : Natural := 0 do
                 for Cursor in Contents.Iterate loop
-                    N := N + Natural(File_Maps.Element (Cursor).Length);
+                    N := N + Natural (File_Maps.Element (Cursor).Length);
                 end loop;
             end return;
         end Num_Lines;
@@ -112,6 +118,36 @@ package body SP.Cache is
 
     end Async_File_Cache;
 
+    protected type Progress_Tracker is
+        procedure Start_Work (Amount : Natural);
+        procedure Finish_Work (Amount : Natural);
+        procedure Update;
+
+    private
+        Completed : Natural := 0;
+        Total     : Natural := 0;
+    end Progress_Tracker;
+
+    protected body Progress_Tracker is
+        procedure Start_Work (Amount : Natural) is
+        begin
+            Total := Total + Amount;
+        end Start_Work;
+
+        procedure Finish_Work (Amount : Natural) is
+        begin
+            Completed := Completed + Amount;
+        end Finish_Work;
+
+        procedure Update is
+            Left : constant Natural := Total - Completed;
+        begin
+            SP.Terminal.Clear_Line;
+            Ada.Text_IO.Put (Left'Image & " left of" & Total'Image);
+            Ada.Text_IO.Flush;
+        end Update;
+    end Progress_Tracker;
+
     procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) is
         package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
             (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
@@ -119,16 +155,20 @@ package body SP.Cache is
             (Queue_Interfaces => String_Queue_Interface);
 
         File_Queue : String_Unbounded_Queue.Queue;
+        Progress   : Progress_Tracker;
     begin
         declare
-            task Dir_Loader_Task is end;
+            task Dir_Loader_Task is
+            end Dir_Loader_Task;
             task body Dir_Loader_Task is
-                Dir_Walk   : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir);
+                Dir_Walk : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir);
                 use type Ada.Directories.File_Kind;
             begin
                 for Dir_Entry of Dir_Walk loop
                     if Ada.Directories.Kind (Dir_Entry) = Ada.Directories.Ordinary_File then
-                        File_Queue.Enqueue (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name(Dir_Entry)));
+                        File_Queue.Enqueue
+                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Dir_Entry)));
+                        Progress.Start_Work (1);
                     end if;
                 end loop;
             end Dir_Loader_Task;
@@ -160,17 +200,41 @@ package body SP.Cache is
                         if Is_Text (To_String (Elem)) then
                             Cache_File (A, Elem);
                         end if;
+                        Progress.Finish_Work (1);
                     end loop;
                 end loop;
             end File_Loader_Task;
 
+            task Update_Progress is
+                entry Stop;
+            end Update_Progress;
+
+            task body Update_Progress is
+            begin
+                loop
+                    select
+                        accept Stop;
+                        exit;
+                    or
+                        delay 0.1;
+                        Progress.Update;
+                    end select;
+                end loop;
+            end Update_Progress;
+
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
-            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
-            for FL of File_Loader loop
-                FL.Wake;
-            end loop;
+
+            declare
+                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
+            begin
+                for FL of File_Loader loop
+                    FL.Wake;
+                end loop;
+            end;
+            Update_Progress.Stop;
+            Ada.Text_IO.New_Line;
         end;
     end Add_Directory_Recursively;
 
