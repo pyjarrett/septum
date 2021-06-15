@@ -5,3 +5,12 @@
 *.ali
 
 obj/
+alire/
+
+# Chocolatey
+historical/
+choco/
+
+# Development files
+.clang-format
+.septum/
