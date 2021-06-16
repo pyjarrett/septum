@@ -8,7 +8,7 @@ crate = "dir_iterators"
 fulfilment = "solved"
 pinned = false
 transitivity = "direct"
-versions = "*"
+versions = "~0.0.1"
 [solution.state.release]
 authors = [
 "Paul Jarrett",
@@ -32,4 +32,13 @@ website = "https://github.com/pyjarrett/dir_iterators"
 [solution.state.release.origin]
 commit = "2e1fcc63ab6a31437096d352d5fe88f3702c1a77"
 url = "git+https://github.com/pyjarrett/dir_iterators.git"
+[[solution.state]]
+crate = "progress_indicators"
+fulfilment = "linked"
+pinned = false
+transitivity = "direct"
+versions = "*"
+[solution.state.link]
+kind = "softlink"
+path = "file:D:\\dev\\ada\\progress_indicators"
 

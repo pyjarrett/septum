@@ -28,6 +28,8 @@ with SP.Terminal;
 with System.Multiprocessors;
 
 with Dir_Iterators.Recursive;
+with Progress_Indicators.Spinners;
+with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is
     function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
@@ -118,36 +120,6 @@ package body SP.Cache is
 
     end Async_File_Cache;
 
-    protected type Progress_Tracker is
-        procedure Start_Work (Amount : Natural);
-        procedure Finish_Work (Amount : Natural);
-        procedure Update;
-
-    private
-        Completed : Natural := 0;
-        Total     : Natural := 0;
-    end Progress_Tracker;
-
-    protected body Progress_Tracker is
-        procedure Start_Work (Amount : Natural) is
-        begin
-            Total := Total + Amount;
-        end Start_Work;
-
-        procedure Finish_Work (Amount : Natural) is
-        begin
-            Completed := Completed + Amount;
-        end Finish_Work;
-
-        procedure Update is
-            Left : constant Natural := Total - Completed;
-        begin
-            SP.Terminal.Clear_Line;
-            Ada.Text_IO.Put (Left'Image & " left of" & Total'Image);
-            Ada.Text_IO.Flush;
-        end Update;
-    end Progress_Tracker;
-
     procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) is
         package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
             (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
@@ -155,7 +127,9 @@ package body SP.Cache is
             (Queue_Interfaces => String_Queue_Interface);
 
         File_Queue : String_Unbounded_Queue.Queue;
-        Progress   : Progress_Tracker;
+
+        package PI renames Progress_Indicators;
+        Progress : PI.Work_Trackers.Work_Tracker;
     begin
         declare
             task Dir_Loader_Task is
@@ -210,6 +184,8 @@ package body SP.Cache is
             end Update_Progress;
 
             task body Update_Progress is
+                Spinner : PI.Spinners.Spinner := PI.Spinners.Make (1);
+                SR      : PI.Work_Trackers.Status_Report;
             begin
                 loop
                     select
@@ -217,14 +193,23 @@ package body SP.Cache is
                         exit;
                     or
                         delay 0.1;
-                        Progress.Update;
                     end select;
+
+                    PI.Spinners.Tick (Spinner);
+                    SP.Terminal.Clear_Line;
+                    SR := Progress.Report;
+                    Ada.Text_IO.Put
+                        (PI.Spinners.Value (Spinner) & PI.Spinners.Value (Spinner)
+                         & "  " & SR.Completed'Image & " left of" & SR.Total'Image
+                        & "   " & PI.Spinners.Value (Spinner) & PI.Spinners.Value (Spinner));
+                    Ada.Text_IO.Flush;
                 end loop;
             end Update_Progress;
 
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
+            Ada.Text_IO.New_Line;
 
             declare
                 File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
