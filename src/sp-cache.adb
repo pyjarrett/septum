@@ -184,7 +184,7 @@ package body SP.Cache is
             end Update_Progress;
 
             task body Update_Progress is
-                Spinner : PI.Spinners.Spinner := PI.Spinners.Make (1);
+                Spinner : PI.Spinners.Spinner := PI.Spinners.Make (PI.Spinners.Normal, 1);
                 SR      : PI.Work_Trackers.Status_Report;
             begin
                 loop
@@ -195,13 +195,13 @@ package body SP.Cache is
                         delay 0.1;
                     end select;
 
-                    PI.Spinners.Tick (Spinner);
                     SP.Terminal.Clear_Line;
                     SR := Progress.Report;
+                    PI.Spinners.Tick(Spinner);
+
                     Ada.Text_IO.Put
-                        (PI.Spinners.Value (Spinner) & PI.Spinners.Value (Spinner)
-                         & "  " & SR.Completed'Image & " left of" & SR.Total'Image
-                        & "   " & PI.Spinners.Value (Spinner) & PI.Spinners.Value (Spinner));
+                        (PI.Spinners.Value (Spinner) & "  " & SR.Completed'Image &
+                         " done of" & SR.Total'Image & "   " & PI.Spinners.Value (Spinner));
                     Ada.Text_IO.Flush;
                 end loop;
             end Update_Progress;

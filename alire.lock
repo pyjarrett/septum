@@ -4,6 +4,46 @@
 [solution.context]
 solved = true
 [[solution.state]]
+crate = "ansiada"
+fulfilment = "solved"
+pinned = false
+transitivity = "indirect"
+versions = "~0.1.0"
+[solution.state.release]
+description = "Comprehensive ANSI control sequences for terminal output"
+executables = [
+"ansi-demo",
+]
+licenses = "MIT"
+long-description = "# ANSI-Ada\n\n[![Alire indexed](https://img.shields.io/badge/alire-0.1.0-blue.svg)](https://alire.ada.dev)\n[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)\n\nANSI control sequences for the Ada language.\n\nThis library consists of a single pure package for the generation of escape\nsequences that allow to control, in ANSI-enabled TTYs:\n\n* Text color and styles\n* Cursor position\n* Clearing of parts of the terminal\n\nIn order to keep the library as simple as possible there is no TTY capability\ndetection, so you must either assume ANSI is recognized or use other means of\ndetection (e.g., `Interfaces.C_Streams.isatty` as a bare minimum to detect\nredirections).\n\nThe library comes with a demo program that can serve to test the appearance and\ncapabilities of your terminal.\n"
+maintainers = [
+"alejandro@mosteo.com",
+]
+maintainers-logins = [
+"mosteo",
+]
+name = "ansiada"
+project-files = [
+"ansi.gpr",
+]
+tags = [
+"console",
+"terminal",
+"tty",
+]
+version = "0.1.0"
+[solution.state.release.gpr-externals]
+ANSIADA_BUILD_MODE = [
+"On_Demand",
+"Static_Lib",
+"Shared_Lib",
+]
+[solution.state.release.gpr-set-externals]
+ANSIADA_BUILD_MODE = "On_Demand"
+[solution.state.release.origin]
+commit = "27a89150c1f5481a821722601a3b6d4a5368596c"
+url = "git+https://github.com/mosteo/ansi-ada"
+[[solution.state]]
 crate = "dir_iterators"
 fulfilment = "solved"
 pinned = false
@@ -37,7 +77,7 @@ crate = "progress_indicators"
 fulfilment = "linked"
 pinned = false
 transitivity = "direct"
-versions = "*"
+versions = "~0.0.0"
 [solution.state.link]
 kind = "softlink"
 path = "file:D:\\dev\\ada\\progress_indicators"
