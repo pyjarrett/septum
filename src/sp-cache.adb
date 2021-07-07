@@ -51,6 +51,8 @@ package body SP.Cache is
              +"hpp",
              +"hh",
              +"inl",
+             +"lock",
+             +"toml",
              +"cs",  -- C#
              +"hs",  -- Haskell
              +"py",  -- Python
