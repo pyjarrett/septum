@@ -296,7 +296,7 @@ package body SP.Searches is
         Concurrent_Results.Add_Result (Result);
     end Matching_Contexts_In_File;
 
-    function Files_Matching_Extensions (Srch : in Search) return String_Vectors.Vector is
+    function Files_To_Search (Srch : in Search) return String_Vectors.Vector is
     begin
         return Result : String_Vectors.Vector do
             if Srch.Extensions.Is_Empty then
@@ -314,10 +314,10 @@ package body SP.Searches is
                 end;
             end loop;
         end return;
-    end Files_Matching_Extensions;
+    end Files_To_Search;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
-        Files          : constant String_Vectors.Vector := Files_Matching_Extensions(Srch);
+        Files          : constant String_Vectors.Vector := Files_To_Search (Srch);
         Merged_Results : Concurrent_Context_Results;
 
         Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter         := 0;
