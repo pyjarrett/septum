@@ -19,6 +19,6 @@
 
 package SP is
 
-    Version : String := "0.0.1-alpha8";
+    Version : constant String := "0.0.1-alpha8";
 
 end SP;
