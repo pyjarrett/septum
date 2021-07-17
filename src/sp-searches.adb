@@ -115,12 +115,12 @@ package body SP.Searches is
 
     procedure Find_Text (Srch : in out Search; Text : String) is
     begin
-        Srch.Filters.Append (Filters.Find_Text (Text));
+        Srch.Line_Filters.Append (Filters.Find_Text (Text));
     end Find_Text;
 
     procedure Exclude_Text (Srch : in out Search; Text : String) is
     begin
-        Srch.Filters.Append (Filters.Exclude_Text (Text));
+        Srch.Line_Filters.Append (Filters.Exclude_Text (Text));
     end Exclude_Text;
 
     procedure Find_Regex (Srch : in out Search; Text : String) is
@@ -128,7 +128,7 @@ package body SP.Searches is
         use type Filter_Ptr;
     begin
         if F /= Pointers.Null_Ref then
-            Srch.Filters.Append (F);
+            Srch.Line_Filters.Append (F);
         end if;
     end Find_Regex;
 
@@ -137,25 +137,25 @@ package body SP.Searches is
         use type Filter_Ptr;
     begin
         if F /= Pointers.Null_Ref then
-            Srch.Filters.Append (F);
+            Srch.Line_Filters.Append (F);
         end if;
     end Exclude_Regex;
 
     procedure Pop_Filter (Srch : in out Search) is
         Filter_Being_Popped : constant Filter_Ptr :=
-            (if Srch.Filters.Is_Empty then Pointers.Null_Ref else Srch.Filters.Last_Element);
+            (if Srch.Line_Filters.Is_Empty then Pointers.Null_Ref else Srch.Line_Filters.Last_Element);
     begin
         if Filter_Being_Popped.Is_Null then
             Ada.Text_IO.Put_Line ("No more filters to pop.");
         else
             Ada.Text_IO.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
-            Srch.Filters.Delete_Last;
+            Srch.Line_Filters.Delete_Last;
         end if;
     end Pop_Filter;
 
     procedure Clear_Filters (Srch : in out Search) is
     begin
-        Srch.Filters.Clear;
+        Srch.Line_Filters.Clear;
     end Clear_Filters;
 
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural) is
@@ -182,7 +182,7 @@ package body SP.Searches is
     function List_Filter_Names (Srch : Search) return String_Vectors.Vector is
     begin
         return V : String_Vectors.Vector do
-            for F of Srch.Filters loop
+            for F of Srch.Line_Filters loop
                 V.Append (To_Unbounded_String (F.Get.Action'Image & " : " & Image (F.Get)));
             end loop;
         end return;
@@ -211,7 +211,7 @@ package body SP.Searches is
         Result         : SP.Contexts.Context_Vectors.Vector;
     begin
         -- Process the file using the given filters.
-        for F of Srch.Filters loop
+        for F of Srch.Line_Filters loop
             Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache.Lines (File));
 
             case F.Get.Action is

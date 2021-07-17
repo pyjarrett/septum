@@ -105,7 +105,7 @@ private
         File_Cache : SP.Cache.Async_File_Cache;
         -- Cached contents of files.
 
-        Filters : Filter_List.Vector;
+        Line_Filters : Filter_List.Vector;
 
         Extensions : String_Sets.Set;
 
