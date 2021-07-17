@@ -67,18 +67,44 @@ tags = [
 "files",
 "walk",
 ]
-version = "0.0.1"
+version = "0.0.2"
 website = "https://github.com/pyjarrett/dir_iterators"
 [solution.state.release.origin]
-commit = "2e1fcc63ab6a31437096d352d5fe88f3702c1a77"
+commit = "614fd41664c1661f28d474823fcad82753efecdb"
 url = "git+https://github.com/pyjarrett/dir_iterators.git"
 [[solution.state]]
 crate = "progress_indicators"
-fulfilment = "linked"
+fulfilment = "solved"
 pinned = false
 transitivity = "direct"
 versions = "~0.0.0"
-[solution.state.link]
-kind = "softlink"
-path = "file:D:\\dev\\ada\\progress_indicators"
+[solution.state.release]
+authors = [
+"the progress_indicators authors",
+]
+description = "Ways of displaying progress in command line tools."
+licenses = "Apache-2.0"
+maintainers = [
+"Paul Jarrett <jarrett.paul.young@gmail.com>",
+]
+maintainers-logins = [
+"pyjarrett",
+]
+name = "progress_indicators"
+project-files = [
+"progress_indicators.gpr",
+]
+tags = [
+"command-line",
+"console",
+"terminal",
+"progress",
+]
+version = "0.0.1"
+website = "https://github.com/pyjarrett/progress_indicators"
+[solution.state.release.origin]
+commit = "863e14c48ee885efeb6faab594455e632443278c"
+url = "git+https://github.com/pyjarrett/progress_indicators.git"
+[[solution.state.release.depends-on]]
+ansiada = "~0.1.0"
 
