@@ -70,6 +70,9 @@ package SP.Searches is
     procedure Set_Max_Results (Srch : in out Search; Max_Results : Natural);
     function Get_Max_Results (Srch : in Search) return Natural;
 
+    procedure Set_Search_On_Filters_Changed (Srch : in out Search; Enabled : Boolean);
+    function Get_Search_On_Filters_Changed (Srch : in out Search) return Boolean;
+
     procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean);
     function Get_Print_Line_Numbers (Srch : in Search) return Boolean;
 
@@ -114,6 +117,8 @@ private
         Max_Results : Natural := No_Max_Results;
 
         Print_Line_Numbers : Boolean := True;
+
+        Search_On_Filters_Changed : Boolean := False;
     end record;
 
 end SP.Searches;

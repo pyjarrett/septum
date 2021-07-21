@@ -172,6 +172,13 @@ package body SP.Searches is
 
     function Get_Max_Results (Srch : in Search) return Natural is (Srch.Max_Results);
 
+    procedure Set_Search_On_Filters_Changed (Srch : in out Search; Enabled : Boolean) is
+    begin
+        Srch.Search_On_Filters_Changed := Enabled;
+    end Set_Search_On_Filters_Changed;
+
+    function Get_Search_On_Filters_Changed (Srch : in out Search) return Boolean is (Srch.Search_On_Filters_Changed);
+
     procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean) is
     begin
         Srch.Print_Line_Numbers := Enabled;

@@ -152,6 +152,17 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Search_Updated (Srch : in out SP.Searches.Search) is
+        use SP.Searches;
+        Contexts : constant SP.Contexts.Context_Vectors.Vector := Matching_Contexts (Srch);
+    begin
+        if Get_Search_On_Filters_Changed (Srch) then
+            Print_Contexts (Srch, Contexts);
+        end if;
+    end Search_Updated;
+
+    ----------------------------------------------------------------------------
+
     procedure Help_Help is
         use Command_Maps;
     begin
@@ -352,6 +363,8 @@ package body SP.Commands is
         for Word of Command_Line loop
             SP.Searches.Find_Text (Srch, To_String (Word));
         end loop;
+
+        Search_Updated (Srch);
     end Find_Text_Exec;
 
     ----------------------------------------------------------------------------
@@ -366,6 +379,8 @@ package body SP.Commands is
         for Word of Command_Line loop
             SP.Searches.Exclude_Text (Srch, To_String (Word));
         end loop;
+
+        Search_Updated (Srch);
     end Exclude_Text_Exec;
 
     ----------------------------------------------------------------------------
@@ -380,6 +395,8 @@ package body SP.Commands is
         for Word of Command_Line loop
             SP.Searches.Find_Regex (Srch, To_String (Word));
         end loop;
+
+        Search_Updated (Srch);
     end Find_Regex_Exec;
 
     ----------------------------------------------------------------------------
@@ -394,6 +411,8 @@ package body SP.Commands is
         for Word of Command_Line loop
             SP.Searches.Exclude_Regex (Srch, To_String (Word));
         end loop;
+
+        Search_Updated (Srch);
     end Exclude_Regex_Exec;
 
     ----------------------------------------------------------------------------
@@ -427,6 +446,8 @@ package body SP.Commands is
             Put_Line ("Ignoring unnecessary command line parameters.");
         end if;
         SP.Searches.Pop_Filter (Srch);
+
+        Search_Updated (Srch);
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
@@ -565,6 +586,34 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Enable_Search_On_Filters_Changed_Help is
+    begin
+        Put_Line ("Enables searching automatically when filters are changed.");
+    end Enable_Search_On_Filters_Changed_Help;
+
+    procedure Enable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Search_On_Filters_Changed (Srch, True);
+    end Enable_Search_On_Filters_Changed_Exec;
+
+    procedure Disable_Search_On_Filters_Changed_Help is
+    begin
+        Put_Line ("Disables searching automatically when filters are changed.");
+    end Disable_Search_On_Filters_Changed_Help;
+
+    procedure Disable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Search_On_Filters_Changed (Srch, False);
+    end Disable_Search_On_Filters_Changed_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Enable_Line_Numbers_Help is
     begin
         Put_Line ("Enables line numbers in context output.");
@@ -649,6 +698,14 @@ begin
     Make_Command
         ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.",
          Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
+
+    Make_Command
+        ("enable-auto-search", "Search when filters are changed automatically", Enable_Search_On_Filters_Changed_Help'Access,
+         Enable_Search_On_Filters_Changed_Exec'Access);
+
+    Make_Command
+        ("disable-auto-search", "Turn off search when filters are changed automatically", Disable_Search_On_Filters_Changed_Help'Access,
+         Disable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
         ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Enable_Line_Numbers_Help'Access,
