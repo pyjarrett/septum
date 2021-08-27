@@ -70,4 +70,4 @@ features, report bugs, or submit pull requests.
 
 # License
 
-Septum is released under the [GPLv3 License](http://www.gnu.org/licenses/gpl-3.0.html)
+Septum is released under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0)
