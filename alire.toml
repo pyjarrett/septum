@@ -9,8 +9,6 @@ maintainers-logins = ["pyjarrett"]
 executables = ["septum"]
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.2"  # Added by alr
-[[pins]]  # Added by alr
-dir_iterators = { path='../dir_iterators' }   # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
