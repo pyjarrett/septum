@@ -20,9 +20,9 @@ jobs:
        - name: Checkout
          uses: actions/checkout@v2
        - name: ada-actions/toolchain
-         uses: ada-actions/toolchain@ce2021
+         uses: ada-actions/toolchain@dev
          with:
-           distrib: community
+           distrib: fsf
            target: native
        - name: alire-project/setup-alire
          uses: alire-project/setup-alire@latest-stable
