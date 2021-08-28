@@ -26,4 +26,4 @@ jobs:
           alr index --reset-community
           alr toolchain --install gnat_native --non-interactive
           alr toolchain --install gprbuild --non-interactive
-          alr build          
+          alr build --non-interactive
