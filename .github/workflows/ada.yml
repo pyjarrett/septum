@@ -23,5 +23,6 @@ jobs:
          uses: pyjarrett/setup-alire@latest-stable
        - name: Build
          run: |
+          alr index --reset-community
           alr toolchain --install gnat_native --non-interactive
           alr build          
