@@ -19,12 +19,9 @@ jobs:
     steps:    
        - name: Checkout
          uses: actions/checkout@v2
-       - name: ada-actions/toolchain
-         uses: ada-actions/toolchain@dev
-         with:
-           distrib: fsf
-           target: native
        - name: pyjarrett/setup-alire
          uses: pyjarrett/setup-alire@latest-stable
        - name: Build
-         run: alr build
+         run: |
+          alr toolchain --install gnat_native
+          alr build          
