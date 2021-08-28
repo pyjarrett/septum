@@ -24,7 +24,7 @@ jobs:
          with:
            distrib: fsf
            target: native
-       - name: alire-project/setup-alire
-         uses: alire-project/setup-alire@latest-stable
+       - name: pyjarrett/setup-alire
+         uses: pyjarrett/setup-alire@latest-stable
        - name: Build
          run: alr build
