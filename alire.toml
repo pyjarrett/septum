@@ -7,10 +7,11 @@ maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
 maintainers-logins = ["pyjarrett"]
 
 executables = ["septum"]
-
-
-[[depends-on]]  # This line was added by `alr with`
-dir_iterators = "~0.0.1"  # This line was added by `alr with`
-
-[[depends-on]]  # This line was added by `alr with`
-progress_indicators = "~0.0.0"  # This line was added by `alr with`
+[[depends-on]]  # Added by alr
+dir_iterators = "~0.0.2"  # Added by alr
+[[pins]]  # Added by alr
+dir_iterators = { path='../dir_iterators' }   # Added by alr
+[[depends-on]]  # Added by alr
+progress_indicators = "~0.0.1"  # Added by alr
+[[depends-on]]  # Added by alr
+gnatcoll = "^21.0.0"  # Added by alr

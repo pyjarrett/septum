@@ -1,9 +1,9 @@
 -- begin auto-gpr-with --
 --  This section was automatically added by Alire
 with "dir_iterators.gpr";
+with "gnatcoll.gpr";
 with "progress_indicators.gpr";
 -- end auto-gpr-with --
-with "gnatcoll.gpr";
 
 project Septum is
 
