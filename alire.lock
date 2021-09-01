@@ -46,34 +46,13 @@ commit = "27a89150c1f5481a821722601a3b6d4a5368596c"
 url = "git+https://github.com/mosteo/ansi-ada"
 [[solution.state]]
 crate = "dir_iterators"
-fulfilment = "solved"
+fulfilment = "linked"
 pinned = false
-shared = false
 transitivity = "direct"
 versions = "~0.0.2"
-[solution.state.release]
-authors = [
-"Paul Jarrett",
-]
-description = "Ways of moving around directory trees"
-licenses = "Apache-2.0"
-maintainers = [
-"Paul Jarrett <jarrett.paul.young@gmail.com>",
-]
-maintainers-logins = [
-"pyjarrett",
-]
-name = "dir_iterators"
-tags = [
-"dir",
-"files",
-"walk",
-]
-version = "0.0.2"
-website = "https://github.com/pyjarrett/dir_iterators"
-[solution.state.release.origin]
-commit = "614fd41664c1661f28d474823fcad82753efecdb"
-url = "git+https://github.com/pyjarrett/dir_iterators.git"
+[solution.state.link]
+lockfiled = true
+path = "../dir_iterators"
 [[solution.state]]
 crate = "gnatcoll"
 fulfilment = "solved"
