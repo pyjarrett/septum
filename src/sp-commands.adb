@@ -151,9 +151,10 @@ package body SP.Commands is
 
     procedure Search_Updated (Srch : in out SP.Searches.Search) is
         use SP.Searches;
-        Contexts : constant SP.Contexts.Context_Vectors.Vector := Matching_Contexts (Srch);
+        Contexts : SP.Contexts.Context_Vectors.Vector;
     begin
         if Get_Search_On_Filters_Changed (Srch) then
+            Contexts := Matching_Contexts (Srch);
             Print_Contexts (Srch, Contexts);
         end if;
     end Search_Updated;
