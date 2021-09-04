@@ -15,3 +15,5 @@ Types of changes:
 ## Unreleased
 
 - 🛠️ Fixed auto-search to not always when disabled.
+- ✅ Added `find-like` and `exclude-like` for case-insensitive search.
+- ✅ Integrates internal crate under tests/ using Trendy Test for tests.
