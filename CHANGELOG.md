@@ -12,8 +12,9 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-## Unreleased
+## [0.0.1-alpha.10]
 
-- 🛠️ Fixed auto-search to not always when disabled.
 - ✅ Added `find-like` and `exclude-like` for case-insensitive search.
-- ✅ Integrates internal crate under tests/ using Trendy Test for tests.
+- ✅ Added internal crate under tests/ using Trendy Test for tests.
+- 🛠️ Fixed auto-search to not always when disabled.
+- 🛠️ Fixed crash when no .septum/ folder exists in starting directory.
