@@ -29,6 +29,6 @@ jobs:
        - name: Build
          run: |
           alr index --reset-community
-          alr toolchain --select gnat_native --non-interactive --disable-assistant
-          alr toolchain --select gprbuild --non-interactive --disable-assistant
+          alr toolchain --select gnat_native --non-interactive
+          alr toolchain --select gprbuild --non-interactive
           alr build --non-interactive
