@@ -14,19 +14,28 @@ package body SP.Strings.Tests is
     begin
         Op.Register;
 
+        Op.Assert (not Is_Quoted(""));
         Op.Assert (not Is_Quoted ("not quoted"));
 
+        -- Unbalanced "
         Op.Assert (not Is_Quoted (Quotation & "some text"));
         Op.Assert (not Is_Quoted ("some text" & Quotation));
         
+        -- Unbalanced '
         Op.Assert (not Is_Quoted (Apostrophe & "some text"));
         Op.Assert (not Is_Quoted ("some text" & Apostrophe));
 
+        -- Mismatched ' and "
         Op.Assert (not Is_Quoted (Quotation & "some text" & Apostrophe));
         Op.Assert (not Is_Quoted (Apostrophe & "some text" & Quotation));
 
+        -- Matched " and '
         Op.Assert (Is_Quoted (Apostrophe & "some text" & Apostrophe));
         Op.Assert (Is_Quoted (Quotation & "some text" & Quotation));
+
+        -- Internal " or '
+        Op.Assert (Is_Quoted (Apostrophe & Quotation & "some text" & Quotation & Apostrophe));
+        Op.Assert (Is_Quoted (Apostrophe & Quotation & "some text" & Quotation & Apostrophe));
     end Test_Is_Quoted;
 
     ---------------------------------------------------------------------------
