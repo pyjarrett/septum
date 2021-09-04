@@ -19,26 +19,11 @@ jobs:
     steps:    
        - name: Checkout
          uses: actions/checkout@v2
-<<<<<<< HEAD
-       - name: ada-actions/toolchain
-         uses: ada-actions/toolchain@ce2021
-         with:
-           distrib: community
-           target: native
-       - name: alire-project/setup-alire
-         uses: alire-project/setup-alire@latest-stable
-       - name: Build
-         run: alr build
-=======
        - name: alire-project/setup-alire
          uses: alire-project/setup-alire@latest-devel
        - name: Build
          run: |
           alr index --reset-community
-          alr config --global --set toolchain.assistant false
-          alr toolchain --install gnat_native --non-interactive
-          alr toolchain --install gprbuild --non-interactive
-          alr toolchain --select gnat_native --non-interactive
-          alr toolchain --select gprbuild --non-interactive
+          alr toolchain --select gnat_native --non-interactive --disable-assistant
+          alr toolchain --select gprbuild --non-interactive --disable-assistant
           alr build --non-interactive
->>>>>>> d0fbc0a (Update ada.yml)
