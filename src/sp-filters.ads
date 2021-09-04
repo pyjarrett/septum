@@ -54,6 +54,10 @@ package SP.Filters is
     function Exclude_Text (Text : String) return Filter_Ptr;
     -- Matches lines which don't have this text.
 
+    function Find_Like (Text : String) return Filter_Ptr;
+
+    function Exclude_Like (Text : String) return Filter_Ptr;
+
     function Find_Regex (Text : String) return Filter_Ptr;
     -- Matches lines which match this regex.
 
@@ -71,6 +75,10 @@ private
         Text : Ada.Strings.Unbounded.Unbounded_String;
     end record;
 
+    type Case_Insensitive_Match_Filter is new Filter with record
+        Text : Ada.Strings.Unbounded.Unbounded_String;
+    end record;
+
     type Regex_Filter is new Filter with record
         Source : Ada.Strings.Unbounded.Unbounded_String;
         Regex : Rc_Regex.Ref;
@@ -78,6 +86,9 @@ private
 
     overriding function Image (F : Case_Sensitive_Match_Filter) return String;
     overriding function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
+
+    overriding function Image (F : Case_Insensitive_Match_Filter) return String;
+    overriding function Matches_Line (F : Case_Insensitive_Match_Filter; Str : String) return Boolean;
 
     overriding function Image (F : Regex_Filter) return String;
     overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean;

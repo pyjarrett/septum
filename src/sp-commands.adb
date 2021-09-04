@@ -383,6 +383,38 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Find_Like_Help is
+    begin
+        Put_Line ("Provides text to search for (case insensitive).");
+    end Find_Like_Help;
+
+    procedure Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Find_Like (Srch, To_String (Word));
+        end loop;
+
+        Search_Updated (Srch);
+    end Find_Like_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Exclude_Like_Help is
+    begin
+        Put_Line ("Provides text to search for (case insensitive).");
+    end Exclude_Like_Help;
+
+    procedure Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Exclude_Like (Srch, To_String (Word));
+        end loop;
+
+        Search_Updated (Srch);
+    end Exclude_Like_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Find_Regex_Help is
     begin
         Put_Line ("Provides regex to search for.");
@@ -659,6 +691,8 @@ begin
 
     Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
     Make_Command ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-like", "Adds filter text (case insensitive).", Find_Like_Help'Access, Find_Like_Exec'Access);
+    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Exclude_Like_Help'Access, Exclude_Like_Exec'Access);
     Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
     Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);

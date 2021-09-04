@@ -50,6 +50,10 @@ package SP.Searches is
 
     procedure Exclude_Text (Srch : in out Search; Text : String);
 
+    procedure Find_Like (Srch : in out Search; Text : String);
+
+    procedure Exclude_Like (Srch : in out Search; Text : String);
+
     procedure Find_Regex (Srch : in out Search; Text : String);
 
     procedure Exclude_Regex (Srch : in out Search; Text : String);

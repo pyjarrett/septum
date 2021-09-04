@@ -120,6 +120,16 @@ package body SP.Searches is
         Srch.Line_Filters.Append (Filters.Exclude_Text (Text));
     end Exclude_Text;
 
+    procedure Find_Like (Srch : in out Search; Text : String) is
+    begin
+        Srch.Line_Filters.Append (Filters.Find_Like (Text));
+    end Find_Like;
+
+    procedure Exclude_Like (Srch : in out Search; Text : String) is
+    begin
+        Srch.Line_Filters.Append (Filters.Exclude_Like (Text));
+    end Exclude_Like;
+
     procedure Find_Regex (Srch : in out Search; Text : String) is
         F : constant Filter_Ptr := Filters.Find_Regex (Text);
         use type Filter_Ptr;

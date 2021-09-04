@@ -16,11 +16,18 @@
 
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 
 with SP.Terminal;
 
 package body SP.Filters is
     use Ada.Strings.Unbounded;
+
+    function To_Upper_Case (Text : String) return String is
+        use Ada.Strings.Maps;
+    begin
+        return Ada.Strings.Fixed.Translate (Text, Constants.Upper_Case_Map);
+    end To_Upper_Case;
 
     function Find_Text (Text : String) return Filter_Ptr is
         Base : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
@@ -37,6 +44,26 @@ package body SP.Filters is
         Ptr.Set (Base);
         return Ptr;
     end Exclude_Text;
+
+    function Find_Like (Text : String) return Filter_Ptr is
+        Base : constant Case_Insensitive_Match_Filter := (
+            Action => Keep,
+            Text   => To_Unbounded_String (To_Upper_Case (Text)));
+        Ptr  : Filter_Ptr;
+    begin
+        Ptr.Set (Base);
+        return Ptr;
+    end Find_Like;
+
+    function Exclude_Like (Text : String) return Filter_Ptr is
+        Base : constant Case_Insensitive_Match_Filter := (
+            Action => Exclude,
+            Text   => To_Unbounded_String (To_Upper_Case (Text)));
+        Ptr  : Filter_Ptr;
+    begin
+        Ptr.Set (Base);
+        return Ptr;
+    end Exclude_Like;
 
     function Find_Regex (Text : String) return Filter_Ptr is
         Matcher : Rc_Regex.Ref;
@@ -85,6 +112,20 @@ package body SP.Filters is
     function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean is
     begin
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
+    end Matches_Line;
+
+    ----------------------------------------------------------------------------
+
+    overriding function Image (F : Case_Insensitive_Match_Filter) return String is
+        use Ada.Characters;
+    begin
+        return "Case Insensitive Match " & Latin_1.Quotation & To_String (F.Text) & Latin_1.Quotation;
+    end Image;
+
+    overriding function Matches_Line (F : Case_Insensitive_Match_Filter; Str : String) return Boolean is
+        Upper_Cased : constant String := To_Upper_Case (Str);
+    begin
+        return Ada.Strings.Fixed.Index (Upper_Cased, To_String (F.Text)) > 0;
     end Matches_Line;
 
     ----------------------------------------------------------------------------
