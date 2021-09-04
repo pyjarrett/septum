@@ -96,15 +96,6 @@ project Septum is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
    end Binder;
 
-   package Builder is
-      for Switches ("ada") use (
-         "-s",  -- Recompile if switches have changed
-         "-j0", -- Use many jobs
-         "-C",  -- Use a mapping file for unit to file names and files to paths
-         "-m"   -- Minimum recompilation
-      );
-   end Builder;
-
    package Pretty_Printer is
       for Default_Switches ("ada") use (
          "-i4",                     -- Indentation level
