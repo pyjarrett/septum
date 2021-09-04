@@ -4,6 +4,10 @@
 # Ada Library Information
 *.ali
 
+# Alire things
+lib/
+alire/
+config/
 obj/
 alire/
 
@@ -13,4 +17,4 @@ choco/
 
 # Development files
 .clang-format
-.septum/
+.septum/obj/
