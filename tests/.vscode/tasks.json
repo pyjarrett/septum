@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "gprbuild",
+			"projectFile": "${config:ada.projectFile}",
+			"problemMatcher": [
+				"$ada"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "ada: Build current project"
+		}
+	]
+}

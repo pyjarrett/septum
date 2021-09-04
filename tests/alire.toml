@@ -1,0 +1,19 @@
+name = "septum_tests"
+description = "Shiny new project"
+version = "0.0.0"
+
+authors = ["Paul Jarrett"]
+maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
+maintainers-logins = ["pyjarrett"]
+
+executables = ["septum_tests"]
+
+[[depends-on]]
+septum = "~0.0.1"
+
+[[depends-on]]
+trendy_test = "~0.0.1"
+
+[[pins]]
+septum = { path = ".." }
+trendy_test = { path = "../../trendy_test" }
