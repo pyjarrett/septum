@@ -19,6 +19,26 @@ with Ada.Strings.Unbounded;
 
 package body SP.File_System is
 
+    package AD renames Ada.Directories;
+
+    function Is_File (Target : String) return Boolean is
+        use type Ada.Directories.File_Kind;
+    begin
+        return AD.Exists (Target) and then AD.Kind (Target) = AD.Ordinary_File;
+    exception
+        when others =>
+            return False;
+    end Is_File;
+
+    function Is_Dir (Target : String) return Boolean is
+        use type Ada.Directories.File_Kind;
+    begin
+        return AD.Exists (Target) and then AD.Kind (Target) = AD.Directory;
+    exception
+        when others =>
+            return False;
+    end Is_Dir;
+
     function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean is
         --  Return true if the entry is "." or "..".
         Name : constant String := Ada.Directories.Simple_Name (Dir_Entry);
@@ -50,6 +70,5 @@ package body SP.File_System is
             End_Search (Dir_Search);
         end return;
     end Contents;
-
 
 end SP.File_System;

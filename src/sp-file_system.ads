@@ -20,6 +20,9 @@ with SP.Strings;
 package SP.File_System is
     use SP.Strings;
 
+    function Is_File (Target : String) return Boolean;
+    function Is_Dir (Target : String) return Boolean;
+
     function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
 
     type Dir_Contents is record
@@ -29,4 +32,5 @@ package SP.File_System is
 
     function Contents (Dir_Name : String) return Dir_Contents;
     -- The immediate contents of the given directory.
+
 end SP.File_System;

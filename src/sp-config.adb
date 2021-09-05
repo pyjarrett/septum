@@ -18,21 +18,18 @@ with Ada.Directories;
 with Ada.Strings.Unbounded;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 with Dir_Iterators.Ancestor;
+with SP.File_System;
 
 package body SP.Config is
     package AD renames Ada.Directories;
     package ASU renames Ada.Strings.Unbounded;
+    package FS renames SP.File_System;
 
     use type Ada.Directories.File_Kind;
     use type ASU.Unbounded_String;
 
     Config_Dir_Name  : constant String := ".septum";
     Config_File_Name : constant String := ".config";
-
-    function Is_File (Target : String) return Boolean is
-    begin
-        return AD.Exists (Target) and then AD.Kind (Target) = AD.Ordinary_File;
-    end Is_File;
 
     -- Septum data is stored locally in the Next_Dir working directory on load or in the home directory of the user
     -- running the command.  This allows users to maintain general configuration in their home directory based
@@ -45,14 +42,14 @@ package body SP.Config is
     function Closest_Config (Dir_Name : String) return ASU.Unbounded_String with
         Pre  => AD.Exists (Dir_Name),
         Post => (Closest_Config'Result = ASU.Null_Unbounded_String)
-        or else Is_File (ASU.To_String (Closest_Config'Result))
+        or else FS.Is_File (ASU.To_String (Closest_Config'Result))
     is
         Ancestors  : constant Dir_Iterators.Ancestor.Ancestor_Dir_Walk := Dir_Iterators.Ancestor.Walk (Dir_Name);
         Next_Trial : ASU.Unbounded_String;
     begin
         for Ancestor of Ancestors loop
             Next_Trial := ASU.To_Unbounded_String (Ancestor & "/" & Config_Dir_Name & "/" & Config_File_Name);
-            if Is_File (ASU.To_String (Next_Trial)) then
+            if FS.Is_File (ASU.To_String (Next_Trial)) then
                 return Next_Trial;
             end if;
         end loop;
@@ -67,12 +64,12 @@ package body SP.Config is
     begin
         return V : String_Vectors.Vector do
             -- Look for the global user config.
-            if Is_File (ASU.To_String (Home_Dir_Config)) then
+            if FS.Is_File (ASU.To_String (Home_Dir_Config)) then
                 V.Append (Home_Dir_Config);
             end if;
 
             if Current_Dir_Config /= ASU.Null_Unbounded_String
-                and then Is_File (ASU.To_String (Current_Dir_Config))
+                and then FS.Is_File (ASU.To_String (Current_Dir_Config))
             then
                 V.Append (Current_Dir_Config);
             end if;
