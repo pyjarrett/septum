@@ -18,6 +18,7 @@ with Ada.Strings.Unbounded;
 with ANSI;
 with SP.Commands;
 with SP.Config;
+with SP.File_System;
 with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
@@ -63,6 +64,8 @@ package body SP.Interactive is
             return ANSI.Foreground (ANSI.Green) & S & ANSI.Foreground (ANSI.Default);
         elsif SP.Commands.Is_Like_Command (S) then
             return ANSI.Foreground (ANSI.Yellow) & S & ANSI.Foreground (ANSI.Default);
+        elsif SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
+            return ANSI.Foreground (ANSI.Blue) & S & ANSI.Foreground (ANSI.Default);
         else
             return ANSI.Foreground (ANSI.Red) & S & ANSI.Foreground (ANSI.Default);
         end if;
