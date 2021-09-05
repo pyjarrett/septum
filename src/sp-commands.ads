@@ -22,6 +22,7 @@ package SP.Commands is
     pragma Elaborate_Body;
 
     function Is_Command (S : String) return Boolean;
+    function Is_Like_Command (S : String) return Boolean;
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Boolean;
     function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean;

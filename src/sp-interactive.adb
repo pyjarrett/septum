@@ -61,6 +61,8 @@ package body SP.Interactive is
     begin
         if SP.Commands.Is_Command (S) then
             return ANSI.Foreground (ANSI.Green) & S & ANSI.Foreground (ANSI.Default);
+        elsif SP.Commands.Is_Like_Command (S) then
+            return ANSI.Foreground (ANSI.Yellow) & S & ANSI.Foreground (ANSI.Default);
         else
             return ANSI.Foreground (ANSI.Red) & S & ANSI.Foreground (ANSI.Default);
         end if;

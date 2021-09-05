@@ -50,7 +50,7 @@ package body SP.Commands is
 
     Command_Map : Command_Maps.Map;
 
-    function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String(S)));
+    function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String (S)));
 
     function Target_Command (Command_Name : Unbounded_String) return Unbounded_String with
         Post => Target_Command'Result = Null_Unbounded_String or else Command_Map.Contains (Target_Command'Result)
@@ -83,6 +83,8 @@ package body SP.Commands is
 
         return (if Ambiguous then Null_Unbounded_String else Best_Match);
     end Target_Command;
+
+    function Is_Like_Command (S : String) return Boolean is (Target_Command (To_Unbounded_String (S)) /= Null_Unbounded_String);
 
     function Try_Parse (Str : String; Value : in out Positive) return Boolean is
     begin
