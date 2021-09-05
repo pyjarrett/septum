@@ -15,11 +15,14 @@
 -------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
+with ANSI;
 with SP.Commands;
 with SP.Config;
 with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
+
+with Trendy_Terminal;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
@@ -54,10 +57,20 @@ package body SP.Interactive is
         Put (Default_Prompt);
     end Write_Prompt;
 
+    function Format_Input (S : String) return String is
+    begin
+        if SP.Commands.Is_Command (S) then
+            return ANSI.Foreground (ANSI.Green) & S & ANSI.Foreground (ANSI.Default);
+        else
+            return ANSI.Foreground (ANSI.Red) & S & ANSI.Foreground (ANSI.Default);
+        end if;
+
+    end Format_Input;
+
     function Read_Command return String_Vectors.Vector is
     begin
         declare
-            Input : constant Unbounded_String := Get_Line;
+            Input : constant Unbounded_String := To_Unbounded_String(Trendy_Terminal.Get_Line(Format_Input'Access));
         begin
             -- This might want to be a more complicated algorithm for splitting, such as handling quotes
             return Shell_Split (Input);
@@ -74,6 +87,13 @@ package body SP.Interactive is
         Put_Line ("septum v" & SP.Version);
         New_Line;
 
+        if not Trendy_Terminal.Init then
+            return;
+        end if;
+        Trendy_Terminal.Set (Trendy_Terminal.Echo, False);
+        Trendy_Terminal.Set (Trendy_Terminal.Line_Input, False);
+        Trendy_Terminal.Set (Trendy_Terminal.Escape_Sequences, True);
+
         for Config of Configs loop
             if not SP.Commands.Run_Commands_From_File (Srch, To_String(Config)) then
                 Put_Line ("Failing running commands from: " & To_String(Config));
@@ -88,5 +108,8 @@ package body SP.Interactive is
                 Put_Line ("Unknown command");
             end if;
         end loop;
+
+        --
+        -- Trendy_Terminal.Shutdown;
     end Main;
 end SP.Interactive;

@@ -62,6 +62,7 @@ package SP.Contexts is
     function Image (A : Context_Match) return String with
         Pre => Is_Valid (A);
 
+    overriding
     function "="(A, B : Context_Match) return Boolean with
         Pre => Is_Valid (A) and then Is_Valid (B);
 

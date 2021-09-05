@@ -50,6 +50,8 @@ package body SP.Commands is
 
     Command_Map : Command_Maps.Map;
 
+    function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String(S)));
+
     function Target_Command (Command_Name : Unbounded_String) return Unbounded_String with
         Post => Target_Command'Result = Null_Unbounded_String or else Command_Map.Contains (Target_Command'Result)
     is

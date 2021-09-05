@@ -109,7 +109,7 @@ package body SP.Filters is
         return "Case Sensitive Match " & Latin_1.Quotation & To_String (F.Text) & Latin_1.Quotation;
     end Image;
 
-    function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean is
+    overriding function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean is
     begin
         return Ada.Strings.Fixed.Index (Str, To_String (F.Text)) > 0;
     end Matches_Line;
@@ -130,12 +130,12 @@ package body SP.Filters is
 
     ----------------------------------------------------------------------------
 
-    function Image (F : Regex_Filter) return String is
+    overriding function Image (F : Regex_Filter) return String is
     begin
         return Ada.Strings.Unbounded.To_String (F.Source);
     end Image;
 
-    function Matches_Line (F : Regex_Filter; Str : String) return Boolean is
+    overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean is
     begin
         return GNAT.Regpat.Match (F.Regex.Get, Str);
     end Matches_Line;

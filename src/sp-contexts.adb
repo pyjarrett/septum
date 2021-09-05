@@ -89,6 +89,7 @@ package body SP.Contexts is
                  A.Internal_Matches.Length'Image & " matches");
     end Image;
 
+    overriding
     function "=" (A, B : Context_Match) return Boolean is
         use Ada.Strings.Unbounded;
         use SP.Contexts.Line_Matches;
