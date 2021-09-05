@@ -1,4 +1,6 @@
-with "config/septum_tests_config.gpr";
+with "trendy_test.gpr";
+with "septum.gpr";
+
 project Septum_Tests is
 
    for Source_Dirs use ("src");

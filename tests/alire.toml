@@ -14,6 +14,14 @@ septum = "~0.0.1"
 [[depends-on]]
 trendy_test = "~0.0.1"
 
+# Septum deps
+[[depends-on]]  # Added by alr
+dir_iterators = "~0.0.3"  # Added by alr
+[[depends-on]]  # Added by alr
+progress_indicators = "~0.0.1"  # Added by alr
+[[depends-on]]  # Added by alr
+gnatcoll = "^21.0.0"  # Added by alr
+
 [[pins]]
 septum = { path = ".." }
 trendy_test = { path = "../../trendy_test" }
