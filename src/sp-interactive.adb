@@ -111,10 +111,19 @@ package body SP.Interactive is
                 )
             );
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
+            Result : SP.Strings.String_Vectors.Vector;
         begin
             Trendy_Terminal.Write_Terminal_Line("");
-            -- This might want to be a more complicated algorithm for splitting, such as handling quotes
-            return Exploded.Words;
+
+            for Word of Exploded.Words loop
+                if SP.Strings.Is_Quoted (To_String (Word)) then
+                    Result.Append (Unbounded_Slice (Word, 2, Length (Word) - 1));
+                else
+                    Result.Append (Word);
+                end if;
+            end loop;
+
+            return Result;
         end;
     end Read_Command;
 
