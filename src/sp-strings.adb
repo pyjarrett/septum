@@ -44,6 +44,22 @@ package body SP.Strings is
         end return;
     end Zip;
 
+    function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String is
+        use Ada.Strings.Unbounded;
+        Result : Unbounded_String;
+    begin
+        Append (Result, To_Unbounded_String ("["));
+        for Elem of S loop
+            Append (Result, Ada.Characters.Latin_1.Quotation);
+            Append (Result, Elem);
+            Append (Result, Ada.Characters.Latin_1.Quotation);
+            Append (Result, Ada.Characters.Latin_1.Comma);
+            Append (Result, To_Unbounded_String (" "));
+        end loop;
+        Append (Result, To_Unbounded_String ("]"));
+        return Result;
+    end Format_Array;
+
     -- TODO: This will eventually need to be rewritten to account for multi-byte
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
     -- the command line formatter stood up more quickly.

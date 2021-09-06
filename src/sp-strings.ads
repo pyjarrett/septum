@@ -38,6 +38,7 @@ package SP.Strings is
     function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
 
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
+    function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
 
     -- TODO: This will eventually need to be rewritten to account for multi-byte
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get

@@ -93,27 +93,10 @@ package body SP.Interactive is
         return To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     end Format_Input;
 
-    function Format_Array (S : SP.Strings.String_Vectors.Vector) return Unbounded_String is
-        Result : Unbounded_String;
-    begin
-        Append (Result, To_Unbounded_String ("["));
-        for Elem of S loop
-            Append (Result, Ada.Characters.Latin_1.Quotation);
-            Append (Result, Elem);
-            Append (Result, Ada.Characters.Latin_1.Quotation);
-            Append (Result, Ada.Characters.Latin_1.Comma);
-            Append (Result, To_Unbounded_String (" "));
-        end loop;
-        Append (Result, To_Unbounded_String ("]"));
-        return Result;
-    end Format_Array;
-
     function Debug_Input (S : String) return String is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
         Output   : Unbounded_String;
     begin
-        Append (Output, Format_Array (Exploded.Words));
-        Append (Output, Format_Array (Exploded.Spacers));
         Append (Output, SP.Strings.Zip (Exploded.Spacers, Exploded.Words));
         return To_String (Output);
     end Debug_Input;
