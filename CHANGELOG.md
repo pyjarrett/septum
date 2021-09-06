@@ -18,3 +18,5 @@ Types of changes:
 - ✅ Added internal crate under tests/ using Trendy Test for tests.
 - 🛠️ Fixed auto-search to not always when disabled.
 - 🛠️ Fixed crash when no .septum/ folder exists in starting directory.
+- ✅ Added input coloration. Commands run 🔴red🔴 when invalid, 🟡yellow🟡 when matching a valid prefix, and 🟢green🟢 when correct.
+- ✅ Added input coloration. Paths turn 🔵blue🔵 when valid.
