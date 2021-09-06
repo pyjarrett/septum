@@ -129,6 +129,7 @@ package body SP.Interactive is
             );
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
         begin
+            Trendy_Terminal.Write_Terminal_Line("");
             -- This might want to be a more complicated algorithm for splitting, such as handling quotes
             return Exploded.Words;
         end;
