@@ -1,12 +1,19 @@
 with Ada.Characters.Latin_1;
+with Ada.Strings.Unbounded;
+with Trendy_Test.Assertions;
 
 package body SP.Strings.Tests is
 
+    package ASU renames Ada.Strings.Unbounded;
     package TT renames Trendy_Test;
+    use Trendy_Test.Assertions.Integer_Assertions;
+
+    function "+" renames ASU.To_Unbounded_String;
 
     procedure Test_String_Split (Op : in out TT.Operation'Class) is
     begin
         Op.Register;
+
     end Test_String_Split;
 
     procedure Test_Is_Quoted (Op : in out TT.Operation'Class) is
