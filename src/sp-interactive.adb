@@ -16,10 +16,10 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
--- with ANSI;
+with ANSI;
 with SP.Commands;
 with SP.Config;
--- with SP.File_System;
+with SP.File_System;
 with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
@@ -59,9 +59,38 @@ package body SP.Interactive is
         Put (Default_Prompt);
     end Write_Prompt;
 
-    function Format_Input (S : String) return String is
+    function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
+        Result : SP.Strings.String_Vectors.Vector;
     begin
-        return S;
+        for Index in 1 .. V.Length loop
+            declare
+                US : constant Unbounded_String := V ( Positive (Index));
+                S  : constant String := To_String (US);
+            begin
+                if Positive (Index) = 1 then
+                    if SP.Commands.Is_Command (S) then
+                        Result.Append (ANSI.Foreground (ANSI.Green) & US & ANSI.Foreground (ANSI.Default));
+                    elsif SP.Commands.Is_Like_Command (S) then
+                        Result.Append (ANSI.Foreground (ANSI.Yellow) & US & ANSI.Foreground (ANSI.Default));
+                    else
+                        Result.Append (ANSI.Foreground (ANSI.Red) & US & ANSI.Foreground (ANSI.Default));
+                    end if;
+                else
+                    if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
+                        Result.Append (ANSI.Foreground (ANSI.Blue) & US & ANSI.Foreground (ANSI.Default));
+                    else
+                        Result.Append (US);
+                    end if;
+                end if;
+            end;
+        end loop;
+        return Result;
+    end Apply_Formatting;
+
+    function Format_Input (S : String) return String is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
+    begin
+        return To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     end Format_Input;
 
     function Format_Array (S : SP.Strings.String_Vectors.Vector) return Unbounded_String is
@@ -93,9 +122,9 @@ package body SP.Interactive is
     begin
         declare
             Input : constant Unbounded_String := To_Unbounded_String(
-                Trendy_Terminal.Debug_Get_Line(
-                    Format_Fn => Format_Input'Access,
-                    Debug_Fn => Debug_Input'Access
+                Trendy_Terminal.Get_Line(
+                    Format_Fn => Format_Input'Access
+                    -- Debug_Fn => Debug_Input'Access
                 )
             );
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));

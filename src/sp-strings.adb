@@ -113,24 +113,23 @@ package body SP.Strings is
                         case Next_Char is
                             when '\' =>
                                 Escaped := True;
+                                Append (Word, Next_Char);
                             when Ada.Characters.Latin_1.Quotation =>
                                 if not Quoted then
                                     Quoted := True;
                                     Quote_Char := Ada.Characters.Latin_1.Quotation;
                                 elsif Quote_Char = Ada.Characters.Latin_1.Quotation then
                                     Quoted := False;
-                                else
-                                    Append (Word, Next_Char);
                                 end if;
+                                Append (Word, Next_Char);
                             when Ada.Characters.Latin_1.Apostrophe =>
                                 if not Quoted then
                                     Quoted := True;
                                     Quote_Char := Ada.Characters.Latin_1.Apostrophe;
                                 elsif Quote_Char = Ada.Characters.Latin_1.Apostrophe then
                                     Quoted := False;
-                                else
-                                    Append (Word, Next_Char);
                                 end if;
+                                Append (Word, Next_Char);
                             -- Whitespace is only the end of the word if it's not
                             -- escaped or in a quoted section.
                             when Ada.Characters.Latin_1.Space | Ada.Characters.Latin_1.CR | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.FF =>
