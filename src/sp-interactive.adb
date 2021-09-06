@@ -56,7 +56,8 @@ package body SP.Interactive is
         Set_Col (Second_Col);
         Put ("Max Results: " & (if Max_Results = SP.Searches.No_Max_Results then "Unlimited" else Max_Results'Image));
         New_Line;
-        Put (Default_Prompt);
+        -- Put (Default_Prompt);
+        New_Line;
     end Write_Prompt;
 
     function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
