@@ -137,7 +137,8 @@ package body SP.Commands is
 
         for Command of Commands loop
             declare
-                Command_Line : constant String_Vectors.Vector := Shell_Split (Command);
+                Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Command));
+                Command_Line : constant String_Vectors.Vector := Exploded.Words;
             begin
                 New_Line;
                 Put_Line (" > " & Command);

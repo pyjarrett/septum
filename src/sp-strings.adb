@@ -22,26 +22,118 @@ with Ada.Characters.Latin_1;
 with GNAT.OS_Lib;
 
 package body SP.Strings is
-    function Shell_Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector is
+    -- TODO: This will eventually need to be rewritten to account for multi-byte
+    -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
+    -- the command line formatter stood up more quickly.
+    function Make (S : String) return Exploded_Line is
+        -- Use half-open ranges here.  The next slice is going to be
+        -- [First, After_Last).  This allows "empty" ranges when Fire = After_Last.
+        After_Last : Natural := 1;
+        Result     : Exploded_Line;
+
         use Ada.Strings.Unbounded;
-        use GNAT.OS_Lib;
-        Args : Argument_List_Access := Argument_String_To_List (To_String (S));
     begin
-        return Result : String_Vectors.Vector do
-            for Arg : GNAT.OS_Lib.String_Access of Args.all loop
-                declare
-                    Real_Arg : constant Unbounded_String := To_Unbounded_String (Arg.all);
-                begin
-                    if SP.Strings.Is_Quoted (Arg.all) then
-                        Result.Append(To_Unbounded_String (Slice(Real_Arg, 2, Length(Real_Arg) - 1)));
+        if S'Length = 0 then
+            return E : Exploded_Line do null; end return;
+        end if;
+
+        while After_Last <= S'Length loop
+            -- This section is a spacer since, either a new line is being split
+            -- or this is starting a whitespace section after consuming some text.
+            --
+            -- To reduce special casing, empty leading space is added to the
+            -- exploded line, this maintains the property that Spacers(i) is what
+            -- preceeds Words(i).
+            declare
+                First : constant Natural := After_Last;
+            begin
+                After_Last := Ada.Strings.Fixed.Index_Non_Blank (S, After_Last);
+
+                -- No more text follows the whitespace.
+                exit when After_Last = 0;
+
+                Result.Spacers.Append (To_Unbounded_String (S (First .. After_Last - 1)));
+                exit when After_Last > S'Length;
+            end;
+
+            -- A non-space section, as designated as starting with a non-blank character.
+            -- This section is trickier as multiple cases have to be resolved.
+            -- 1. Dealing with quoted sections.  Once a quoted section has started,
+            --    it can only be undone by an unescaped quoted character.
+            -- 2. Escaped characters.  Escaped spaces might appear which hamper the
+            --    ability to delineate words by spaces alone.
+            -- 3. Don't run off the end of the string.
+            --
+            -- N.B the usage of / on Windows is commonplace, so requiring uses
+            --     to use / or \\ for a "\" seems reasonable.
+            --
+            -- In practice, spaces appear quite often in queries, especially when looking
+            -- for error messages and some Window directories.
+            declare
+                Escaped    : Boolean := False;
+                Quoted     : Boolean := False;
+                Quote_Char : Character := ' ';
+                Next_Char  : Character;
+                Word       : Unbounded_String;
+            begin
+                while After_Last <= S'Length loop
+                    Next_Char := S (After_Last);
+
+                    -- The previous character was escaped, so treat the next
+                    -- character as a literal.
+                    --
+                    -- This appears before quote checks to prevent escaped
+                    -- quotes from changing the quote state.
+                    if Escaped then
+                        Append (Word, Next_Char);
+                        Escaped := False;
                     else
-                        Result.Append (Real_Arg);
+                        case Next_Char is
+                            when '\' =>
+                                Escaped := True;
+                            when Ada.Characters.Latin_1.Quotation =>
+                                if not Quoted then
+                                    Quoted := True;
+                                    Quote_Char := Ada.Characters.Latin_1.Quotation;
+                                elsif Quote_Char = Ada.Characters.Latin_1.Quotation then
+                                    Quoted := False;
+                                else
+                                    Append (Word, Next_Char);
+                                end if;
+                            when Ada.Characters.Latin_1.Apostrophe =>
+                                if not Quoted then
+                                    Quoted := True;
+                                    Quote_Char := Ada.Characters.Latin_1.Apostrophe;
+                                elsif Quote_Char = Ada.Characters.Latin_1.Apostrophe then
+                                    Quoted := False;
+                                else
+                                    Append (Word, Next_Char);
+                                end if;
+                            -- Whitespace is only the end of the word if it's not
+                            -- escaped or in a quoted section.
+                            when Ada.Characters.Latin_1.Space | Ada.Characters.Latin_1.CR | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.FF =>
+                                -- Exit the loop here to keep Current pointing
+                                -- to the start of the whitespace.
+                                if Quoted then
+                                    Append (Word, Next_Char);
+                                else
+                                    exit;
+                                end if;
+                            when others =>
+                                Append (Word, Next_Char);
+                        end case;
                     end if;
-                end;
-            end loop;
-            GNAT.OS_Lib.Free (Args);
-        end return;
-    end Shell_Split;
+
+                    After_Last := After_Last + 1;
+                end loop;
+
+                pragma Assert (Length (Word) > 0);
+                Result.Words.Append (Word);
+            end;
+        end loop;
+
+        return Result;
+    end Make;
 
     function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
         --  Reads all the lines from a file.

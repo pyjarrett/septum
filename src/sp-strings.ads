@@ -27,10 +27,20 @@ package SP.Strings is
         (Index_Type => Positive, Element_Type => Ada.Strings.Unbounded.Unbounded_String,
          "="        => Ada.Strings.Unbounded."=");
 
-    function Shell_Split (S : Ada.Strings.Unbounded.Unbounded_String) return String_Vectors.Vector;
-    -- Performs a shell-like split, grouping elements surrounded by single or double quotes. This is based on the
-    -- behavior of GNAT.OS_Lib.Argument_String_To_List, so behavior of \ changes based on if running under Windows
-    -- or not.
+    type Exploded_Line is record
+        -- The first space is "Leading spacing"
+        -- Spaces(i) is what preceeds Words(i)
+        Spacers : SP.Strings.String_Vectors.Vector;
+        Words   : SP.Strings.String_Vectors.Vector;
+    end record;
+
+    function Get_Word (E : Exploded_Line; Index : Positive) return String is (Ada.Strings.Unbounded.To_String (E.Words (Index)));
+    function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
+
+    -- TODO: This will eventually need to be rewritten to account for multi-byte
+    -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
+    -- the command line formatter stood up more quickly.
+    function Make (S : String) return Exploded_Line;
 
     function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
 
