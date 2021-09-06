@@ -85,6 +85,7 @@ package body SP.Interactive is
     begin
         Append (Output, Format_Array (Exploded.Words));
         Append (Output, Format_Array (Exploded.Spacers));
+        Append (Output, SP.Strings.Zip (Exploded.Spacers, Exploded.Words));
         return To_String (Output);
     end Debug_Input;
 

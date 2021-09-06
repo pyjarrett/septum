@@ -13,7 +13,6 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
-
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
@@ -22,6 +21,29 @@ with Ada.Characters.Latin_1;
 with GNAT.OS_Lib;
 
 package body SP.Strings is
+    function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
+        return Ada.Strings.Unbounded.Unbounded_String
+    is
+        use Ada.Strings.Unbounded;
+        use SP.Strings.String_Vectors;
+        L : Natural := 1;
+        R : Natural := 1;
+    begin
+        return Result : Ada.Strings.Unbounded.Unbounded_String do
+            while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
+                if L <= Natural (Length (Left)) then
+                    Append (Result, Left (L));
+                    L := L + 1;
+                end if;
+
+                if R <= Natural (Length (Right)) then
+                    Append (Result, Right (R));
+                    R := R + 1;
+                end if;
+            end loop;
+        end return;
+    end Zip;
+
     -- TODO: This will eventually need to be rewritten to account for multi-byte
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
     -- the command line formatter stood up more quickly.
