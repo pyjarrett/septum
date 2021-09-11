@@ -114,7 +114,7 @@ package body SP.Interactive is
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
             Result : SP.Strings.String_Vectors.Vector;
         begin
-            Trendy_Terminal.Write_Terminal_Line("");
+            Trendy_Terminal.Put_Line("");
 
             for Word of Exploded.Words loop
                 if SP.Strings.Is_Quoted (To_String (Word)) then
