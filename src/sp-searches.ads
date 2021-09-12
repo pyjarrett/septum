@@ -74,6 +74,8 @@ package SP.Searches is
     procedure Set_Search_On_Filters_Changed (Srch : in out Search; Enabled : Boolean);
     function Get_Search_On_Filters_Changed (Srch : in out Search) return Boolean;
 
+    procedure Set_Line_Colors_Enabled (Srch : in out Search; Enabled : Boolean);
+
     procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean);
     function Get_Print_Line_Numbers (Srch : in Search) return Boolean;
 
@@ -120,6 +122,8 @@ private
         Print_Line_Numbers : Boolean := True;
 
         Search_On_Filters_Changed : Boolean := False;
+
+        Enable_Line_Colors : Boolean := False;
     end record;
 
 end SP.Searches;

@@ -676,6 +676,35 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Enable_Line_Colors_Help is
+    begin
+        Put_Line ("Enables line colors in context output.");
+    end Enable_Line_Colors_Help;
+
+    procedure Enable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Line_Colors_Enabled (Srch, True);
+    end Enable_Line_Colors_Exec;
+
+    procedure Disable_Line_Colors_Help is
+    begin
+        Put_Line ("Disables line colors in context output.");
+    end Disable_Line_Colors_Help;
+
+    procedure Disable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+        end if;
+        SP.Searches.Set_Line_Colors_Enabled (Srch, False);
+    end Disable_Line_Colors_Exec;
+
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -749,6 +778,13 @@ begin
     Make_Command
         ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Disable_Line_Numbers_Help'Access,
          Disable_Line_Numbers_Exec'Access);
+
+    Make_Command
+        ("enable-line-colors", "Enables colorizing lines with matches.", Enable_Line_Colors_Help'Access,
+         Enable_Line_Colors_Exec'Access);
+    Make_Command
+        ("disable-line-colors", "Disables colorizing lines with matches.", Disable_Line_Colors_Help'Access,
+         Disable_Line_Colors_Exec'Access);
 
     -- Quit
 

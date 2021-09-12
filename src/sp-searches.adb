@@ -16,6 +16,7 @@
 
 with Ada.Directories;
 with Ada.Text_IO;
+with ANSI;
 
 with GNATCOLL.Atomic;
 
@@ -185,6 +186,11 @@ package body SP.Searches is
     end Set_Search_On_Filters_Changed;
 
     function Get_Search_On_Filters_Changed (Srch : in out Search) return Boolean is (Srch.Search_On_Filters_Changed);
+
+    procedure Set_Line_Colors_Enabled (Srch : in out Search; Enabled : Boolean) is
+    begin
+        Srch.Enable_Line_Colors := Enabled;
+    end Set_Line_Colors_Enabled;
 
     procedure Set_Print_Line_Numbers (Srch : in out Search; Enabled : Boolean) is
     begin
@@ -385,7 +391,13 @@ package body SP.Searches is
             else
                 Set_Col(5);
             end if;
-            Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+            if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
+                Put_Line (ANSI.Foreground (ANSI.Green)
+                 & To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num))
+                 & ANSI.Foreground (ANSI.Default));
+            else
+                Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+            end if;
         end loop;
         New_Line;
     end Print_Context;
