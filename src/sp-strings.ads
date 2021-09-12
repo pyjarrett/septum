@@ -27,23 +27,8 @@ package SP.Strings is
         (Index_Type => Positive, Element_Type => Ada.Strings.Unbounded.Unbounded_String,
          "="        => Ada.Strings.Unbounded."=");
 
-    type Exploded_Line is record
-        -- The first space is "Leading spacing"
-        -- Spaces(i) is what preceeds Words(i)
-        Spacers : SP.Strings.String_Vectors.Vector;
-        Words   : SP.Strings.String_Vectors.Vector;
-    end record;
-
-    function Get_Word (E : Exploded_Line; Index : Positive) return String is (Ada.Strings.Unbounded.To_String (E.Words (Index)));
-    function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
-
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
     function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
-
-    -- TODO: This will eventually need to be rewritten to account for multi-byte
-    -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
-    -- the command line formatter stood up more quickly.
-    function Make (S : String) return Exploded_Line;
 
     function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
 
@@ -54,5 +39,19 @@ package SP.Strings is
 
     function Is_Quoted (S : String) return Boolean;
     -- Quoted strings must start and end with either a single or a double quote.
+
+    type Exploded_Line is record
+        -- The first space is "Leading spacing"
+        -- Spaces(i) is what preceeds Words(i)
+        Spacers : SP.Strings.String_Vectors.Vector;
+        Words   : SP.Strings.String_Vectors.Vector;
+    end record;
+
+    -- TODO: This will eventually need to be rewritten to account for multi-byte
+    -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
+    -- the command line formatter stood up more quickly.
+    function Make (S : String) return Exploded_Line;
+    function Get_Word (E : Exploded_Line; Index : Positive) return String is (Ada.Strings.Unbounded.To_String (E.Words (Index)));
+    function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
 
 end SP.Strings;
