@@ -52,7 +52,7 @@ project Septum is
       when "enabled" =>
          Style_Checks_Switches := (
             "-gnaty-d",   -- Disable no DOS line terminators
-            "-gnatyM140", -- Maximum line length
+            "-gnatyM200", -- Maximum line length
             "-gnatyO"     -- Overriding subprograms explicitly marked as such
          );
       when others => null;
