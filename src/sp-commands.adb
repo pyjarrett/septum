@@ -15,7 +15,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Maps;
-with Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 with GNATCOLL.VFS;
 with SP.Contexts;
@@ -53,8 +52,7 @@ package body SP.Commands is
 
     function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String (S)));
 
-    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String with
-        Post => Target_Command'Result = Null_Unbounded_String or else Command_Map.Contains (Target_Command'Result)
+    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String
     is
         Best_Match      : Unbounded_String := Null_Unbounded_String;
         Best_Match_Size : Natural          := 0;

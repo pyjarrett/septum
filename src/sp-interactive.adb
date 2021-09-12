@@ -73,7 +73,17 @@ package body SP.Interactive is
                     if SP.Commands.Is_Command (S) then
                         Result.Append (ANSI.Foreground (ANSI.Green) & US & ANSI.Foreground (ANSI.Default));
                     elsif SP.Commands.Is_Like_Command (S) then
-                        Result.Append (ANSI.Foreground (ANSI.Yellow) & US & ANSI.Foreground (ANSI.Default));
+                        declare
+                            Command       : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
+                            Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (US, Command);
+                            Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Command, Prefix_Length + 1, ASU.Length (Command));
+                        begin
+                            Result.Append (ANSI.Foreground (ANSI.Yellow)
+                                & US
+                                & ANSI.Foreground (ANSI.Light_Cyan)
+                                & Suffix
+                                & ANSI.Foreground (ANSI.Default));
+                        end;
                     else
                         Result.Append (ANSI.Foreground (ANSI.Red) & US & ANSI.Foreground (ANSI.Default));
                     end if;

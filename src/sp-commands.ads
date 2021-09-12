@@ -14,15 +14,22 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
+
 with SP.Searches;
 with SP.Strings;            use SP.Strings;
 
 package SP.Commands is
-
     pragma Elaborate_Body;
+
+    use type Ada.Strings.Unbounded.Unbounded_String;
 
     function Is_Command (S : String) return Boolean;
     function Is_Like_Command (S : String) return Boolean;
+
+    function Target_Command (Command_Name : Ada.Strings.Unbounded.Unbounded_String) return Ada.Strings.Unbounded.Unbounded_String
+        with Post => Target_Command'Result = Ada.Strings.Unbounded.Null_Unbounded_String
+            or else Is_Command (Ada.Strings.Unbounded.To_String (Target_Command'Result));
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Boolean;
     function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean;
