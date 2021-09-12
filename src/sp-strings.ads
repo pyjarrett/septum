@@ -33,7 +33,7 @@ package SP.Strings is
 
     function Common_Prefix_Length (A, B : ASU.Unbounded_String) return Natural
     with
-        Post => Common_Prefix_Length'Result < Natural'Max (ASU.Length (A), ASU.Length (B));
+        Post => Common_Prefix_Length'Result <= Natural'Max (ASU.Length (A), ASU.Length (B));
 
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
