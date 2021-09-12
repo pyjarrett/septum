@@ -24,7 +24,8 @@ with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
 
-with Trendy_Terminal;
+with Trendy_Terminal.IO;
+with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
     use Ada.Strings.Unbounded;
@@ -106,7 +107,7 @@ package body SP.Interactive is
     begin
         declare
             Input : constant Unbounded_String := To_Unbounded_String(
-                Trendy_Terminal.Get_Line(
+                Trendy_Terminal.IO.Get_Line(
                     Format_Fn => Format_Input'Access
                     -- Debug_Fn => Debug_Input'Access
                 )
@@ -114,7 +115,7 @@ package body SP.Interactive is
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
             Result : SP.Strings.String_Vectors.Vector;
         begin
-            Trendy_Terminal.Put_Line("");
+            Trendy_Terminal.IO.Put_Line("");
 
             for Word of Exploded.Words loop
                 if SP.Strings.Is_Quoted (To_String (Word)) then
@@ -138,12 +139,12 @@ package body SP.Interactive is
         Put_Line ("septum v" & SP.Version);
         New_Line;
 
-        if not Trendy_Terminal.Init then
+        if not Trendy_Terminal.Platform.Init then
             return;
         end if;
-        Trendy_Terminal.Set (Trendy_Terminal.Echo, False);
-        Trendy_Terminal.Set (Trendy_Terminal.Line_Input, False);
-        Trendy_Terminal.Set (Trendy_Terminal.Escape_Sequences, True);
+        Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
+        Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
+        Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
 
         for Config of Configs loop
             if not SP.Commands.Run_Commands_From_File (Srch, To_String(Config)) then
@@ -159,8 +160,5 @@ package body SP.Interactive is
                 Put_Line ("Unknown command");
             end if;
         end loop;
-
-        --
-        -- Trendy_Terminal.Shutdown;
     end Main;
 end SP.Interactive;

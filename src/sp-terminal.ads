@@ -17,6 +17,8 @@
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Text_IO.Unbounded_IO;
+
+with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 
 package SP.Terminal is
@@ -25,19 +27,17 @@ package SP.Terminal is
     --
     -- This module also hides dependencies on unbounded IO.
 
-    procedure Put (Str : String) renames Trendy_Terminal.Put;
-    procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Ada.Text_IO.Unbounded_IO.Put;
+    procedure Put (Str : String) renames Trendy_Terminal.IO.Put;
+    procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put;
 
-    procedure Put_Line (Str : String) renames Trendy_Terminal.Put_Line;
-    procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.Put_Line;
+    procedure Put_Line (Str : String) renames Trendy_Terminal.IO.Put_Line;
+    procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put_Line;
 
-    function Get_Line return String renames Ada.Text_IO.Get_Line;
+    procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.IO.New_Line;
 
-    procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.New_Line;
+    procedure Set_Col (Spacing : Positive) renames Trendy_Terminal.IO.Set_Col;
 
-    procedure Set_Col (Spacing : Positive) renames Trendy_Terminal.Set_Col;
-
-    procedure Clear_Line renames Trendy_Terminal.Clear_Line;
+    procedure Clear_Line renames Trendy_Terminal.IO.Clear_Line;
 
     -- I'm not convinced that these aren't useful. I haven't figured out how best to deal with the really long and
     -- verbose terminology of Ada.Strings.Unbounded.Unbounded_String.
