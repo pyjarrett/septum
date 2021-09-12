@@ -18,6 +18,8 @@ with Ada.Directories.Hierarchical_File_Names;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
+with SP.Terminal;
+
 package body SP.File_System is
 
     package AD renames Ada.Directories;
@@ -93,7 +95,7 @@ package body SP.File_System is
             end if;
             return True;
         when others =>
-            Ada.Text_IO.Put_Line ("Unable to read contents of: " & File_Name);
+            SP.Terminal.Put_Line ("Unable to read contents of: " & File_Name);
             return False;
     end Read_Lines;
 

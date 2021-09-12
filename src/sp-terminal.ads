@@ -15,8 +15,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
-with Ada.Text_IO.Unbounded_IO;
 with ANSI;
 
 with Trendy_Terminal.IO;

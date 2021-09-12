@@ -17,7 +17,6 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
-with Ada.Text_IO;
 
 with SP.Cache;
 with SP.File_System;
@@ -199,17 +198,16 @@ package body SP.Cache is
                     SR := Progress.Report;
                     PI.Spinners.Tick(Spinner);
 
-                    Ada.Text_IO.Put
+                    SP.Terminal.Put
                         (PI.Spinners.Value (Spinner) & "  " & SR.Completed'Image &
                          " done of" & SR.Total'Image & "   " & PI.Spinners.Value (Spinner));
-                    Ada.Text_IO.Flush;
                 end loop;
             end Update_Progress;
 
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
-            Ada.Text_IO.New_Line;
+            SP.Terminal.New_Line;
 
             declare
                 File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
@@ -219,7 +217,7 @@ package body SP.Cache is
                 end loop;
             end;
             Update_Progress.Stop;
-            Ada.Text_IO.New_Line;
+            SP.Terminal.New_Line;
         end;
     end Add_Directory_Recursively;
 

@@ -15,7 +15,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Text_IO;
 with ANSI;
 
 with GNATCOLL.Atomic;
@@ -36,7 +35,7 @@ package body SP.Searches is
         if Is_Directory then
             SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
         else
-            Ada.Text_IO.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
+            SP.Terminal.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
         end if;
     end Load_Directory;
 
@@ -60,9 +59,9 @@ package body SP.Searches is
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
             Load_Directory (Srch, Dir_Name);
-            Ada.Text_IO.Put_Line ("Added " & Dir_Name & " to search path.");
+            SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
         else
-            Ada.Text_IO.Put_Line ("Could not add " & Dir_Name & " to search path.");
+            SP.Terminal.Put_Line ("Could not add " & Dir_Name & " to search path.");
         end if;
     end Add_Directory;
 
@@ -154,9 +153,9 @@ package body SP.Searches is
             (if Srch.Line_Filters.Is_Empty then Pointers.Null_Ref else Srch.Line_Filters.Last_Element);
     begin
         if Filter_Being_Popped.Is_Null then
-            Ada.Text_IO.Put_Line ("No more filters to pop.");
+            SP.Terminal.Put_Line ("No more filters to pop.");
         else
-            Ada.Text_IO.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
+            SP.Terminal.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
             Srch.Line_Filters.Delete_Last;
         end if;
     end Pop_Filter;
