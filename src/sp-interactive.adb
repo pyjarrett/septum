@@ -71,25 +71,23 @@ package body SP.Interactive is
             begin
                 if Positive (Index) = 1 then
                     if SP.Commands.Is_Command (S) then
-                        Result.Append (ANSI.Foreground (ANSI.Green) & US & ANSI.Foreground (ANSI.Default));
+                        Result.Append (SP.Terminal.Colorize(US, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) then
                         declare
                             Command       : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
                             Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (US, Command);
                             Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Command, Prefix_Length + 1, ASU.Length (Command));
                         begin
-                            Result.Append (ANSI.Foreground (ANSI.Yellow)
-                                & US
-                                & ANSI.Foreground (ANSI.Light_Cyan)
-                                & Suffix
-                                & ANSI.Foreground (ANSI.Default));
+                            Result.Append (
+                                SP.Terminal.Colorize (US, ANSI.Yellow)
+                                & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan));
                         end;
                     else
-                        Result.Append (ANSI.Foreground (ANSI.Red) & US & ANSI.Foreground (ANSI.Default));
+                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
                     end if;
                 else
                     if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
-                        Result.Append (ANSI.Foreground (ANSI.Blue) & US & ANSI.Foreground (ANSI.Default));
+                        Result.Append (SP.Terminal.Colorize (US, ANSI.Magenta));
                     else
                         Result.Append (US);
                     end if;

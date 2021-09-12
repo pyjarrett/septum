@@ -392,9 +392,9 @@ package body SP.Searches is
                 Set_Col(5);
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
-                Put_Line (ANSI.Foreground (ANSI.Green)
-                 & To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num))
-                 & ANSI.Foreground (ANSI.Default));
+                Put_Line (SP.Terminal.Colorize (
+                    To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
+                    ANSI.Green));
             else
                 Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
             end if;

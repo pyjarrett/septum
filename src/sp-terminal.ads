@@ -17,6 +17,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Text_IO.Unbounded_IO;
+with ANSI;
 
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
@@ -38,6 +39,10 @@ package SP.Terminal is
     procedure Set_Col (Spacing : Positive) renames Trendy_Terminal.IO.Set_Col;
 
     procedure Clear_Line renames Trendy_Terminal.IO.Clear_Line;
+
+    function Colorize (S : String; Color : ANSI.Colors) return String;
+    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
+        return Ada.Strings.Unbounded.Unbounded_String;
 
     -- I'm not convinced that these aren't useful. I haven't figured out how best to deal with the really long and
     -- verbose terminology of Ada.Strings.Unbounded.Unbounded_String.
