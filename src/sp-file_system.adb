@@ -15,7 +15,8 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories.Hierarchical_File_Names;
-with Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded.Text_IO;
+with Ada.Text_IO;
 
 package body SP.File_System is
 
@@ -70,5 +71,30 @@ package body SP.File_System is
             End_Search (Dir_Search);
         end return;
     end Contents;
+
+    --  Reads all the lines from a file.
+    function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
+        File : Ada.Text_IO.File_Type;
+        Line : Ada.Strings.Unbounded.Unbounded_String;
+    begin
+        String_Vectors.Clear (Result);
+        Ada.Text_IO.Open (File => File, Mode => Ada.Text_IO.In_File, Name => File_Name);
+        while not Ada.Text_IO.End_Of_File (File) loop
+            Line := Ada.Strings.Unbounded.Text_IO.Get_Line (File);
+            Result.Append (Line);
+        end loop;
+
+        Ada.Text_IO.Close (File);
+        return True;
+    exception
+        when Ada.Text_IO.End_Error =>
+            if Ada.Text_IO.Is_Open (File) then
+                Ada.Text_IO.Close (File);
+            end if;
+            return True;
+        when others =>
+            Ada.Text_IO.Put_Line ("Unable to read contents of: " & File_Name);
+            return False;
+    end Read_Lines;
 
 end SP.File_System;

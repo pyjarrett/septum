@@ -33,4 +33,6 @@ package SP.File_System is
     function Contents (Dir_Name : String) return Dir_Contents;
     -- The immediate contents of the given directory.
 
+    function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
+
 end SP.File_System;

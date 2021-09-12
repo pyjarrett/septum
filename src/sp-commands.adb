@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 with GNATCOLL.VFS;
 with SP.Contexts;
+with SP.File_System;
 with SP.Terminal;
 
 package body SP.Commands is
@@ -131,7 +132,7 @@ package body SP.Commands is
 
         Put_Line ("Loading commands from: " & Config_File_Name);
 
-        if not SP.Strings.Read_Lines (+Config.Full_Name, Commands) then
+        if not SP.File_System.Read_Lines (+Config.Full_Name, Commands) then
             Put_Line ("Unable to load configuration file from: " & Config_File_Name);
         end if;
 

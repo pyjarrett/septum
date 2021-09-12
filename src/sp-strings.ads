@@ -30,8 +30,6 @@ package SP.Strings is
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
     function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String;
 
-    function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
-
     function Common_Prefix_Length
         (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural with
         Post => Common_Prefix_Length'Result <

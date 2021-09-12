@@ -20,6 +20,7 @@ with Ada.Directories;
 with Ada.Text_IO;
 
 with SP.Cache;
+with SP.File_System;
 with SP.Terminal;
 
 with System.Multiprocessors;
@@ -63,7 +64,7 @@ package body SP.Cache is
         -- Adds the contents of a file to the file cache.
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
-        if Read_Lines (To_String (File_Name), Lines) then
+        if SP.File_System.Read_Lines (To_String (File_Name), Lines) then
             File_Cache.Cache_File (File_Name, Lines);
         end if;
     end Cache_File;

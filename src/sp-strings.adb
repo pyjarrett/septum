@@ -172,31 +172,6 @@ package body SP.Strings is
         return Result;
     end Make;
 
-    function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
-        --  Reads all the lines from a file.
-        File : Ada.Text_IO.File_Type;
-        Line : Ada.Strings.Unbounded.Unbounded_String;
-    begin
-        String_Vectors.Clear (Result);
-        Ada.Text_IO.Open (File => File, Mode => Ada.Text_IO.In_File, Name => File_Name);
-        while not Ada.Text_IO.End_Of_File (File) loop
-            Line := Ada.Strings.Unbounded.Text_IO.Get_Line (File);
-            Result.Append (Line);
-        end loop;
-
-        Ada.Text_IO.Close (File);
-        return True;
-    exception
-        when Ada.Text_IO.End_Error =>
-            if Ada.Text_IO.Is_Open (File) then
-                Ada.Text_IO.Close (File);
-            end if;
-            return True;
-        when others =>
-            Ada.Text_IO.Put_Line ("Unable to read contents of: " & File_Name);
-            return False;
-    end Read_Lines;
-
     function Common_Prefix_Length
         (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
         use Ada.Strings.Unbounded;
