@@ -15,10 +15,10 @@ project Septum is
    for Main use ("septum.adb");
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("SEPTUM_COMPILE_CHECKS", "disabled");
-   Runtime_Checks : Enabled_Kind := External ("SEPTUM_RUNTIME_CHECKS", "disabled");
-   Style_Checks : Enabled_Kind := External ("SEPTUM_STYLE_CHECKS", "disabled");
-   Contracts_Checks : Enabled_Kind := External ("SEPTUM_CONTRACTS", "disabled");
+   Compile_Checks : Enabled_Kind := External ("SEPTUM_COMPILE_CHECKS", "enabled");
+   Runtime_Checks : Enabled_Kind := External ("SEPTUM_RUNTIME_CHECKS", "enabled");
+   Style_Checks : Enabled_Kind := External ("SEPTUM_STYLE_CHECKS", "enabled");
+   Contracts_Checks : Enabled_Kind := External ("SEPTUM_CONTRACTS", "enabled");
 
    type Build_Kind is ("debug", "optimize");
    Build_Mode : Build_Kind := External ("SEPTUM_BUILD_MODE", "optimize");
@@ -38,7 +38,7 @@ project Septum is
    case Runtime_Checks is
       when "enabled" =>
          Runtime_Checks_Switches := (
-            "-gnato",        -- Enable numeric overflow checking;         
+            "-gnato",        -- Enable numeric overflow checking;
             "-fstack-check", -- Stack overflow checking
             "-gnatVa"        -- All validity checks
          );
@@ -52,7 +52,7 @@ project Septum is
       when "enabled" =>
          Style_Checks_Switches := (
             "-gnaty-d",   -- Disable no DOS line terminators
-            "-gnatyM120", -- Maximum line length
+            "-gnatyM140", -- Maximum line length
             "-gnatyO"     -- Overriding subprograms explicitly marked as such
          );
       when others => null;
@@ -85,7 +85,7 @@ project Septum is
         Contracts_Switches &
         ("-gnatw.X",      -- Disable warnings for No_Exception_Propagation
          "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
-                          -- Do not attempt to suppress cascaded errors. 
+                          -- Do not attempt to suppress cascaded errors.
          "-gnat12",       -- Use Ada 2012
          "-gnatw.oat",    -- Warning settings
          "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
