@@ -24,6 +24,7 @@ with SP.Searches; use SP.Searches;
 with SP.Strings;  use SP.Strings;
 with SP.Terminal;
 
+with Trendy_Terminal.Input;
 with Trendy_Terminal.IO;
 with Trendy_Terminal.Platform;
 
@@ -61,6 +62,13 @@ package body SP.Interactive is
         New_Line;
     end Write_Prompt;
 
+    function Trailing_End (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
+        Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
+        Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Desired, Prefix_Length + 1, ASU.Length (Desired));
+    begin
+        return Suffix;
+    end Trailing_End;
+
     function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
         Result : SP.Strings.String_Vectors.Vector;
     begin
@@ -74,9 +82,8 @@ package body SP.Interactive is
                         Result.Append (SP.Terminal.Colorize(US, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) then
                         declare
-                            Command       : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
-                            Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (US, Command);
-                            Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Command, Prefix_Length + 1, ASU.Length (Command));
+                            Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
+                            Suffix  : constant ASU.Unbounded_String := Trailing_End (US, Command);
                         begin
                             Result.Append (
                                 SP.Terminal.Colorize (US, ANSI.Yellow)
@@ -103,6 +110,53 @@ package body SP.Interactive is
         return To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     end Format_Input;
 
+    function Get_Cursor_Word (E : Exploded_Line; Cursor_Position : Positive) return Natural
+    is
+        Next : Natural := 1;
+        Current_Cursor : Natural := 1;
+    begin
+        while Next <= Natural (E.Spacers.Length) loop
+            Current_Cursor := Current_Cursor + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (E.Spacers (Next)));
+
+            if Next <= Positive (E.Words.Length) then
+                Current_Cursor := Current_Cursor + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (E.Words (Next)));
+            end if;
+            exit when Current_Cursor >= Cursor_Position;
+            Next := Next + 1;
+        end loop;
+        -- SP.Terminal.Put_Line ("Cursor stopped at: " & Natural'Image (Current_Cursor)
+        --     & " on word: " & Positive'Image (Next));
+        return Next;
+    end Get_Cursor_Word;
+
+    function Complete_Input (L : Trendy_Terminal.Input.Line_Input; History_Index : Integer)
+        return Trendy_Terminal.Input.Line_Input
+    is
+        E : Exploded_Line := Make (Trendy_Terminal.Input.Current (L));
+        Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Input.Get_Cursor_Index (L));
+        Result : Trendy_Terminal.Input.Line_Input := L;
+        Prefix : Natural := 0;
+        Completion : ASU.Unbounded_String;
+        Suffix : ASU.Unbounded_String;
+    begin
+        pragma Unreferenced (History_Index);
+
+        -- Find the position of the cursor within line.
+        if Cursor_Word = 1 then
+            if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
+                Completion := SP.Commands.Target_Command (E.Words(1));
+                Suffix := Trailing_End (E.Words (1), Completion);
+                E.Words (1) := E.Words (1) & Suffix;
+                Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                    Trendy_Terminal.Input.Get_Cursor_Index (L) + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (Suffix)));
+                return Result;
+            end if;
+        end if;
+
+        return L;
+    end Complete_Input;
+
+
     function Debug_Input (S : String) return String is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
         Output   : Unbounded_String;
@@ -116,8 +170,8 @@ package body SP.Interactive is
         declare
             Input : constant Unbounded_String := To_Unbounded_String(
                 Trendy_Terminal.IO.Get_Line(
-                    Format_Fn => Format_Input'Access
-                    -- Debug_Fn => Debug_Input'Access
+                    Format_Fn => Format_Input'Access,
+                    Completion_Fn => Complete_Input'Access
                 )
             );
             Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
