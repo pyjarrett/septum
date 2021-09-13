@@ -198,15 +198,15 @@ package body SP.Interactive is
         Srch         : SP.Searches.Search;
         Configs      : constant String_Vectors.Vector := SP.Config.Config_Locations;
     begin
-        Put_Line ("septum v" & SP.Version);
-        New_Line;
-
         if not Trendy_Terminal.Platform.Init then
             return;
         end if;
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
+
+        Put_Line ("septum v" & SP.Version);
+        New_Line;
 
         for Config of Configs loop
             if not SP.Commands.Run_Commands_From_File (Srch, To_String(Config)) then

@@ -47,7 +47,7 @@ Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
 
 # Installation
 
-> Septum is currently available as a prerelease alpha.
+> Septum is currently available as a prerelease beta.
 
 **Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
 
