@@ -13,33 +13,31 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
-with Ada.Characters.Latin_1;
-with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with ANSI;
 with SP.Commands;
 with SP.Config;
 with SP.File_System;
-with SP.Searches; use SP.Searches;
-with SP.Strings;  use SP.Strings;
+with SP.Searches;
+with SP.Strings;
 with SP.Terminal;
-
 with Trendy_Terminal.Input;
 with Trendy_Terminal.IO;
 with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
-    use Ada.Strings.Unbounded;
+    package ASU renames Ada.Strings.Unbounded;
     use SP.Terminal;
 
-    procedure Write_Prompt (Srch : in Search) is
+    procedure Write_Prompt (Srch : in SP.Searches.Search) is
         -- Writes the prompt and get ready to read user input.
         Default_Prompt : constant String  := " > ";
-        Extensions     : constant String_Vectors.Vector := List_Extensions (Srch);
+        Extensions     : constant SP.Strings.String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
         Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
         Max_Results    : constant Natural := SP.Searches.Get_Max_Results (Srch);
         Second_Col     : constant := 30;
     begin
+        pragma Unreferenced (Default_Prompt);
         New_Line;
         Put ("Files:     " & SP.Searches.Num_Files (Srch)'Image);
         Set_Col (Second_Col);
@@ -71,11 +69,12 @@ package body SP.Interactive is
 
     function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
         Result : SP.Strings.String_Vectors.Vector;
+        use all type ASU.Unbounded_String;
     begin
         for Index in 1 .. V.Length loop
             declare
-                US : constant Unbounded_String := V ( Positive (Index));
-                S  : constant String := To_String (US);
+                US : constant ASU.Unbounded_String := V ( Positive (Index));
+                S  : constant String := ASU.To_String (US);
             begin
                 if Positive (Index) = 1 then
                     if SP.Commands.Is_Command (S) then
@@ -107,12 +106,12 @@ package body SP.Interactive is
     function Format_Input (S : String) return String is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
     begin
-        return To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
+        return ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     end Format_Input;
 
-    function Get_Cursor_Word (E : Exploded_Line; Cursor_Position : Positive) return Natural
+    function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural
     is
-        Next : Natural := 1;
+        Next           : Natural := 1;
         Current_Cursor : Natural := 1;
     begin
         while Next <= Natural (E.Spacers.Length) loop
@@ -132,12 +131,14 @@ package body SP.Interactive is
     function Complete_Input (L : Trendy_Terminal.Input.Line_Input; History_Index : Integer)
         return Trendy_Terminal.Input.Line_Input
     is
-        E : Exploded_Line := Make (Trendy_Terminal.Input.Current (L));
+        E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Input.Current (L));
         Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Input.Get_Cursor_Index (L));
-        Result : Trendy_Terminal.Input.Line_Input := L;
-        Prefix : Natural := 0;
-        Completion : ASU.Unbounded_String;
-        Suffix : ASU.Unbounded_String;
+        Result      : Trendy_Terminal.Input.Line_Input := L;
+        Completion  : ASU.Unbounded_String;
+        Suffix      : ASU.Unbounded_String;
+
+        use all type ASU.Unbounded_String;
+        use SP.Strings.String_Vectors;
     begin
         pragma Unreferenced (History_Index);
 
@@ -156,32 +157,23 @@ package body SP.Interactive is
         return L;
     end Complete_Input;
 
-
-    function Debug_Input (S : String) return String is
-        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
-        Output   : Unbounded_String;
-    begin
-        Append (Output, SP.Strings.Zip (Exploded.Spacers, Exploded.Words));
-        return To_String (Output);
-    end Debug_Input;
-
-    function Read_Command return String_Vectors.Vector is
+    function Read_Command return SP.Strings.String_Vectors.Vector is
     begin
         declare
-            Input : constant Unbounded_String := To_Unbounded_String(
+            Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
                 Trendy_Terminal.IO.Get_Line(
                     Format_Fn => Format_Input'Access,
                     Completion_Fn => Complete_Input'Access
                 )
             );
-            Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Input));
+            Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
             Result : SP.Strings.String_Vectors.Vector;
         begin
-            Trendy_Terminal.IO.Put_Line("");
+            New_Line;
 
             for Word of Exploded.Words loop
-                if SP.Strings.Is_Quoted (To_String (Word)) then
-                    Result.Append (Unbounded_Slice (Word, 2, Length (Word) - 1));
+                if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
+                    Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
                 else
                     Result.Append (Word);
                 end if;
@@ -191,12 +183,12 @@ package body SP.Interactive is
         end;
     end Read_Command;
 
+    -- The interactive loop through which the user starts a search context and then interatively refines it by
+    -- pushing and popping operations.
     procedure Main is
-        -- The interactive loop through which the user starts a search context and then interatively refines it by
-        -- pushing and popping operations.
-        Command_Line : String_Vectors.Vector;
+        Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
-        Configs      : constant String_Vectors.Vector := SP.Config.Config_Locations;
+        Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
     begin
         if not Trendy_Terminal.Platform.Init then
             return;
@@ -209,8 +201,8 @@ package body SP.Interactive is
         New_Line;
 
         for Config of Configs loop
-            if not SP.Commands.Run_Commands_From_File (Srch, To_String(Config)) then
-                Put_Line ("Failing running commands from: " & To_String(Config));
+            if not SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config)) then
+                Put_Line ("Failing running commands from: " & ASU.To_String(Config));
                 return;
             end if;
         end loop;
