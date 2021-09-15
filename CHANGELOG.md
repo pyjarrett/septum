@@ -12,6 +12,10 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [Unreleased]
+
+- ✅ Pin load and search tasks.
+
 ## [0.0.1-beta]
 
 - ✅ Added hinting for commands.

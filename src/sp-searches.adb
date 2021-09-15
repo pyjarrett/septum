@@ -21,7 +21,7 @@ with GNATCOLL.Atomic;
 
 with SP.Terminal;
 
-with System.Multiprocessors;
+with System.Multiprocessors.Dispatching_Domains;
 
 package body SP.Searches is
     use Ada.Strings.Unbounded;
@@ -370,6 +370,7 @@ package body SP.Searches is
         return Result : SP.Contexts.Context_Vectors.Vector do
             Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
+                System.Multiprocessors.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
                 All_Searches (I).Start;
             end loop;
             Merged_Results.Get_Results (Result);

@@ -22,7 +22,7 @@ with SP.Cache;
 with SP.File_System;
 with SP.Terminal;
 
-with System.Multiprocessors;
+with System.Multiprocessors.Dispatching_Domains;
 
 with Dir_Iterators.Recursive;
 with Progress_Indicators.Spinners;
@@ -131,7 +131,7 @@ package body SP.Cache is
         Progress : PI.Work_Trackers.Work_Tracker;
     begin
         declare
-            task Dir_Loader_Task is
+            task Dir_Loader_Task with CPU => 1 is
             end Dir_Loader_Task;
             task body Dir_Loader_Task is
                 Dir_Walk : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir);
@@ -178,7 +178,7 @@ package body SP.Cache is
                 end loop;
             end File_Loader_Task;
 
-            task Update_Progress is
+            task Update_Progress with CPU => 1 is
                 entry Stop;
             end Update_Progress;
 
@@ -191,7 +191,7 @@ package body SP.Cache is
                         accept Stop;
                         exit;
                     or
-                        delay 0.1;
+                        delay 0.2;
                     end select;
 
                     SP.Terminal.Clear_Line;
@@ -212,8 +212,9 @@ package body SP.Cache is
             declare
                 File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
             begin
-                for FL of File_Loader loop
-                    FL.Wake;
+                for I in File_Loader'Range loop
+                    System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
+                    File_Loader(I).Wake;
                 end loop;
             end;
             Update_Progress.Stop;
