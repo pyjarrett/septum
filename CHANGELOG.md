@@ -15,6 +15,7 @@ Types of changes:
 ## [Unreleased]
 
 - ✅ Pin load and search tasks.
+- ✅ Tab completion for directories in `add-dirs`.
 
 ## [0.0.1-beta]
 
