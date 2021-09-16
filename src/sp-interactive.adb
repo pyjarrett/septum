@@ -179,19 +179,15 @@ package body SP.Interactive is
             return Result;
         end if;
 
-        if SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\' then
+        if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\') or else ASU.Length (Similar) = 1 then
             Contents := SP.File_System.Contents (ASU.To_String (Similar));
-            Put_Line ("Completing against: " & Path);
-            Put_Line ("Similar is: " & Similar);
         else
             declare
                 Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
             begin
-                Contents := SP.File_System.Contents (ASU.To_String (Parent));
-                Put_Line ("Completing against: " & Path);
-                Similar := Parent;
+                Contents  := SP.File_System.Contents (ASU.To_String (Parent));
+                Similar   := Parent;
                 Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
-                Put_Line ("Similar is: " & Similar_Path (ASU.To_String (Similar)));
             end;
         end if;
 
@@ -200,25 +196,10 @@ package body SP.Interactive is
         declare
             Simple : constant String := Ada.Directories.Simple_Name (Path);
         begin
-            Put_Line ("Simpel is: " & Simple);
-            Put_Line ("Rewritten is: " & Rewritten);
-
-            for File of Contents.Files loop
-                Put_Line ("Checking file: " & File);
-                if SP.Strings.Common_Prefix_Length (Rewritten, File) = ASU.Length (Rewritten) then
-                    Result.Append (File);
-                end if;
-            end loop;
-
             for Dir of Contents.Subdirs loop
-                Put_Line ("Checking dir: " & Dir);
                 if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
                     Result.Append (Dir);
                 end if;
-            end loop;
-
-            for Completion of Result loop
-                Put_Line ("Completion: " & Completion);
             end loop;
         end;
         return Result;
@@ -235,12 +216,12 @@ package body SP.Interactive is
     end Word_Cursor_End;
 
     -- Completion callback based on the number of history inputs.
-    function Complete_Input (L : Trendy_Terminal.Input.Line_Input; History_Index : Integer)
-        return Trendy_Terminal.Input.Line_Input
+    function Complete_Input (L : Trendy_Terminal.Input.Line_Input)
+        return Trendy_Terminal.IO.Line_Vectors.Vector
     is
         E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Input.Current (L));
         Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Input.Get_Cursor_Index (L));
-        Result      : Trendy_Terminal.Input.Line_Input := L;
+        Result      : Trendy_Terminal.IO.Line_Vectors.Vector;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
         use all type ASU.Unbounded_String;
@@ -253,24 +234,26 @@ package body SP.Interactive is
                 Completion := SP.Commands.Target_Command (E.Words(1));
                 Suffix := Trailing_End (E.Words (1), Completion);
                 E.Words (1) := E.Words (1) & Suffix;
-                Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
-                    Trendy_Terminal.Input.Get_Cursor_Index (L) + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (Suffix)));
+                Result.Append (Trendy_Terminal.Input.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                    Trendy_Terminal.Input.Get_Cursor_Index (L) + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (Suffix))));
                 return Result;
             end if;
         else
             declare
                 Completions : constant SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                Lines       : Trendy_Terminal.IO.Line_Vectors.Vector;
             begin
-                SP.Terminal.Put_Line ("ANY COMPLETIONS");
+                SP.Terminal.New_Line;
                 for Completion of Completions loop
-                    SP.Terminal.Put_Line ("COMPLETION: " & Completion);
+                    SP.Terminal.Put_Line (Completion);
+                    E.Words (Cursor_Word) := Completion;
+                    Result.Append (Trendy_Terminal.Input.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word)));
                 end loop;
-
-                if Length (Completions) > 0 then
-                    E.Words (Cursor_Word) := Completions (Natural (1 + History_Index mod Integer (Completions.Length)));
-                    Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word));
-                end if;
             end;
+        end if;
+
+        if Result.Is_Empty then
+            Result.Append (L);
         end if;
 
         return Result;
