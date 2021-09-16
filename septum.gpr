@@ -21,7 +21,7 @@ project Septum is
    Contracts_Checks : Enabled_Kind := External ("SEPTUM_CONTRACTS", "enabled");
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("SEPTUM_BUILD_MODE", "optimize");
+   Build_Mode : Build_Kind := External ("SEPTUM_BUILD_MODE", "debug");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is

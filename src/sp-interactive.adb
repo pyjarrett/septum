@@ -13,6 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+with Ada.Directories;
 with Ada.Strings.Unbounded;
 with ANSI;
 with SP.Commands;
@@ -128,6 +129,93 @@ package body SP.Interactive is
         return Next;
     end Get_Cursor_Word;
 
+    -- Finds a path similar to the given one with the same basic stem.
+    function Similar_Path (Path : String) return String is
+    begin
+        -- TODO: This is bad.
+        -- Naive loop cutting off the end of the string one character at a time.
+        for Last_Index in reverse 2 .. Path'Length loop
+            declare
+                Shortened_Path : constant String := Path (Path'First .. Last_Index);
+            begin
+                if SP.File_System.Is_File (Shortened_Path) then
+                    return Shortened_Path;
+                elsif SP.File_System.Is_Dir (Shortened_Path) then
+                    return Shortened_Path;
+                end if;
+            end;
+        end loop;
+        return "";
+    exception
+        when others => return "";
+    end Similar_Path;
+
+    -- Rewrite a path with all forward slashes for simplicity.
+    function Rewrite_Path (Path : String) return String is
+        S        : String := Path;
+        Opposite : constant Character := '/';
+        Local    : constant Character := '\';
+    begin
+        for I in 1 .. S'Length loop
+            S(I) := (case Path(I) is
+                when Opposite => Local,
+                when others => Path(I));
+        end loop;
+        return S;
+    end Rewrite_Path;
+
+    -- Produces all of the possible options for a path.
+    function File_Completions (Path : String) return SP.Strings.String_Vectors.Vector
+    is
+        Result      : SP.Strings.String_Vectors.Vector;
+        Contents    : SP.File_System.Dir_Contents;
+        Rewritten   : constant String := Rewrite_Path (Path);
+        Similar     : constant String := Similar_Path (Rewritten);
+
+        use all type ASU.unbounded_String;
+    begin
+        -- Has no higher directory.
+        if Similar'Length = 0 then
+            return Result;
+        end if;
+
+        if SP.File_System.Is_Dir (Similar) then
+            Contents := SP.File_System.Contents (Similar);
+        end if;
+
+        Put_Line ("Completing against: " & Path);
+        Put_Line ("Similar is: " & Similar);
+
+        -- The directory file contain paths with similar completions to the name.
+        -- Filter out paths which don't have a matching prefix with the original.
+        declare
+            Simple : constant String := Ada.Directories.Simple_Name (Path);
+        begin
+            Put_Line ("Simpel is: " & Simple);
+            Put_Line ("Rewritten is: " & Rewritten);
+
+            for File of Contents.Files loop
+                Put_Line ("Checking file: " & File);
+                if SP.Strings.Common_Prefix_Length (ASU.To_Unbounded_String (Rewritten), File) = Rewritten'Length then
+                    Result.Append (File);
+                end if;
+            end loop;
+
+            for Dir of Contents.Subdirs loop
+                Put_Line ("Checking dir: " & Dir);
+                if SP.Strings.Common_Prefix_Length (ASU.To_Unbounded_String (Rewritten), Dir) = Rewritten'Length then
+                    Result.Append (Dir);
+                end if;
+            end loop;
+
+            for Completion of Result loop
+                Put_Line ("Completion: " & Completion);
+            end loop;
+        end;
+        return Result;
+    end File_Completions;
+
+    -- Completion callback based on the number of history inputs.
     function Complete_Input (L : Trendy_Terminal.Input.Line_Input; History_Index : Integer)
         return Trendy_Terminal.Input.Line_Input
     is
@@ -136,12 +224,9 @@ package body SP.Interactive is
         Result      : Trendy_Terminal.Input.Line_Input := L;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
-
         use all type ASU.Unbounded_String;
         use SP.Strings.String_Vectors;
     begin
-        pragma Unreferenced (History_Index);
-
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
@@ -152,9 +237,21 @@ package body SP.Interactive is
                     Trendy_Terminal.Input.Get_Cursor_Index (L) + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (Suffix)));
                 return Result;
             end if;
+        else
+            declare
+                Completions : constant SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+            begin
+                SP.Terminal.Put_Line ("ANY COMPLETIONS");
+                for Completion of Completions loop
+                    SP.Terminal.Put_Line ("COMPLETION: " & Completion);
+                end loop;
+
+                E.Words (Cursor_Word) := Completions (Natural (1 + History_Index mod Integer (Completions.Length)));
+                Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Trendy_Terminal.Input.Get_Cursor_Index (L));
+            end;
         end if;
 
-        return L;
+        return Result;
     end Complete_Input;
 
     function Read_Command return SP.Strings.String_Vectors.Vector is
