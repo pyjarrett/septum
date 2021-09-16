@@ -13,6 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+with Ada.Containers;
 with Ada.Directories;
 with Ada.Strings.Unbounded;
 with ANSI;
@@ -169,22 +170,30 @@ package body SP.Interactive is
     is
         Result      : SP.Strings.String_Vectors.Vector;
         Contents    : SP.File_System.Dir_Contents;
-        Rewritten   : constant String := Rewrite_Path (Path);
-        Similar     : constant String := Similar_Path (Rewritten);
-
-        use all type ASU.unbounded_String;
+        Rewritten   : ASU.Unbounded_String := ASU.To_Unbounded_String (Rewrite_Path (Path));
+        Similar     : ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.To_String (Rewritten)));
+        use all type ASU.Unbounded_String;
     begin
         -- Has no higher directory.
-        if Similar'Length = 0 then
+        if ASU.Length (Similar) = 0 then
             return Result;
         end if;
 
-        if SP.File_System.Is_Dir (Similar) then
-            Contents := SP.File_System.Contents (Similar);
+        if SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\' then
+            Contents := SP.File_System.Contents (ASU.To_String (Similar));
+            Put_Line ("Completing against: " & Path);
+            Put_Line ("Similar is: " & Similar);
+        else
+            declare
+                Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
+            begin
+                Contents := SP.File_System.Contents (ASU.To_String (Parent));
+                Put_Line ("Completing against: " & Path);
+                Similar := Parent;
+                Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
+                Put_Line ("Similar is: " & Similar_Path (ASU.To_String (Similar)));
+            end;
         end if;
-
-        Put_Line ("Completing against: " & Path);
-        Put_Line ("Similar is: " & Similar);
 
         -- The directory file contain paths with similar completions to the name.
         -- Filter out paths which don't have a matching prefix with the original.
@@ -196,14 +205,14 @@ package body SP.Interactive is
 
             for File of Contents.Files loop
                 Put_Line ("Checking file: " & File);
-                if SP.Strings.Common_Prefix_Length (ASU.To_Unbounded_String (Rewritten), File) = Rewritten'Length then
+                if SP.Strings.Common_Prefix_Length (Rewritten, File) = ASU.Length (Rewritten) then
                     Result.Append (File);
                 end if;
             end loop;
 
             for Dir of Contents.Subdirs loop
                 Put_Line ("Checking dir: " & Dir);
-                if SP.Strings.Common_Prefix_Length (ASU.To_Unbounded_String (Rewritten), Dir) = Rewritten'Length then
+                if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
                     Result.Append (Dir);
                 end if;
             end loop;
@@ -214,6 +223,16 @@ package body SP.Interactive is
         end;
         return Result;
     end File_Completions;
+
+    function Word_Cursor_End (E : SP.Strings.Exploded_Line; Word : Positive) return Positive is
+    begin
+        return Cursor_Position : Positive := 1 do
+            for I in 1 .. Word loop
+                Cursor_Position := Cursor_Position + ASU.Length (E.Spacers (I));
+                Cursor_Position := Cursor_Position + ASU.Length (E.Words (I));
+            end loop;
+        end return;
+    end Word_Cursor_End;
 
     -- Completion callback based on the number of history inputs.
     function Complete_Input (L : Trendy_Terminal.Input.Line_Input; History_Index : Integer)
@@ -226,6 +245,7 @@ package body SP.Interactive is
         Suffix      : ASU.Unbounded_String;
         use all type ASU.Unbounded_String;
         use SP.Strings.String_Vectors;
+        use type Ada.Containers.Count_Type;
     begin
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
@@ -246,8 +266,10 @@ package body SP.Interactive is
                     SP.Terminal.Put_Line ("COMPLETION: " & Completion);
                 end loop;
 
-                E.Words (Cursor_Word) := Completions (Natural (1 + History_Index mod Integer (Completions.Length)));
-                Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Trendy_Terminal.Input.Get_Cursor_Index (L));
+                if Length (Completions) > 0 then
+                    E.Words (Cursor_Word) := Completions (Natural (1 + History_Index mod Integer (Completions.Length)));
+                    Trendy_Terminal.Input.Set (Result, ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word));
+                end if;
             end;
         end if;
 
