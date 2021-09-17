@@ -36,6 +36,7 @@ package SP.Terminal is
 
     procedure Set_Col (Spacing : Positive) renames Trendy_Terminal.IO.Set_Col;
 
+    procedure Beginning_Of_Line renames Trendy_Terminal.IO.Beginning_Of_Line;
     procedure Clear_Line renames Trendy_Terminal.IO.Clear_Line;
 
     function Colorize (S : String; Color : ANSI.Colors) return String;

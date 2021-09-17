@@ -194,6 +194,7 @@ package body SP.Cache is
                         delay 0.2;
                     end select;
 
+                    SP.Terminal.Beginning_Of_Line;
                     SP.Terminal.Clear_Line;
                     SR := Progress.Report;
                     PI.Spinners.Tick(Spinner);
