@@ -15,7 +15,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Maps;
-with GNAT.OS_Lib;
 with GNATCOLL.VFS;
 with SP.Contexts;
 with SP.File_System;
@@ -30,8 +29,9 @@ package body SP.Commands is
     type Help_Proc is not null access procedure;
     -- Prints a detailed help description for a command.
 
-    type Exec_Proc is not null access procedure
-        (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector);
+    type Exec_Proc is not null access function
+        (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector)
+            return Command_Result;
     -- Executes a command.
 
     type Executable_Command is record
@@ -94,7 +94,7 @@ package body SP.Commands is
             return False;
     end Try_Parse;
 
-    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean is
+    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Command_Name : constant Unbounded_String :=
             (if Command_Line.Is_Empty then To_Unbounded_String ("") else Command_Line.First_Element);
         Best_Command : constant Unbounded_String := Target_Command (Command_Name);
@@ -110,14 +110,13 @@ package body SP.Commands is
                     Put_Line ("Resolved to: " & To_String (Best_Command));
                 end if;
                 New_Line;
-                Command.Exec.all (Srch, Parameters);
-                return True;
+                return Command.Exec.all (Srch, Parameters);
             end;
         end if;
-        return False;
+        return Command_Unknown;
     end Execute;
 
-    function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Boolean is
+    function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result is
         use GNATCOLL.VFS;
         Config           : constant Virtual_File := GNATCOLL.VFS.Create(+File);
         Config_File_Name : constant String       := +Config.Full_Name;
@@ -125,7 +124,7 @@ package body SP.Commands is
     begin
         if not Is_Readable (Config) then
             Put_Line ("No config to read at: " & Config_File_Name);
-            return False;
+            return Command_Failed;
         end if;
 
         Put_Line ("Loading commands from: " & Config_File_Name);
@@ -138,17 +137,27 @@ package body SP.Commands is
             declare
                 Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Command));
                 Command_Line : constant String_Vectors.Vector := Exploded.Words;
+                Result : Command_Result;
             begin
                 New_Line;
                 Put_Line (" > " & Command);
-                if not SP.Commands.Execute (Srch, Command_Line) then
-                    Put_Line ("Unable to execute: " & Command);
-                    return False;
-                end if;
+                Result := SP.Commands.Execute (Srch, Command_Line);
+
+                case Result is
+                    when Command_Success => null;
+                    when Command_Failed =>
+                        Put_Line ("Command failed: " & Command);
+                        return Command_Failed;
+                    when Command_Unknown =>
+                        Put_Line ("Unable to execute: " & Command);
+                        return Command_Unknown;
+                    when Command_Exit_Requested =>
+                        return Command_Exit_Requested;
+                end case;
             end;
         end loop;
 
-        return True;
+        return Command_Success;
     end Run_Commands_From_File;
 
     ----------------------------------------------------------------------------
@@ -175,7 +184,7 @@ package body SP.Commands is
         end loop;
     end Help_Help;
 
-    procedure Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
         Command : constant Unbounded_String :=
             (if Command_Line.Is_Empty then Null_Unbounded_String else Command_Line.First_Element);
         Target : constant Unbounded_String := Target_Command (Command);
@@ -198,6 +207,7 @@ package body SP.Commands is
             when others =>
                 Put_Line ("Unknown command");
         end case;
+        return Command_Success;
     end Help_Exec;
 
     ----------------------------------------------------------------------------
@@ -207,12 +217,14 @@ package body SP.Commands is
         Put_Line ("Reload help");
     end Reload_Help;
 
-    procedure Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Refresh should have an empty command line.");
+            return Command_Failed;
         end if;
         SP.Searches.Reload_Working_Set (Srch);
+        return Command_Success;
     end Reload_Exec;
 
     ----------------------------------------------------------------------------
@@ -222,13 +234,15 @@ package body SP.Commands is
         Put_Line ("Prints statistics about the file cache.");
     end Stats_Help;
 
-    procedure Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Stats should have an empty command line.");
+            return Command_Failed;
         end if;
         Put_Line ("Files: " & SP.Searches.Num_Files (Srch)'Image);
         Put_Line ("Lines: " & SP.Searches.Num_Lines (Srch)'Image);
+        return Command_Success;
     end Stats_Exec;
 
     ----------------------------------------------------------------------------
@@ -238,16 +252,17 @@ package body SP.Commands is
         Put_Line ("Adds a directory to the search list.");
     end Add_Dirs_Help;
 
-    procedure Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide directories to add to the search path.");
-            return;
+            return Command_Failed;
         end if;
 
         for Directory of Command_Line loop
             SP.Searches.Add_Directory (Srch, To_String (Directory));
         end loop;
+        return Command_Success;
     end Add_Dirs_Exec;
 
     ----------------------------------------------------------------------------
@@ -257,14 +272,16 @@ package body SP.Commands is
         Put_Line ("List the directories of the search list.");
     end List_Dirs_Help;
 
-    procedure List_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function List_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("No arguments are allowed for directory listing.");
+            return Command_Failed;
         end if;
         for Directory of SP.Searches.List_Directories (Srch) loop
             Put_Line (To_String (Directory));
         end loop;
+        return Command_Success;
     end List_Dirs_Exec;
 
     ----------------------------------------------------------------------------
@@ -274,12 +291,14 @@ package body SP.Commands is
         Put_Line ("Clears all search directories.");
     end Clear_Dirs_Help;
 
-    procedure Clear_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Clear_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("No arguments are allowed for clearing directories.");
+            return Command_Failed;
         end if;
         SP.Searches.Clear_Directories (Srch);
+        return Command_Success;
     end Clear_Dirs_Exec;
 
     ----------------------------------------------------------------------------
@@ -289,16 +308,17 @@ package body SP.Commands is
         Put_Line ("Adds extension to the search list.");
     end Add_Extensions_Help;
 
-    procedure Add_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Add_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide extensions to filter.");
-            return;
+            return Command_Failed;
         end if;
 
         for Extension of Command_Line loop
             SP.Searches.Add_Extension (Srch, To_String (Extension));
         end loop;
+        return Command_Success;
     end Add_Extensions_Exec;
 
     ----------------------------------------------------------------------------
@@ -308,14 +328,15 @@ package body SP.Commands is
         Put_Line ("Clears extension to the search list.");
     end Clear_Extensions_Help;
 
-    procedure Clear_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Clear_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("No arguments allowed for clearing extension filtering.");
-            return;
+            return Command_Failed;
         end if;
 
         SP.Searches.Clear_Extensions (Srch);
+        return Command_Success;
     end Clear_Extensions_Exec;
 
     ----------------------------------------------------------------------------
@@ -325,16 +346,17 @@ package body SP.Commands is
         Put_Line ("Removes extension to the search list.");
     end Remove_Extensions_Help;
 
-    procedure Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) is
+    function Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
             Put_Line ("Must provide extensions to remove from the filter.");
-            return;
+            return Command_Failed;
         end if;
 
         for Extension of Command_Line loop
             SP.Searches.Remove_Extension (Srch, To_String (Extension));
         end loop;
+        return Command_Success;
     end Remove_Extensions_Exec;
 
     ----------------------------------------------------------------------------
@@ -344,13 +366,14 @@ package body SP.Commands is
         Put_Line ("Lists extensions to filter by.");
     end List_Extensions_Help;
 
-    procedure List_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function List_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Extensions : constant String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
     begin
         pragma Unreferenced (Command_Line);
         for Ext of Extensions loop
             Put_Line (To_String (Ext));
         end loop;
+        return Command_Success;
     end List_Extensions_Exec;
 
     ----------------------------------------------------------------------------
@@ -360,13 +383,14 @@ package body SP.Commands is
         Put_Line ("Provides text to search for.");
     end Find_Text_Help;
 
-    procedure Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Find_Text (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Find_Text_Exec;
 
     ----------------------------------------------------------------------------
@@ -376,13 +400,14 @@ package body SP.Commands is
         Put_Line ("Provides text to search for.");
     end Exclude_Text_Help;
 
-    procedure Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Exclude_Text (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Exclude_Text_Exec;
 
     ----------------------------------------------------------------------------
@@ -392,13 +417,14 @@ package body SP.Commands is
         Put_Line ("Provides text to search for (case insensitive).");
     end Find_Like_Help;
 
-    procedure Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Find_Like (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Find_Like_Exec;
 
     ----------------------------------------------------------------------------
@@ -408,13 +434,14 @@ package body SP.Commands is
         Put_Line ("Provides text to search for (case insensitive).");
     end Exclude_Like_Help;
 
-    procedure Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Exclude_Like (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Exclude_Like_Exec;
 
     ----------------------------------------------------------------------------
@@ -424,13 +451,14 @@ package body SP.Commands is
         Put_Line ("Provides regex to search for.");
     end Find_Regex_Help;
 
-    procedure Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Find_Regex (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Find_Regex_Exec;
 
     ----------------------------------------------------------------------------
@@ -440,13 +468,14 @@ package body SP.Commands is
         Put_Line ("Provides Regex to search for.");
     end Exclude_Regex_Help;
 
-    procedure Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
             SP.Searches.Exclude_Regex (Srch, To_String (Word));
         end loop;
 
         Search_Updated (Srch);
+        return Command_Success;
     end Exclude_Regex_Exec;
 
     ----------------------------------------------------------------------------
@@ -456,15 +485,17 @@ package body SP.Commands is
         Put_Line ("Lists the currently bound filters.");
     end List_Filters;
 
-    procedure List_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function List_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
         end if;
         for Name of Filter_Names loop
             Put_Line (To_String (Name));
         end loop;
+        return Command_Success;
     end List_Filters_Exec;
 
     ----------------------------------------------------------------------------
@@ -474,14 +505,16 @@ package body SP.Commands is
         Put_Line ("Pops the last applied filter from the search.");
     end Pop_Help;
 
-    procedure Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
         end if;
         SP.Searches.Pop_Filter (Srch);
 
         Search_Updated (Srch);
+        return Command_Success;
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
@@ -491,10 +524,11 @@ package body SP.Commands is
         Put_Line ("Pops all filters.");
     end Clear_Filters_Help;
 
-    procedure Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         pragma Unreferenced (Command_Line);
         SP.Searches.Clear_Filters (Srch);
+        return Command_Success;
     end Clear_Filters_Exec;
 
     ----------------------------------------------------------------------------
@@ -507,7 +541,7 @@ package body SP.Commands is
         Put_Line ("match-contexts N      Prints the first min(N, max-results) results");
     end Matching_Contexts_Help;
 
-    procedure Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         Count : Positive := Positive'Last;
     begin
@@ -515,15 +549,16 @@ package body SP.Commands is
         when 1 =>
             if not Try_Parse (To_String(Command_Line.First_Element), Count) then
                 SP.Terminal.Put_Line ("Bad number of results to give.");
-                return;
+                return Command_Failed;
             end if;
         when 0 =>
             null;
         when others =>
             SP.Terminal.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
-            return;
+            return Command_Failed;
         end case;
         SP.Searches.Print_Contexts (Srch, Contexts, Count);
+        return Command_Success;
     end Matching_Contexts_Exec;
 
     ----------------------------------------------------------------------------
@@ -533,7 +568,7 @@ package body SP.Commands is
         Put_Line ("Lists files currently matching all filters.");
     end Matching_Files_Help;
 
-    procedure Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         Files : constant String_Sets.Set := SP.Contexts.Files_In (Contexts);
     begin
@@ -545,6 +580,8 @@ package body SP.Commands is
         end loop;
         New_Line;
         Put_Line ("Matching files:" & Files.Length'Image);
+
+        return Command_Success;
     end Matching_Files_Exec;
 
     ----------------------------------------------------------------------------
@@ -554,10 +591,10 @@ package body SP.Commands is
         Put_Line ("Quits this program.");
     end Quit_Help;
 
-    procedure Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         pragma Unreferenced (Srch, Command_Line);
-        GNAT.OS_Lib.OS_Exit (Status => 0);
+        return Command_Exit_Requested;
     end Quit_Exec;
 
     ----------------------------------------------------------------------------
@@ -567,7 +604,7 @@ package body SP.Commands is
         Put_Line ("List lines matching the current filter.");
     end Set_Context_Width_Help;
 
-    procedure Set_Context_Width_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Set_Context_Width_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Context_Width : Natural := 0;
     begin
         case Natural (Command_Line.Length) is
@@ -581,10 +618,13 @@ package body SP.Commands is
             when others =>
                 Put_Line
                     ("Expected a single value for the context width or no value to remove context width restriction.");
+                return Command_Failed;
         end case;
+        return Command_Success;
     exception
         when Constraint_Error =>
             Put_Line ("Invalid context width: " & To_String (Command_Line.First_Element));
+        return Command_Failed;
     end Set_Context_Width_Exec;
 
     ----------------------------------------------------------------------------
@@ -594,7 +634,7 @@ package body SP.Commands is
         Put_Line ("Sets the maximum number of results which can be returned.");
     end Set_Max_Results_Help;
 
-    procedure Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Max_Results : Natural := SP.Searches.No_Max_Results;
     begin
         case Natural (Command_Line.Length) is
@@ -605,17 +645,20 @@ package body SP.Commands is
                 Max_Results := Natural'Value (To_String (Command_Line.First_Element));
                 if Max_Results = 0 then
                     Put_Line ("Must return at least 1 result.");
-                    return;
+                    return Command_Failed;
                 end if;
                 SP.Searches.Set_Max_Results (Srch, Max_Results);
                 Put_Line ("Maximum results set to " & Max_Results'Image);
             when others =>
                 Put_Line
                     ("Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
+                return Command_Failed;
         end case;
+        return Command_Success;
     exception
         when Constraint_Error =>
             Put_Line ("Invalid number of maximum results: " & To_String (Command_Line.First_Element));
+        return Command_Failed;
     end Set_Max_Results_Exec;
 
     ----------------------------------------------------------------------------
@@ -625,12 +668,14 @@ package body SP.Commands is
         Put_Line ("Enables searching automatically when filters are changed.");
     end Enable_Search_On_Filters_Changed_Help;
 
-    procedure Enable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Enable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Search_On_Filters_Changed (Srch, True);
+        return Command_Success;
     end Enable_Search_On_Filters_Changed_Exec;
 
     procedure Disable_Search_On_Filters_Changed_Help is
@@ -638,12 +683,14 @@ package body SP.Commands is
         Put_Line ("Disables searching automatically when filters are changed.");
     end Disable_Search_On_Filters_Changed_Help;
 
-    procedure Disable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Disable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Search_On_Filters_Changed (Srch, False);
+        return Command_Success;
     end Disable_Search_On_Filters_Changed_Exec;
 
     ----------------------------------------------------------------------------
@@ -653,12 +700,14 @@ package body SP.Commands is
         Put_Line ("Enables line numbers in context output.");
     end Enable_Line_Numbers_Help;
 
-    procedure Enable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Enable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Print_Line_Numbers (Srch, True);
+        return Command_Success;
     end Enable_Line_Numbers_Exec;
 
     procedure Disable_Line_Numbers_Help is
@@ -666,12 +715,14 @@ package body SP.Commands is
         Put_Line ("Disables line numbers in context output.");
     end Disable_Line_Numbers_Help;
 
-    procedure Disable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Disable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Print_Line_Numbers (Srch, False);
+        return Command_Success;
     end Disable_Line_Numbers_Exec;
 
     ----------------------------------------------------------------------------
@@ -681,12 +732,14 @@ package body SP.Commands is
         Put_Line ("Enables line colors in context output.");
     end Enable_Line_Colors_Help;
 
-    procedure Enable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Enable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Line_Colors_Enabled (Srch, True);
+        return Command_Success;
     end Enable_Line_Colors_Exec;
 
     procedure Disable_Line_Colors_Help is
@@ -694,12 +747,14 @@ package body SP.Commands is
         Put_Line ("Disables line colors in context output.");
     end Disable_Line_Colors_Help;
 
-    procedure Disable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) is
+    function Disable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Command line should be empty.");
+            return Command_Failed;
         end if;
         SP.Searches.Set_Line_Colors_Enabled (Srch, False);
+        return Command_Success;
     end Disable_Line_Colors_Exec;
 
 

@@ -293,6 +293,7 @@ package body SP.Interactive is
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
         Environment  : Trendy_Terminal.Environments.Environment;
+        Result       : SP.Commands.Command_Result;
     begin
         if not Environment.Is_Available then
             Ada.Text_IO.Put_Line ("[ERROR] No support either for UTF-8 or VT100.");
@@ -307,18 +308,32 @@ package body SP.Interactive is
         New_Line;
 
         for Config of Configs loop
-            if not SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config)) then
-                Put_Line ("Failing running commands from: " & ASU.To_String(Config));
-                return;
-            end if;
+            Result := SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config));
+            case Result is
+                when SP.Commands.Command_Success => null;
+                when SP.Commands.Command_Failed =>
+                    Put_Line ("Failing running commands from: " & ASU.To_String(Config));
+                    return;
+                when SP.Commands.Command_Unknown =>
+                    Put_Line ("Unknown command in: " & ASU.To_String(Config));
+                when SP.Commands.Command_Exit_Requested =>
+                    return;
+            end case;
         end loop;
 
         loop
             Write_Prompt (Srch);
             Command_Line := Read_Command;
-            if not SP.Commands.Execute (Srch, Command_Line) then
-                Put_Line ("Unknown command");
-            end if;
+            Result := SP.Commands.Execute (Srch, Command_Line);
+            case Result is
+                when SP.Commands.Command_Success => null;
+                when SP.Commands.Command_Failed =>
+                    Put_Line ("Command failed");
+                when SP.Commands.Command_Unknown =>
+                    Put_Line ("Unknown command");
+                when SP.Commands.Command_Exit_Requested =>
+                    return;
+            end case;
         end loop;
     end Main;
 end SP.Interactive;

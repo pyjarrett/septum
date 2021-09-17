@@ -31,7 +31,9 @@ package SP.Commands is
         with Post => Target_Command'Result = Ada.Strings.Unbounded.Null_Unbounded_String
             or else Is_Command (Ada.Strings.Unbounded.To_String (Target_Command'Result));
 
-    function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Boolean;
-    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Boolean;
+    type Command_Result is (Command_Success, Command_Failed, Command_Unknown, Command_Exit_Requested);
+
+    function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result;
+    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result;
 
 end SP.Commands;
