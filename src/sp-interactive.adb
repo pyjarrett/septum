@@ -307,6 +307,7 @@ package body SP.Interactive is
         if not Environment.Is_Available then
             Ada.Text_IO.Put_Line ("[ERROR] No support either for UTF-8 or VT100.");
             Ada.Text_IO.Put_Line ("[ERROR] Try another terminal.");
+            return;
         end if;
 
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
