@@ -60,7 +60,6 @@ choco install septum --pre
 septum shall:
 
 - provide features to help search large codebases
-- aim to be performant
 - only read the search tree, except for .septum/ directories
 
 # Contributing
