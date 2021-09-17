@@ -64,10 +64,13 @@ package SP.Filters is
     function Exclude_Regex (Text : String) return Filter_Ptr;
     -- Matches lines which don't have this regex.
 
+    function Is_Valid_Regex (S : String) return Boolean;
+
     function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     -- Looks for a match in any of the given lines.
 
     function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set;
+
 
 private
 

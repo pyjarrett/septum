@@ -103,6 +103,18 @@ package body SP.Filters is
 
     ----------------------------------------------------------------------------
 
+    function Is_Valid_Regex (S : String) return Boolean is
+        Matcher : Rc_Regex.Ref;
+    begin
+        Matcher.Set (GNAT.Regpat.Compile (S));
+        return True;
+    exception
+        when GNAT.Regpat.Expression_Error =>
+            return False;
+    end Is_Valid_Regex;
+
+    ----------------------------------------------------------------------------
+
     overriding function Image (F : Case_Sensitive_Match_Filter) return String is
         use Ada.Characters;
     begin

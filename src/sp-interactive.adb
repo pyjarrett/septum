@@ -21,6 +21,7 @@ with ANSI;
 with SP.Commands;
 with SP.Config;
 with SP.File_System;
+with SP.Filters;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
@@ -91,6 +92,14 @@ package body SP.Interactive is
                                 SP.Terminal.Colorize (US, ANSI.Yellow)
                                 & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan));
                         end;
+                    else
+                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
+                    end if;
+                elsif SP.Commands.Target_Command (V (1)) = "find-regex"
+                    or else SP.Commands.Target_Command (V (1)) = "exclude-regex"
+                then
+                    if SP.Filters.Is_Valid_Regex (S) then
+                        Result.Append (SP.Terminal.Colorize (US, ANSI.Green));
                     else
                         Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
                     end if;
