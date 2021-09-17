@@ -14,8 +14,9 @@ Types of changes:
 
 ## [Unreleased]
 
-- ✅ Pin load and search tasks.
-- ✅ Tab completion for directories in `add-dirs`.
+- ✅ Added pinning of load and search tasks to CPUs.
+- ✅ Added tab completion for directories in `add-dirs`.
+- ✅ Added coloratiuon of regular expressions: 🔴red🔴 when invalid, and 🟢green🟢 when valid.
 
 ## [0.0.1-beta]
 
