@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Maps;
-with GNATCOLL.VFS;
+with Ada.Directories;
 with SP.Contexts;
 with SP.File_System;
 with SP.Terminal;
@@ -117,20 +117,18 @@ package body SP.Commands is
     end Execute;
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result is
-        use GNATCOLL.VFS;
-        Config           : constant Virtual_File := GNATCOLL.VFS.Create(+File);
-        Config_File_Name : constant String       := +Config.Full_Name;
-        Commands         : String_Vectors.Vector;
+        Commands : SP.Strings.String_Vectors.Vector;
+        function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
     begin
-        if not Is_Readable (Config) then
-            Put_Line ("No config to read at: " & Config_File_Name);
+        if not Ada.Directories.Exists (File) then
+            Put_Line ("No config to read at: " & Ada.Directories.Full_Name (File));
             return Command_Failed;
         end if;
 
-        Put_Line ("Loading commands from: " & Config_File_Name);
+        Put_Line ("Loading commands from: " & Ada.Directories.Full_Name (File));
 
-        if not SP.File_System.Read_Lines (+Config.Full_Name, Commands) then
-            Put_Line ("Unable to load configuration file from: " & Config_File_Name);
+        if not SP.File_System.Read_Lines (Ada.Directories.Full_Name (File), Commands) then
+            Put_Line ("Unable to load configuration file from: " & Ada.Directories.Full_Name (File));
         end if;
 
         for Command of Commands loop
@@ -140,16 +138,16 @@ package body SP.Commands is
                 Result : Command_Result;
             begin
                 New_Line;
-                Put_Line (" > " & Command);
+                Put_Line (+" > " & Command);
                 Result := SP.Commands.Execute (Srch, Command_Line);
 
                 case Result is
                     when Command_Success => null;
                     when Command_Failed =>
-                        Put_Line ("Command failed: " & Command);
+                        Put_Line (+"Command failed: " & Command);
                         return Command_Failed;
                     when Command_Unknown =>
-                        Put_Line ("Unable to execute: " & Command);
+                        Put_Line (+"Unable to execute: " & Command);
                         return Command_Unknown;
                     when Command_Exit_Requested =>
                         return Command_Exit_Requested;
