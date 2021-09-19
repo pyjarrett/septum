@@ -10,6 +10,17 @@ maintainers-logins = ["pyjarrett"]
 tags = ["search", "code", "text"]
 
 executables = ["septum"]
+
+[gpr-set-externals.'case(os)']
+windows = { Septum_Platform = "windows" }
+linux = { Septum_Platform = "linux" }
+macos = { Septum_Platform = "macos" }
+
+[available.'case(os)']
+linux = true
+windows = true
+macos = false
+
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
@@ -20,3 +31,5 @@ gnatcoll = "^21.0.0"  # Added by alr
 trendy_terminal = "~0.0.2"  # Added by alr
 [[pins]]  # Added by alr
 trendy_terminal = { path='../trendy_terminal' }   # Added by alr
+[[depends-on]]  # Added by alr
+gnat_native = "=10.3.1"  # Added by alr

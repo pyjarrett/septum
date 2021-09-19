@@ -16,9 +16,9 @@
 
 with Ada.Directories;
 with Ada.Strings.Unbounded;
-with GNATCOLL.VFS; use GNATCOLL.VFS;
 with Dir_Iterators.Ancestor;
 with SP.File_System;
+with SP.Platform;
 
 package body SP.Config is
     package AD renames Ada.Directories;
@@ -59,7 +59,7 @@ package body SP.Config is
     function Config_Locations return String_Vectors.Vector is
         Home_Dir_Config : constant ASU.Unbounded_String :=
             ASU.To_Unbounded_String
-                (+Get_Home_Directory.Full_Name.all & "/" & Config_Dir_Name & "/" & Config_File_Name);
+                (SP.Platform.Home_Dir & "/" & Config_Dir_Name & "/" & Config_File_Name);
         Current_Dir_Config : constant ASU.Unbounded_String := Closest_Config (Ada.Directories.Current_Directory);
     begin
         return V : String_Vectors.Vector do
