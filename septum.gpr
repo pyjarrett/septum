@@ -1,5 +1,6 @@
 -- begin auto-gpr-with --
 --  This section was automatically added by Alire
+with "atomic.gpr";
 with "dir_iterators.gpr";
 with "gnatcoll.gpr";
 with "progress_indicators.gpr";
@@ -97,7 +98,7 @@ project Septum is
          "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
                           -- Do not attempt to suppress cascaded errors.
          "-gnat12",       -- Use Ada 2012
-         "-gnatw.oat",    -- Warning settings
+         "-gnatw.oa",     -- Warning settings
          "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
         );
    end Compiler;

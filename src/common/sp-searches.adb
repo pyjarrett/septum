@@ -16,8 +16,7 @@
 
 with Ada.Directories;
 with ANSI;
-
-with GNATCOLL.Atomic;
+with Atomic.Signed;
 
 with SP.Terminal;
 
@@ -336,12 +335,12 @@ package body SP.Searches is
     end Files_To_Search;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
+        package Atomic_Int is new Atomic.Signed (T => Integer);
+
         Files          : constant String_Vectors.Vector := Files_To_Search (Srch);
         Merged_Results : Concurrent_Context_Results;
-
-        Next_File   : aliased GNATCOLL.Atomic.Atomic_Counter         := 0;
-        Next_Access : constant access GNATCOLL.Atomic.Atomic_Counter := Next_File'Access;
-        One         : constant GNATCOLL.Atomic.Atomic_Counter        := 1;
+        Next_File      : aliased Atomic_Int.Instance := Atomic_Int.Init (1);
+        Next_Access    : constant access Atomic_Int.Instance := Next_File'Access;
 
         task type Matching_Context_Search is
             entry Start;
@@ -353,7 +352,7 @@ package body SP.Searches is
         begin
             accept Start;
             loop
-                Next_Index := Natural (GNATCOLL.Atomic.Sync_Add_And_Fetch (Next_Access, One));
+                Next_Index := Natural (Atomic_Int.Fetch_Add (Next_Access.all, 1));
                 if Next_Index <= Natural (Files.Length) then
                     Next_File := Files (Next_Index);
                     Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
