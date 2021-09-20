@@ -1,90 +1,65 @@
-package body SP.Memory is
+with Interfaces;
 
-    function Make (Allocated : T_Access) return RC is
+package body SP.Memory is
+    use all type Interfaces.Integer_32;
+
+    function Make (Allocated : T_Access) return Arc is
     begin
-        return Self : RC do
-            Self.Target := new Backing' (Value => Allocated, Count => 1);
+        return Self : Arc do
+            Self.Block := new Control_Block' (Value => Allocated, Count => Atomic.Signed_32.Init (0));
         end return;
     end Make;
 
-    function Make_Null return RC is
+    function Make_Null return Arc is
     begin
-        return Self : RC do
+        return Self : Arc do
             null;
         end return;
     end Make_Null;
 
-    function Get (Self : RC) return Reference_Type is
+    function Get (Self : Arc) return Reference_Type is
     begin
-        return (Element => Self.Target.Value);
+        return (Element => Self.Block.Value);
     end Get;
 
-    function Is_Valid (Self : RC) return Boolean is
+    function Is_Valid (Self : Arc) return Boolean is
     begin
-        return Self.Target /= null and then Self.Target.Value /= null;
+        return Self.Block /= null and then Self.Block.Value /= null;
     end Is_Valid;
 
-    procedure Reset (Self : in out RC) is
+    procedure Reset (Self : aliased in out Arc) is
     begin
-        if Self.Target /= null then
-            Decrement (Self.Target.all);
-            if Is_Zero (Self.Target.all) then
-                Free (Self.Target);
+        if Self.Block /= null then
+            if Atomic.Signed_32.Add_Fetch (Self.Block.all.Count, -1) = 0 then
+                Free (Self.Block.Value);
+                Free (Self.Block);
             end if;
         end if;
-        Self.Target := null;
     end Reset;
 
-    overriding
-    procedure Initialize (Self : in out RC) is
+    procedure Increment (Self : in out Arc) is
     begin
-        null;
-        -- if Self.Target /= null then
-        --     Increment (Self.Target.all);
-        -- end if;
+        if Self.Block /= null then
+            Atomic.Signed_32.Add (Self.Block.all.Count, 1);
+        end if;
+    end Increment;
+
+    overriding
+    procedure Initialize (Self : in out Arc) is
+    begin
+        Increment (Self);
     end Initialize;
 
     overriding
-    procedure Adjust (Self : in out RC) is
+    procedure Adjust (Self : in out Arc) is
     begin
-        if Self.Target /= null then
-            Increment (Self.Target.all);
-        end if;
+        Increment (Self);
     end Adjust;
 
     overriding
-    procedure Finalize (Self : in out RC) is
+    procedure Finalize (Self : in out Arc) is
     begin
-        if Self.Target /= null then
-            Decrement (Self.Target.all);
-        end if;
-
-        if Self.Is_Valid and then Is_Zero (Self.Target.all) then
-            Free (Self.Target.Value);
-            Free (Self.Target);
-        else
-            -- This isn't the last thing holding onto the memory.
-            Self.Target := null;
-        end if;
+        Reset (Self);
     end Finalize;
-
-
-    function Is_Zero (Self : Backing) return Boolean is
-    begin
-        return Self.Count = 0;
-    end Is_Zero;
-
-    procedure Increment (Self : in out Backing) is
-    begin
-        Self.Count := Self.Count + 1;
-    end Increment;
-
-    procedure Decrement (Self : in out Backing) is
-    begin
-        Self.Count := Self.Count - 1;
-        if Self.Count = 0 then
-            Free (Self.Value);
-        end if;
-    end Decrement;
 
 end SP.Memory;

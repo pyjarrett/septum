@@ -1,60 +1,56 @@
 with Ada.Finalization;
 with Ada.Unchecked_Deallocation;
 
+with Atomic.Signed_32;
+
 generic
     type T (<>) is private;
 package SP.Memory is
 
-    -- A reference counting pointer.
-    type RC is new Ada.Finalization.Controlled with private;
+    -- Atomic reference counting pointer.
+    type Arc is new Ada.Finalization.Controlled with private;
     type T_Access is access T;
     type Reference_Type (Element : access T) is limited null record
         with Implicit_Dereference => Element;
 
-    function Make (Allocated : T_Access) return RC
+    function Make (Allocated : T_Access) return Arc
         with Post => Is_Valid (Make'Result);
-    function Make_Null return RC
+    function Make_Null return Arc
         with Post => not Is_Valid (Make_Null'Result);
-    function Is_Valid (Self : RC) return Boolean;
+    function Is_Valid (Self : Arc) return Boolean;
 
-    function Get (Self : RC) return Reference_Type
+    function Get (Self : Arc) return Reference_Type
         with Pre => Is_Valid (Self);
 
-    procedure Reset (Self : in out RC)
+    procedure Reset (Self : aliased in out Arc)
         with Post => not Is_Valid (Self);
 
     overriding
-    procedure Initialize (Self : in out RC);
+    procedure Initialize (Self : in out Arc);
 
     overriding
-    procedure Adjust (Self : in out RC);
+    procedure Adjust (Self : in out Arc);
 
     overriding
-    procedure Finalize (Self : in out RC)
+    procedure Finalize (Self : in out Arc)
         with Post => not Is_Valid (Self);
 
 private
 
     -- The backing type which actually tracks the reference count, as well as
     -- tracking the value being pointed to.
-    type Backing is limited record
+    type Control_Block is limited record
         Value : T_Access;
-        Count : Natural := 0;
+        Count : aliased Atomic.Signed_32.Instance := Atomic.Signed_32.Init (0);
     end record;
 
-    type Backing_Access is access Backing;
+    type Control_Block_Access is access Control_Block;
 
-    function Is_Zero (Self : Backing) return Boolean;
-    procedure Increment (Self : in out Backing)
-        with Post => not Is_Zero (Self);
-    procedure Decrement (Self : in out Backing)
-        with Pre => not Is_Zero (Self);
-
-    type RC is new Ada.Finalization.Controlled with record
-        Target : Backing_Access;
+    type Arc is new Ada.Finalization.Controlled with record
+        Block : Control_Block_Access;
     end record;
 
     procedure Free is new Ada.Unchecked_Deallocation(T, T_Access);
-    procedure Free is new Ada.Unchecked_Deallocation(Backing, Backing_Access);
+    procedure Free is new Ada.Unchecked_Deallocation(Control_Block, Control_Block_Access);
 
 end SP.Memory;

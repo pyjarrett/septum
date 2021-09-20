@@ -44,8 +44,7 @@ package SP.Filters is
     type Filter_Alloc is access Filter;
     package Filter_Pointer is new SP.Memory (T => Filter'Class);
 
-    subtype Filter_Ptr is Pointers.RC;
-    -- type Filter_Ptr is Filter_Pointer.Unique_Ptr;
+    subtype Filter_Ptr is Pointers.Arc;
 
     -- Provides a means to store many types of filters in the same list.
 
@@ -91,7 +90,7 @@ private
 
     type Regex_Filter is new Filter with record
         Source : Ada.Strings.Unbounded.Unbounded_String;
-        Regex : Rc_Regex.RC;
+        Regex : Rc_Regex.Arc;
     end record;
 
     overriding function Image (F : Case_Sensitive_Match_Filter) return String;

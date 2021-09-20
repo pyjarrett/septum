@@ -56,7 +56,7 @@ package body SP.Filters is
     end Exclude_Like;
 
     function Find_Regex (Text : String) return Filter_Ptr is
-        Matcher : Rc_Regex.RC;
+        Matcher : Rc_Regex.Arc;
         Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
@@ -69,7 +69,7 @@ package body SP.Filters is
     end Find_Regex;
 
     function Exclude_Regex (Text : String) return Filter_Ptr is
-        Matcher : Rc_Regex.RC;
+        Matcher : Rc_Regex.Arc;
         Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
