@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Directories.Hierarchical_File_Names;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
@@ -46,9 +45,7 @@ package body SP.File_System is
         --  Return true if the entry is "." or "..".
         Name : constant String := Ada.Directories.Simple_Name (Dir_Entry);
     begin
-        return
-            Ada.Directories.Hierarchical_File_Names.Is_Parent_Directory_Name (Name)
-            or else Ada.Directories.Hierarchical_File_Names.Is_Current_Directory_Name (Name);
+        return Name = "." or else Name = "..";
     end Is_Current_Or_Parent_Directory;
 
    function Contents (Dir_Name : String) return Dir_Contents is
