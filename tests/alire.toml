@@ -19,7 +19,10 @@ trendy_test = "~0.0.1"
 dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
+[[depends-on]]  # Added by alr
+trendy_terminal = "~0.0.2"  # Added by alr
 
 [[pins]]
 septum = { path = ".." }
-trendy_test = { path = "../../trendy_test" }
+trendy_test = { url = "https://github.com/pyjarrett/trendy_test", branch="main" }
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }

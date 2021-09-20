@@ -10,13 +10,13 @@ project Septum_Tests is
    for Main use ("septum_tests.adb");
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("SEPTUM_TESTS_COMPILE_CHECKS", "disabled");
-   Runtime_Checks : Enabled_Kind := External ("SEPTUM_TESTS_RUNTIME_CHECKS", "disabled");
-   Style_Checks : Enabled_Kind := External ("SEPTUM_TESTS_STYLE_CHECKS", "disabled");
-   Contracts_Checks : Enabled_Kind := External ("SEPTUM_TESTS_CONTRACTS", "disabled");
+   Compile_Checks : Enabled_Kind := External ("SEPTUM_TESTS_COMPILE_CHECKS", "enabled");
+   Runtime_Checks : Enabled_Kind := External ("SEPTUM_TESTS_RUNTIME_CHECKS", "enabled");
+   Style_Checks : Enabled_Kind := External ("SEPTUM_TESTS_STYLE_CHECKS", "enabled");
+   Contracts_Checks : Enabled_Kind := External ("SEPTUM_TESTS_CONTRACTS", "enabled");
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("SEPTUM_TESTS_BUILD_MODE", "optimize");
+   Build_Mode : Build_Kind := External ("SEPTUM_TESTS_BUILD_MODE", "debug");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is
@@ -82,7 +82,7 @@ project Septum_Tests is
          "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
                           -- Do not attempt to suppress cascaded errors. 
          "-gnat12",       -- Use Ada 2012
-         "-gnatw.oat",    -- Warning settings
+         "-gnatw.oa",     -- Warning settings
          "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
         );
    end Compiler;
