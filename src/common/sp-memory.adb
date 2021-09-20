@@ -34,6 +34,8 @@ package body SP.Memory is
             if Atomic.Signed_32.Add_Fetch (Self.Block.Count, -1) = 0 then
                 Free (Self.Block.Value);
                 Free (Self.Block);
+            else
+                Self.Block := null;
             end if;
         end if;
     end Reset;
