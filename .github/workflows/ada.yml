@@ -27,4 +27,11 @@ jobs:
        - name: alire-project/setup-alire
          uses: alire-project/setup-alire@latest-stable
        - name: Build
-         run: alr build
+         run:
+            alr index --reset-community
+            alr config --global --set toolchain.assistant false
+            alr toolchain --install gnat_native --non-interactive
+            alr toolchain --install gprbuild --non-interactive
+            alr toolchain --select gnat_native --non-interactive
+            alr toolchain --select gprbuild --non-interactive
+            alr build --non-interactive
