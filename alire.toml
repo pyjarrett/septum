@@ -28,7 +28,10 @@ progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
 trendy_terminal = "~0.0.2"  # Added by alr
 [[pins]]  # Added by alr
-trendy_terminal = { path='../trendy_terminal' }   # Added by alr
+# For concurrent local development with trendy terminal
+#trendy_terminal = { path='../trendy_terminal' }   # Added by alr
+# To be used for CI
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 [[depends-on]]  # Added by alr
 gnat_native = "=10.3.1"  # Added by alr
 [[depends-on]]  # Added by alr
