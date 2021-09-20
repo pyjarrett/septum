@@ -133,7 +133,7 @@ package body SP.Searches is
         F : constant Filter_Ptr := Filters.Find_Regex (Text);
         use type Filter_Ptr;
     begin
-        if F /= Pointers.Null_Ref then
+        if F.Is_Valid then
             Srch.Line_Filters.Append (F);
         end if;
     end Find_Regex;
@@ -142,16 +142,16 @@ package body SP.Searches is
         F : constant Filter_Ptr := Filters.Exclude_Regex (Text);
         use type Filter_Ptr;
     begin
-        if F /= Pointers.Null_Ref then
+        if F.Is_Valid then
             Srch.Line_Filters.Append (F);
         end if;
     end Exclude_Regex;
 
     procedure Pop_Filter (Srch : in out Search) is
         Filter_Being_Popped : constant Filter_Ptr :=
-            (if Srch.Line_Filters.Is_Empty then Pointers.Null_Ref else Srch.Line_Filters.Last_Element);
+            (if Srch.Line_Filters.Is_Empty then Pointers.Make_Null else Srch.Line_Filters.Last_Element);
     begin
-        if Filter_Being_Popped.Is_Null then
+        if Filter_Being_Popped.Is_Valid then
             SP.Terminal.Put_Line ("No more filters to pop.");
         else
             SP.Terminal.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));

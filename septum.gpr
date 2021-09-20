@@ -2,7 +2,6 @@
 --  This section was automatically added by Alire
 with "atomic.gpr";
 with "dir_iterators.gpr";
-with "gnatcoll.gpr";
 with "progress_indicators.gpr";
 -- end auto-gpr-with --
 
