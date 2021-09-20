@@ -5,9 +5,10 @@ package body SP.Memory is
 
     function Make (Allocated : T_Access) return Arc is
     begin
-        return Self : Arc do
-            Self.Block := new Control_Block' (Value => Allocated, Count => Atomic.Signed_32.Init (0));
-        end return;
+        return Arc' (Ada.Finalization.Controlled with
+            Block => new Control_Block' (
+                Value => Allocated,
+                Count => Atomic.Signed_32.Init (0)));
     end Make;
 
     function Make_Null return Arc is
@@ -30,7 +31,7 @@ package body SP.Memory is
     procedure Reset (Self : aliased in out Arc) is
     begin
         if Self.Block /= null then
-            if Atomic.Signed_32.Add_Fetch (Self.Block.all.Count, -1) = 0 then
+            if Atomic.Signed_32.Add_Fetch (Self.Block.Count, -1) = 0 then
                 Free (Self.Block.Value);
                 Free (Self.Block);
             end if;
@@ -40,7 +41,7 @@ package body SP.Memory is
     procedure Increment (Self : in out Arc) is
     begin
         if Self.Block /= null then
-            Atomic.Signed_32.Add (Self.Block.all.Count, 1);
+            Atomic.Signed_32.Add (Self.Block.Count, 1);
         end if;
     end Increment;
 

@@ -9,14 +9,17 @@ package SP.Memory is
 
     -- Atomic reference counting pointer.
     type Arc is new Ada.Finalization.Controlled with private;
+    
     type T_Access is access T;
     type Reference_Type (Element : access T) is limited null record
         with Implicit_Dereference => Element;
 
     function Make (Allocated : T_Access) return Arc
         with Post => Is_Valid (Make'Result);
+
     function Make_Null return Arc
         with Post => not Is_Valid (Make_Null'Result);
+
     function Is_Valid (Self : Arc) return Boolean;
 
     function Get (Self : Arc) return Reference_Type
@@ -50,7 +53,7 @@ private
         Block : Control_Block_Access;
     end record;
 
-    procedure Free is new Ada.Unchecked_Deallocation(T, T_Access);
-    procedure Free is new Ada.Unchecked_Deallocation(Control_Block, Control_Block_Access);
+    procedure Free is new Ada.Unchecked_Deallocation (T, T_Access);
+    procedure Free is new Ada.Unchecked_Deallocation (Control_Block, Control_Block_Access);
 
 end SP.Memory;
