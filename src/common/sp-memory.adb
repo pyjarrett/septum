@@ -8,7 +8,7 @@ package body SP.Memory is
         return Arc' (Ada.Finalization.Controlled with
             Block => new Control_Block' (
                 Value => Allocated,
-                Count => Atomic.Signed_32.Init (0)));
+                Count => Atomic_Integer.Init (1)));
     end Make;
 
     function Make_Null return Arc is
@@ -25,13 +25,13 @@ package body SP.Memory is
 
     function Is_Valid (Self : Arc) return Boolean is
     begin
-        return Self.Block /= null and then Self.Block.Value /= null;
+        return Self.Block /= null and then Self.Block.Value /= null and then Atomic_Integer.Load (Self.Block.Count) > 0;
     end Is_Valid;
 
     procedure Reset (Self : aliased in out Arc) is
     begin
         if Self.Block /= null then
-            if Atomic.Signed_32.Add_Fetch (Self.Block.Count, -1) = 0 then
+            if Atomic_Integer.Add_Fetch (Self.Block.Count, -1) = 0 then
                 Free (Self.Block.Value);
                 Free (Self.Block);
             else
@@ -40,10 +40,19 @@ package body SP.Memory is
         end if;
     end Reset;
 
+    function Count (Self : aliased in out Arc) return Reference_Count is
+    begin
+        if Self.Block /= null then
+            return Atomic_Integer.Load (Self.Block.Count);
+        else
+            return 0;
+        end if;
+    end Count;
+
     procedure Increment (Self : in out Arc) is
     begin
         if Self.Block /= null then
-            Atomic.Signed_32.Add (Self.Block.Count, 1);
+            Atomic_Integer.Add (Self.Block.Count, 1);
         end if;
     end Increment;
 

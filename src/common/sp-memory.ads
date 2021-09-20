@@ -1,7 +1,6 @@
 with Ada.Finalization;
 with Ada.Unchecked_Deallocation;
-
-with Atomic.Signed_32;
+with Atomic.Signed;
 
 generic
     type T (<>) is private;
@@ -9,9 +8,13 @@ package SP.Memory is
 
     -- Atomic reference counting pointer.
     type Arc is new Ada.Finalization.Controlled with private;
+
     type T_Access is access T;
     type Reference_Type (Element : access T) is limited null record
         with Implicit_Dereference => Element;
+
+    type Reference_Count is new Integer;
+    package Atomic_Integer is new Atomic.Signed (Reference_Count);
 
     function Make (Allocated : T_Access) return Arc
         with Post => Is_Valid (Make'Result);
@@ -26,6 +29,9 @@ package SP.Memory is
 
     procedure Reset (Self : aliased in out Arc)
         with Post => not Is_Valid (Self);
+
+    -- Debugging function to get number of reference counts.
+    function Count (Self : aliased in out Arc) return Reference_Count;
 
     overriding
     procedure Initialize (Self : in out Arc);
@@ -43,7 +49,7 @@ private
     -- tracking the value being pointed to.
     type Control_Block is limited record
         Value : T_Access := null;
-        Count : aliased Atomic.Signed_32.Instance := Atomic.Signed_32.Init (0);
+        Count : aliased Atomic_Integer.Instance := Atomic_Integer.Init (0);
     end record;
 
     type Control_Block_Access is access Control_Block;
