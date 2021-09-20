@@ -5,7 +5,7 @@ package body SP.Platform is
 
     function Home_Dir return String is
         package Env renames Ada.Environment_Variables;
-        User_Profile : constant String := "USERPROFILE";
+        User_Profile : constant String := "HOME";
     begin
         if Env.Exists (User_Profile) then
             return Ada.Directories.Full_Name (Env.Value (User_Profile));

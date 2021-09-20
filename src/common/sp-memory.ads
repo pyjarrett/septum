@@ -13,6 +13,8 @@ package SP.Memory is
 
     function Make (Allocated : T_Access) return RC
         with Post => Is_Valid (Make'Result);
+    function Make_Null return RC
+        with Post => not Is_Valid (Make_Null'Result);
     function Is_Valid (Self : RC) return Boolean;
 
     function Get (Self : RC) return Reference_Type

@@ -33,36 +33,26 @@ package body SP.Filters is
         Base : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
         Ptr  : Filter_Ptr;
     begin
-        Ptr.Set (Base);
-        return Ptr;
+        return Pointers.Make (new Case_Sensitive_Match_Filter' (Action => Keep, Text => To_Unbounded_String (Text)));
     end Find_Text;
 
     function Exclude_Text (Text : String) return Filter_Ptr is
-        Base : constant Case_Sensitive_Match_Filter := (Action => Exclude, Text => To_Unbounded_String (Text));
-        Ptr  : Filter_Ptr;
     begin
-        Ptr.Set (Base);
-        return Ptr;
+        return Pointers.Make (new Case_Sensitive_Match_Filter' (Action => Exclude, Text => To_Unbounded_String (Text)));
     end Exclude_Text;
 
     function Find_Like (Text : String) return Filter_Ptr is
-        Base : constant Case_Insensitive_Match_Filter := (
-            Action => Keep,
-            Text   => To_Unbounded_String (To_Upper_Case (Text)));
-        Ptr  : Filter_Ptr;
     begin
-        Ptr.Set (Base);
-        return Ptr;
+        return Pointers.Make (new Case_Insensitive_Match_Filter' (
+            Action => Keep,
+            Text   => To_Unbounded_String (To_Upper_Case (Text))));
     end Find_Like;
 
     function Exclude_Like (Text : String) return Filter_Ptr is
-        Base : constant Case_Insensitive_Match_Filter := (
-            Action => Exclude,
-            Text   => To_Unbounded_String (To_Upper_Case (Text)));
-        Ptr  : Filter_Ptr;
     begin
-        Ptr.Set (Base);
-        return Ptr;
+        return Pointers.Make (new Case_Insensitive_Match_Filter' (
+            Action => Exclude,
+            Text   => To_Unbounded_String (To_Upper_Case (Text))));
     end Exclude_Like;
 
     function Find_Regex (Text : String) return Filter_Ptr is
@@ -70,17 +60,12 @@ package body SP.Filters is
         Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
-        declare
-            Base : constant Regex_Filter := (Action => Keep, Source => To_Unbounded_String(Text), Regex => Matcher);
-        begin
-            Ptr.Set (Base);
-        end;
-        return Ptr;
+        return Pointers.Make (new Regex_Filter' (Action => Keep, Source => To_Unbounded_String(Text), Regex => Matcher));
     exception
         -- Unable to compile the regular expression.
         when GNAT.Regpat.Expression_Error =>
             SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
-            return Pointers.Null_Ref;
+            return Pointers.Make_Null;
     end Find_Regex;
 
     function Exclude_Regex (Text : String) return Filter_Ptr is
@@ -88,17 +73,12 @@ package body SP.Filters is
         Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
-        declare
-            Base : constant Regex_Filter := (Action => Exclude, Source => To_Unbounded_String(Text), Regex => Matcher);
-        begin
-            Ptr.Set (Base);
-        end;
-        return Ptr;
+        return Pointers.Make (new Regex_Filter' (Action => Exclude, Source => To_Unbounded_String(Text), Regex => Matcher));
     exception
         -- Unable to compile the regular expression.
         when GNAT.Regpat.Expression_Error =>
             SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
-            return Pointers.Null_Ref;
+            return Pointers.Make_Null;
     end Exclude_Regex;
 
     ----------------------------------------------------------------------------

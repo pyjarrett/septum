@@ -7,6 +7,13 @@ package body SP.Memory is
         end return;
     end Make;
 
+    function Make_Null return RC is
+    begin
+        return Self : RC do
+            null;
+        end return;
+    end Make_Null;
+
     function Get (Self : RC) return Reference_Type is
     begin
         return (Element => Self.Target.Value);
@@ -31,25 +38,34 @@ package body SP.Memory is
     overriding
     procedure Initialize (Self : in out RC) is
     begin
-        Increment (Self.Target.all);
+        null;
+        -- if Self.Target /= null then
+        --     Increment (Self.Target.all);
+        -- end if;
     end Initialize;
 
     overriding
     procedure Adjust (Self : in out RC) is
     begin
-        Increment (Self.Target.all);
+        if Self.Target /= null then
+            Increment (Self.Target.all);
+        end if;
     end Adjust;
 
     overriding
     procedure Finalize (Self : in out RC) is
     begin
-        Decrement (Self.Target.all);
+        if Self.Target /= null then
+            Decrement (Self.Target.all);
+        end if;
 
         if Self.Is_Valid and then Is_Zero (Self.Target.all) then
             Free (Self.Target.Value);
             Free (Self.Target);
+        else
+            -- This isn't the last thing holding onto the memory.
+            Self.Target := null;
         end if;
-
     end Finalize;
 
 

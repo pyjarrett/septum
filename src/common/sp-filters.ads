@@ -17,7 +17,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with GNAT.Regpat;
-with GNATCOLL.Refcount;
 with SP.Contexts;
 with SP.Memory;
 with SP.Strings;
@@ -39,12 +38,13 @@ package SP.Filters is
     function Matches_Line (F : Filter; Str : String) return Boolean is abstract;
     -- Determine if a filter matches a string.
 
-    package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
+    -- package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
+    package Pointers is new SP.Memory (T => Filter'Class);
 
     type Filter_Alloc is access Filter;
     package Filter_Pointer is new SP.Memory (T => Filter'Class);
 
-    subtype Filter_Ptr is Pointers.Ref;
+    subtype Filter_Ptr is Pointers.RC;
     -- type Filter_Ptr is Filter_Pointer.Unique_Ptr;
 
     -- Provides a means to store many types of filters in the same list.
