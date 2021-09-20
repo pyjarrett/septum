@@ -66,10 +66,10 @@ package body SP.Filters is
     end Exclude_Like;
 
     function Find_Regex (Text : String) return Filter_Ptr is
-        Matcher : Rc_Regex.Ref;
+        Matcher : Rc_Regex.RC;
         Ptr     : Filter_Ptr;
     begin
-        Matcher.Set (GNAT.Regpat.Compile (Text));
+        Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
         declare
             Base : constant Regex_Filter := (Action => Keep, Source => To_Unbounded_String(Text), Regex => Matcher);
         begin
@@ -84,10 +84,10 @@ package body SP.Filters is
     end Find_Regex;
 
     function Exclude_Regex (Text : String) return Filter_Ptr is
-        Matcher : Rc_Regex.Ref;
+        Matcher : Rc_Regex.RC;
         Ptr     : Filter_Ptr;
     begin
-        Matcher.Set (GNAT.Regpat.Compile (Text));
+        Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
         declare
             Base : constant Regex_Filter := (Action => Exclude, Source => To_Unbounded_String(Text), Regex => Matcher);
         begin
@@ -104,9 +104,12 @@ package body SP.Filters is
     ----------------------------------------------------------------------------
 
     function Is_Valid_Regex (S : String) return Boolean is
-        Matcher : Rc_Regex.Ref;
     begin
-        Matcher.Set (GNAT.Regpat.Compile (S));
+        declare
+            Matcher : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (S);
+        begin
+            null;
+        end;
         return True;
     exception
         when GNAT.Regpat.Expression_Error =>
