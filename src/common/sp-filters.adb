@@ -127,7 +127,7 @@ package body SP.Filters is
 
     overriding function Image (F : Regex_Filter) return String is
     begin
-        return Ada.Strings.Unbounded.To_String (F.Source);
+        return "Regex " & Ada.Strings.Unbounded.To_String (F.Source);
     end Image;
 
     overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean is
