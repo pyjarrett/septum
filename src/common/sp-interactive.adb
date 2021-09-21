@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 with Ada.Containers;
 with Ada.Directories;
+with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with ANSI;
@@ -189,17 +190,25 @@ package body SP.Interactive is
             return Result;
         end if;
 
-        if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\') or else ASU.Length (Similar) = 1 then
-            Contents := SP.File_System.Contents (ASU.To_String (Similar));
-        else
-            declare
-                Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
-            begin
-                Contents  := SP.File_System.Contents (ASU.To_String (Parent));
-                Similar   := Parent;
-                Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
-            end;
-        end if;
+        declare
+        begin
+            if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\') or else ASU.Length (Similar) = 1 then
+                Contents := SP.File_System.Contents (ASU.To_String (Similar));
+            else
+                declare
+                    Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
+                begin
+                    Contents  := SP.File_System.Contents (ASU.To_String (Parent));
+                    Similar   := Parent;
+                    Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
+                end;
+            end if;
+        exception
+            -- Skip over files we're not allowed to read.
+            when Ada.IO_Exceptions.Use_Error =>
+                null;
+        end;
+
 
         -- The directory file contain paths with similar completions to the name.
         -- Filter out paths which don't have a matching prefix with the original.
