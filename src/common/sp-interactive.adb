@@ -262,12 +262,15 @@ package body SP.Interactive is
             end if;
         else
             declare
-                Completions : constant SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                Completions : SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                package String_Sorting is new SP.Strings.String_Vectors.Generic_Sorting;
+
                 Lines       : Trendy_Terminal.IO.Line_Vectors.Vector;
             begin
-                SP.Terminal.New_Line;
+                String_Sorting.Sort (Completions);
+                -- SP.Terminal.New_Line;
                 for Completion of Completions loop
-                    SP.Terminal.Put_Line (Completion);
+                    -- SP.Terminal.Put_Line (Completion);
                     E.Words (Cursor_Word) := Completion;
                     Result.Append (Trendy_Terminal.Input.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word)));
                 end loop;
