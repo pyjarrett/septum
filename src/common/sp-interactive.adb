@@ -195,7 +195,7 @@ package body SP.Interactive is
 
         declare
         begin
-            if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = '\') or else ASU.Length (Similar) = 1 then
+            if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = SP.Platform.Path_Separator) or else ASU.Length (Similar) = 1 then
                 Contents := SP.File_System.Contents (ASU.To_String (Similar));
             else
                 declare
