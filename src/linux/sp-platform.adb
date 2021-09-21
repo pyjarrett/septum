@@ -15,4 +15,7 @@ package body SP.Platform is
         end if;
     end Home_Dir;
 
+    function Path_Separator return Character is ('/');
+    function Path_Opposite_Separator return Character is ('\');
+
 end SP.Platform;

@@ -23,6 +23,7 @@ with SP.Commands;
 with SP.Config;
 with SP.File_System;
 with SP.Filters;
+with SP.Platform;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
@@ -165,13 +166,15 @@ package body SP.Interactive is
     -- Rewrite a path with all forward slashes for simplicity.
     function Rewrite_Path (Path : String) return String is
         S        : String := Path;
-        Opposite : constant Character := '/';
-        Local    : constant Character := '\';
+        Opposite : constant Character := SP.Platform.Path_Opposite_Separator;
+        Local    : constant Character := SP.Platform.Path_Separator;
     begin
         for I in 1 .. S'Length loop
-            S(I) := (case Path(I) is
-                when Opposite => Local,
-                when others => Path(I));
+            if (Path (I) = Opposite) then
+                S(I) := Local;
+            else
+                S(I) := Path (I);
+            end if;
         end loop;
         return S;
     end Rewrite_Path;
