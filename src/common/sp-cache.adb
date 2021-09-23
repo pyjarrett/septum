@@ -20,6 +20,7 @@ with Ada.Directories;
 
 with SP.Cache;
 with SP.File_System;
+with SP.Progress;
 with SP.Terminal;
 
 with System.Multiprocessors.Dispatching_Domains;
@@ -128,7 +129,7 @@ package body SP.Cache is
         File_Queue : String_Unbounded_Queue.Queue;
 
         package PI renames Progress_Indicators;
-        Progress : PI.Work_Trackers.Work_Tracker;
+        Progress : aliased PI.Work_Trackers.Work_Tracker;
     begin
         declare
             task Dir_Loader_Task with CPU => 1 is
@@ -178,33 +179,7 @@ package body SP.Cache is
                 end loop;
             end File_Loader_Task;
 
-            task Update_Progress with CPU => 1 is
-                entry Stop;
-            end Update_Progress;
-
-            task body Update_Progress is
-                Spinner : PI.Spinners.Spinner := PI.Spinners.Make (PI.Spinners.Normal, 1);
-                SR      : PI.Work_Trackers.Status_Report;
-            begin
-                loop
-                    select
-                        accept Stop;
-                        exit;
-                    or
-                        delay 0.2;
-                    end select;
-
-                    SP.Terminal.Beginning_Of_Line;
-                    SP.Terminal.Clear_Line;
-                    SR := Progress.Report;
-                    PI.Spinners.Tick(Spinner);
-
-                    SP.Terminal.Put
-                        (PI.Spinners.Value (Spinner) & "  " & SR.Completed'Image &
-                         " done of" & SR.Total'Image & "   " & PI.Spinners.Value (Spinner));
-                end loop;
-            end Update_Progress;
-
+            Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
@@ -218,7 +193,7 @@ package body SP.Cache is
                     File_Loader(I).Wake;
                 end loop;
             end;
-            Update_Progress.Stop;
+            Progress_Tracker.Stop;
             SP.Terminal.New_Line;
         end;
     end Add_Directory_Recursively;
