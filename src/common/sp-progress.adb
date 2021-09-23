@@ -13,6 +13,7 @@ package body SP.Progress is
                 exit;
             or
                 delay 0.2;
+                -- exit when SR.Total /= 0 and then SR.Completed = SR.Total;
             end select;
 
             SP.Terminal.Beginning_Of_Line;

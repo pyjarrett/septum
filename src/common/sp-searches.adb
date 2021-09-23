@@ -18,6 +18,9 @@ with Ada.Directories;
 with ANSI;
 with Atomic.Signed;
 
+with Progress_Indicators.Work_Trackers;
+
+with SP.Progress;
 with SP.Terminal;
 
 with System.Multiprocessors.Dispatching_Domains;
@@ -341,6 +344,7 @@ package body SP.Searches is
         Merged_Results : Concurrent_Context_Results;
         Next_File      : aliased Atomic_Int.Instance := Atomic_Int.Init (1);
         Next_Access    : constant access Atomic_Int.Instance := Next_File'Access;
+        Work           : aliased Progress_Indicators.Work_Trackers.Work_Tracker;
 
         task type Matching_Context_Search is
             entry Start;
@@ -359,21 +363,29 @@ package body SP.Searches is
                 else
                     exit;
                 end if;
+                Work.Finish_Work (1);
             end loop;
         end Matching_Context_Search;
 
-        Num_Tasks    : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
-        use System.Multiprocessors;
-        All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
+        package MP renames System.Multiprocessors;
+        use all type MP.CPU_Range;
+        Progress_Tracker : SP.Progress.Update_Progress (Work'Access);
+        Num_Tasks        : constant MP.CPU := MP.Number_Of_CPUs;
+        Result           : SP.Contexts.Context_Vectors.Vector;
     begin
-        return Result : SP.Contexts.Context_Vectors.Vector do
+        declare
+            All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
+        begin
+            Work.Start_Work (Integer (Files.Length));        
             Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
-                System.Multiprocessors.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
+                MP.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
                 All_Searches (I).Start;
             end loop;
             Merged_Results.Get_Results (Result);
-        end return;
+            Progress_Tracker.Stop;
+        end;
+        return Result;
     end Matching_Contexts;
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
