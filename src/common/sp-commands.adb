@@ -261,10 +261,18 @@ package body SP.Commands is
             declare
                 Result : Command_Result;
             begin
+                if SP.Searches.Is_Running_Script (Srch, ASU.To_String (File)) then
+                    Put_Line ("Script file being sourced is being sourced again.");
+                    return Command_Failed;
+                end if;
+
+                SP.Searches.Push_Script (Srch, ASU.To_String (File));
                 Result := Run_Commands_From_File (Srch, ASU.To_String (File));
                 if Result /= Command_Success then
+                    SP.Searches.Pop_Script (Srch, ASU.To_String (File));
                     return Result;
                 end if;
+                SP.Searches.Pop_Script (Srch, ASU.To_String (File));
             end;
         end loop;
 

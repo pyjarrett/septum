@@ -102,6 +102,12 @@ package SP.Searches is
         Results : SP.Contexts.Context_Vectors.Vector;
     end Concurrent_Context_Results;
 
+    function Is_Running_Script (Srch : Search; Script_Path : String) return Boolean;
+    procedure Push_Script (Srch : in out Search; Script_Path : String)
+        with Pre => not Is_Running_Script (Srch, Script_Path);
+    procedure Pop_Script (Srch : in out Search; Script_Path : String)
+        with Pre => Is_Running_Script (Srch, Script_Path);
+
 private
 
     use SP.Filters;
@@ -128,6 +134,11 @@ private
         Search_On_Filters_Changed : Boolean := False;
 
         Enable_Line_Colors : Boolean := False;
+
+        -- The stack of currently executing scripts.
+        -- Intuitively this is a stack, but a set should work just a well,
+        -- since the focus is the membership test.
+        Script_Stack : String_Sets.Set;
     end record;
 
 end SP.Searches;

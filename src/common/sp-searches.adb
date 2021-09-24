@@ -463,4 +463,18 @@ package body SP.Searches is
         end Add_Result;
     end Concurrent_Context_Results;
 
+
+    function Is_Running_Script (Srch : Search; Script_Path : String) return Boolean
+        is (Srch.Script_Stack.Contains (ASU.To_Unbounded_String (Script_Path)));
+
+    procedure Push_Script (Srch : in out Search; Script_Path : String) is
+    begin
+        Srch.Script_Stack.Insert (ASU.To_Unbounded_String (Script_Path));
+    end Push_Script;
+
+    procedure Pop_Script (Srch : in out Search; Script_Path : String) is
+    begin
+        Srch.Script_Stack.Delete (ASU.To_Unbounded_String (Script_Path));
+    end Pop_Script;
+
 end SP.Searches;
