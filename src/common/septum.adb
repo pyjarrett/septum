@@ -17,9 +17,11 @@
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Text_IO;
+
 with GNAT.Traceback.Symbolic;
 
 with SP.Interactive;
+
 procedure Septum is
     use Ada.Text_IO;
 begin
@@ -31,6 +33,7 @@ begin
         return;
     end if;
 
+    -- Don't recognize any other arguments.
     if Ada.Command_Line.Argument_Count /= 0 then
         Put_Line ("Unrecognized command line arguments.");
         New_Line;
