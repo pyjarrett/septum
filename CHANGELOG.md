@@ -16,7 +16,15 @@ Types of changes:
 
 - ✅ Added pinning of load and search tasks to CPUs.
 - ✅ Added tab completion for directories in `add-dirs`.
-- ✅ Added coloratiuon of regular expressions: 🔴red🔴 when invalid, and 🟢green🟢 when valid.
+- ✅ Added coloration of regular expressions: 🔴red🔴 when invalid, and 🟢green🟢 when valid.
+- ✅ Added progress indication during searches.
+- ✅ Added `source` command to run commands from file.
+- ✅ Added program termination if UTF-8 or VT100 cannot be enabled.
+- 🔄 Changed completions to sort lexicographically.
+- 🔄 Changed `match-contexts` to accept optional `first` argument.
+- ❌ Removed dependency on GNATColl.
+- ❌ Removed dependency on `Ada.Directories.Hierarchical_File_Names`.
+- 🛠️ Fixed Regex filter display to show "Regex".
 
 ## [0.0.1-beta]
 
