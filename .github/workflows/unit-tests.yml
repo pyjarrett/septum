@@ -1,0 +1,39 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: CI on ${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:    
+       - name: Checkout
+         uses: actions/checkout@v2
+       - name: ada-actions/toolchain
+         uses: ada-actions/toolchain@ce2021
+         with:
+           distrib: community
+           target: native
+       - name: alire-project/setup-alire
+         uses: alire-project/setup-alire@latest-stable
+       - name: Build
+         working-directory: tests/
+         run: |
+            alr index --reset-community
+            alr config --global --set toolchain.assistant false
+            alr toolchain --install gnat_native --non-interactive
+            alr toolchain --install gprbuild --non-interactive
+            alr toolchain --select gnat_native --non-interactive
+            alr toolchain --select gprbuild --non-interactive
+            alr build --non-interactive
+            alr run
