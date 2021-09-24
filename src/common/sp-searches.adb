@@ -376,7 +376,7 @@ package body SP.Searches is
         declare
             All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
         begin
-            Work.Start_Work (Integer (Files.Length));        
+            Work.Start_Work (Integer (Files.Length));
             Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
                 MP.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
@@ -413,22 +413,24 @@ package body SP.Searches is
         New_Line;
     end Print_Context;
 
-    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector; First_Num : Natural := No_Limit) is
+    procedure Print_Contexts (
+        Srch     : in Search;
+        Contexts : SP.Contexts.Context_Vectors.Vector;
+        First    : Natural;
+        Last     : Natural
+    ) is
         Max_Results : constant Natural := Srch.Max_Results;
         Num_Results_Printed : Natural := 0;
     begin
-        if Natural(Contexts.Length) > Max_Results and then First_Num > Max_Results then
+        if Natural (Contexts.Length) > Last - First + 1 and then First = 1 and then Last = No_Limit then
             Put_Line ("Found" & Contexts.Length'Image & " results.");
-            return;
-        end if;
-
-        for C of Contexts loop
+        else
+            for Index in First .. Natural'Min (Last, Natural (Contexts.Length)) loop
+                New_Line;
+                Print_Context (Srch, Contexts (Index));
+            end loop;
             New_Line;
-            Print_Context (Srch, C);
-
-            Num_Results_Printed := Num_Results_Printed + 1;
-            exit when First_Num /= No_Limit and then Num_Results_Printed >= First_Num;
-        end loop;
+        end if;
         Put_Line ("Matching contexts: " & Contexts.Length'Image);
         Put_Line ("Matching files:" & SP.Contexts.Files_In (Contexts).Length'Image);
     end Print_Contexts;

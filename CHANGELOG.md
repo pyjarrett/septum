@@ -12,7 +12,7 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-## [Unreleased]
+## [Unreleased 0.0.1-beta2]
 
 - ✅ Added pinning of load and search tasks to CPUs.
 - ✅ Added tab completion for directories in `add-dirs`.

@@ -166,7 +166,7 @@ package body SP.Commands is
     begin
         if Get_Search_On_Filters_Changed (Srch) then
             Contexts := Matching_Contexts (Srch);
-            Print_Contexts (Srch, Contexts);
+            Print_Contexts (Srch, Contexts, 1, SP.Searches.No_Limit);
         end if;
     end Search_Updated;
 
@@ -564,26 +564,39 @@ package body SP.Commands is
         Put_Line ("Lists the Contexts currently matching all filters.");
         New_Line;
         Put_Line ("match-contexts        Prints up to max-results results");
-        Put_Line ("match-contexts N      Prints the first min(N, max-results) results");
+        Put_Line ("match-contexts N      Prints the first N results");
+        Put_Line ("match-contexts M N    Prints the M ... N results");
     end Matching_Contexts_Help;
 
     function Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
-        Count : Positive := Positive'Last;
+        First    : Positive := 1;
+        Last     : Positive := Positive'Last;
     begin
         case Command_Line.Length is
-        when 1 =>
-            if not Try_Parse (To_String(Command_Line.First_Element), Count) then
+        when 2 =>
+            if Try_Parse (To_String (Command_Line.First_Element), First)
+                and then Try_Parse (To_String (Command_Line.Element (2)), Last)
+                and then First <= Last
+            then
+                SP.Searches.Print_Contexts (Srch, Contexts, First, Last);
+            else
                 SP.Terminal.Put_Line ("Bad number of results to give.");
                 return Command_Failed;
             end if;
+        when 1 =>
+            if not Try_Parse (To_String(Command_Line.First_Element), Last) then
+                SP.Terminal.Put_Line ("Bad number of results to give.");
+                return Command_Failed;
+            end if;
+
+            SP.Searches.Print_Contexts (Srch, Contexts, 1, Last);
         when 0 =>
-            null;
+            SP.Searches.Print_Contexts (Srch, Contexts, 1, Last);
         when others =>
             SP.Terminal.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
             return Command_Failed;
         end case;
-        SP.Searches.Print_Contexts (Srch, Contexts, Count);
         return Command_Success;
     end Matching_Contexts_Exec;
 

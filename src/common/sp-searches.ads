@@ -84,7 +84,11 @@ package SP.Searches is
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 
     No_Limit : constant := Natural'Last;
-    procedure Print_Contexts (Srch : in Search; Contexts : SP.Contexts.Context_Vectors.Vector; First_Num : Natural := No_Limit);
+    procedure Print_Contexts (
+        Srch     : in Search;
+        Contexts : SP.Contexts.Context_Vectors.Vector;
+        First    : Natural;
+        Last     : Natural);
 
     function Num_Files (Srch : in Search) return Natural;
     function Num_Lines (Srch : in Search) return Natural;
