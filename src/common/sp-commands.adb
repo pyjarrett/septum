@@ -245,6 +245,34 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Source_Help is
+    begin
+        Put_Line ("Loads and runs commands from a file.");
+    end Source_Help;
+
+    function Source_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide one or more config files to run.");
+            return Command_Failed;
+        end if;
+
+        for File of Command_Line loop
+            declare
+                Result : Command_Result;
+            begin
+                Result := Run_Commands_From_File (Srch, ASU.To_String (File));
+                if Result /= Command_Success then
+                    return Result;
+                end if;
+            end;
+        end loop;
+
+        return Command_Success;
+    end Source_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Dirs_Help is
     begin
         Put_Line ("Adds a directory to the search list.");
@@ -772,6 +800,7 @@ begin
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
     Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
+    Make_Command ("source", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
 
     -- Filters
 

@@ -164,7 +164,11 @@ package body SP.Strings is
                 end loop;
 
                 pragma Assert (Length (Word) > 0);
-                Result.Words.Append (Word);
+                if SP.Strings.Is_Quoted (ASU.To_String (Word)) and then Length (Word) > 1 then
+                    Result.Words.Append (Unbounded_Slice (Word, 2, Length (Word) - 1));
+                else
+                    Result.Words.Append (Word);
+                end if;
             end;
         end loop;
 
