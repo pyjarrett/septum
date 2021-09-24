@@ -108,6 +108,8 @@ package SP.Searches is
     procedure Pop_Script (Srch : in out Search; Script_Path : String)
         with Pre => Is_Running_Script (Srch, Script_Path);
 
+    procedure Test (Srch : Search; Input : String);
+
 private
 
     use SP.Filters;

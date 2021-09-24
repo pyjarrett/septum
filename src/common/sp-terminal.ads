@@ -26,6 +26,7 @@ package SP.Terminal is
     --
     -- This module also hides dependencies on unbounded IO.
 
+    procedure Put (C : Character) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : String) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put;
 

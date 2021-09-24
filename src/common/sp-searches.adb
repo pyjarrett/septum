@@ -477,4 +477,39 @@ package body SP.Searches is
         Srch.Script_Stack.Delete (ASU.To_Unbounded_String (Script_Path));
     end Pop_Script;
 
+    procedure Test (Srch : Search; Input : String) is
+        Keeps    : Natural := 0;
+        Excludes : Natural := 0;
+    begin
+        for F of Srch.Line_Filters loop
+            Put ('[');
+            if F.Get.Matches_Line (Input) then
+                case F.Get.Action is
+                    when SP.Filters.Keep =>
+                        Put (SP.Terminal.Colorize ("  MATCH  ", ANSI.Light_Green));
+                        Keeps := Keeps + 1;
+                    when SP.Filters.Exclude =>
+                        Put (SP.Terminal.Colorize (" EXCLUDE ", ANSI.Light_Red));
+                        Excludes := Excludes + 1;
+                end case;
+            else
+                Put ("         ");
+            end if;
+            Put ("]    ");
+            Put (F.Get.Image);
+            New_Line;
+        end loop;
+
+        -- Summary
+        New_Line;
+        if Excludes > 0 then
+            Put (SP.Terminal.Colorize ("EXCLUDED", ANSI.Light_Red));
+        elsif Keeps > 0 then
+            Put (SP.Terminal.Colorize ("MATCHED", ANSI.Light_Green));
+        else
+            Put ("IGNORED");
+        end if;
+        New_Line;
+    end Test;
+
 end SP.Searches;

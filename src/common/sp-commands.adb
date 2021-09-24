@@ -273,11 +273,41 @@ package body SP.Commands is
                     return Result;
                 end if;
                 SP.Searches.Pop_Script (Srch, ASU.To_String (File));
+
+            exception
+                when others =>
+                    Put_Line ("Unknown exception");
+                    SP.Searches.Pop_Script (Srch, ASU.To_String (File));
             end;
         end loop;
 
         return Command_Success;
     end Source_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Test_Help is
+    begin
+        Put_Line ("Tests arguments against all filters.");
+    end Test_Help;
+
+    function Test_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide one or more config files to run.");
+            return Command_Failed;
+        end if;
+
+        for Input of Command_Line loop
+            Put_Line (Input);
+
+            SP.Searches.Test (Srch, ASU.To_String (Input));
+
+            New_Line;
+        end loop;
+
+        return Command_Success;
+    end Test_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -822,6 +852,7 @@ begin
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
     Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
     Make_Command ("source", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
+    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
 
     -- Filters
 
