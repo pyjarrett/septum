@@ -14,17 +14,34 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with GNAT.Traceback.Symbolic;
 
 with SP.Interactive;
-
 procedure Septum is
+    use Ada.Text_IO;
 begin
+    -- Look for a single "--version" flag
+    if Ada.Command_Line.Argument_Count = 1
+        and then Ada.Command_Line.Argument (1) = "--version"
+    then
+        Put_Line (SP.Version);
+        return;
+    end if;
+
+    if Ada.Command_Line.Argument_Count /= 0 then
+        Put_Line ("Unrecognized command line arguments.");
+        New_Line;
+        Put_Line ("Usage: septum --version        print program version");
+        Put_Line ("       septum                  run interactive search mode");
+        return;
+    end if;
+
     SP.Interactive.Main;
 exception
     when Err : others =>
-        Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (Err));
-        Ada.Text_IO.Put_Line ("Exception traceback: " & GNAT.Traceback.Symbolic.Symbolic_Traceback (Err));
+        Put_Line (Ada.Exceptions.Exception_Information (Err));
+        Put_Line ("Exception traceback: " & GNAT.Traceback.Symbolic.Symbolic_Traceback (Err));
 end Septum;
