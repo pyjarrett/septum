@@ -12,6 +12,11 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [0.0.1-beta3]
+
+- ✅ Added `test` command to see which filters will match.
+- 🛠️ Fixed `source` command to prevent cyclic inclusion of scripts.
+
 ## [0.0.1-beta2]
 
 - ✅ Added pinning of load and search tasks to CPUs.
