@@ -154,7 +154,7 @@ package body SP.Searches is
         Filter_Being_Popped : constant Filter_Ptr :=
             (if Srch.Line_Filters.Is_Empty then Pointers.Make_Null else Srch.Line_Filters.Last_Element);
     begin
-        if Filter_Being_Popped.Is_Valid then
+        if not Filter_Being_Popped.Is_Valid then
             SP.Terminal.Put_Line ("No more filters to pop.");
         else
             SP.Terminal.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
