@@ -24,7 +24,7 @@ package body SP.Memory_Tests is
             I := Int_Ptr.Make (new Integer'(5));
             Assert_EQ (Op, Integer (I.Count), 1);
             Assert_EQ (Op, Integer (J.Count), 0);
-            Op.Assert (I.Is_Valid);
+            Op.Assert (not I.Is_Valid);
             Op.Assert (not J.Is_Valid);
 
             J := I;
