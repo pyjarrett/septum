@@ -1,6 +1,7 @@
 # septum
 
 [![Build Status](https://github.com/pyjarrett/septum/actions/workflows/ada.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
+[![Test Status](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
 
 Context-based code search tool
 
