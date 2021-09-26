@@ -24,61 +24,47 @@ with SP.Strings;
 package SP.Filters is
     use SP.Strings;
 
-    type Filter_Action is (Keep, Exclude);
     -- Filters need to do different things. Some filters match line contents, whereas others want to remove any match
     -- which has a match anywhere in the content. When a filter matches, some action with regards to the search should
     -- be done, whether to include or to exclude the match from the results.
+    type Filter_Action is (Keep, Exclude);
 
-    type Filter (Action : Filter_Action) is abstract tagged null record;
     -- Search filters define which lines match and what to do about a match.
+    type Filter (Action : Filter_Action) is abstract tagged null record;
 
-    function Image (F : Filter) return String is abstract;
     -- Describes the filter in an end-user type of way. TODO: This should be localized.
+    function Image (F : Filter) return String is abstract;
 
-    function Matches_Line (F : Filter; Str : String) return Boolean is abstract;
     -- Determine if a filter matches a string.
+    function Matches_Line (F : Filter; Str : String) return Boolean is abstract;
 
-    -- package Pointers is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => Filter'Class);
     package Pointers is new SP.Memory (T => Filter'Class);
-
-    type Filter_Alloc is access Filter;
-    package Filter_Pointer is new SP.Memory (T => Filter'Class);
 
     subtype Filter_Ptr is Pointers.Arc;
 
     -- Provides a means to store many types of filters in the same list.
-
     package Filter_List is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
 
-    -- package Rc_Regex is new GNATCOLL.Refcount.Shared_Pointers (Element_Type => GNAT.Regpat.Pattern_Matcher);
-    package Rc_Regex is new SP.Memory (T => GNAT.Regpat.Pattern_Matcher);
 
     function Find_Text (Text : String) return Filter_Ptr;
-    -- Matches lines which match this text.
-
     function Exclude_Text (Text : String) return Filter_Ptr;
-    -- Matches lines which don't have this text.
 
     function Find_Like (Text : String) return Filter_Ptr;
-
     function Exclude_Like (Text : String) return Filter_Ptr;
 
     function Find_Regex (Text : String) return Filter_Ptr;
-    -- Matches lines which match this regex.
-
     function Exclude_Regex (Text : String) return Filter_Ptr;
-    -- Matches lines which don't have this regex.
 
     function Is_Valid_Regex (S : String) return Boolean;
 
-    function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     -- Looks for a match in any of the given lines.
-
+    function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
     function Matching_Lines (F : Filter'Class; Lines : String_Vectors.Vector) return SP.Contexts.Line_Matches.Set;
 
-
 private
+
+    package Rc_Regex is new SP.Memory (T => GNAT.Regpat.Pattern_Matcher);
 
     type Case_Sensitive_Match_Filter is new Filter with record
         Text : Ada.Strings.Unbounded.Unbounded_String;
