@@ -630,7 +630,7 @@ package body SP.Commands is
 
             SP.Searches.Print_Contexts (Srch, Contexts, 1, Last);
         when 0 =>
-            SP.Searches.Print_Contexts (Srch, Contexts, 1, Last);
+            SP.Searches.Print_Contexts (Srch, Contexts, 1, SP.Searches.Get_Max_Results (Srch));
         when others =>
             SP.Terminal.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
             return Command_Failed;
