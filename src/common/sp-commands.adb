@@ -175,6 +175,14 @@ package body SP.Commands is
     procedure Help_Help is
         use Command_Maps;
     begin
+        Put_Line ("Septum is an interactive search tool for code discovery.");
+        New_Line;
+        Put_Line ("Searches occur across multi-line 'contexts'.  Specify what");
+        Put_Line ("those must include with 'find' commands, and skip contexts");
+        Put_Line ("containing elements with 'exclude' commands.");
+        New_Line;
+
+        -- Print commands.
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
             Set_Col (30);
