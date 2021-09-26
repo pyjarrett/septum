@@ -25,10 +25,6 @@ with SP.Strings;
 package SP.Searches is
     use SP.Strings;
 
-    package File_Maps is new Ada.Containers.Ordered_Maps
-        (Key_Type => Ada.Strings.Unbounded.Unbounded_String, Element_Type => String_Vectors.Vector,
-         "<"      => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
-
     type Search is limited private;
 
     procedure Reload_Working_Set (Srch : in out Search);
