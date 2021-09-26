@@ -1,12 +1,47 @@
+with Ada.Calendar.Formatting;
+with Ada.Strings.Fixed;
 with Progress_Indicators.Spinners;
 with SP.Terminal;
 
 package body SP.Progress is
 
     task body Update_Progress is
-        Spinner : PI.Spinners.Spinner := PI.Spinners.Make (PI.Spinners.Normal, 1);
-        SR      : PI.Work_Trackers.Status_Report;
+        Spinner      : PI.Spinners.Spinner := PI.Spinners.Make (PI.Spinners.Normal, 1);
+        SR           : PI.Work_Trackers.Status_Report;
+        Start_Time   : Ada.Calendar.Time;
+        Current_Time : Ada.Calendar.Time;
+
+        procedure Update is
+            use all type Ada.Calendar.Time;
+        begin
+            Current_Time := Ada.Calendar.Clock;
+
+            SP.Terminal.Beginning_Of_Line;
+            SP.Terminal.Clear_Line;
+            SR := Work.Report;
+            PI.Spinners.Tick(Spinner);
+
+            declare
+                Seconds : constant Natural := Natural (Float'Rounding (100.0 * Float (Current_Time - Start_Time)) * 0.01);
+                Elapsed : constant String := '(' & (if Seconds = 0
+                    then "<1 s"
+                    else Ada.Strings.Fixed.Trim (Seconds'Image, Ada.Strings.Left) & " s")
+                    & ')';
+            begin
+                SP.Terminal.Put (
+                    PI.Spinners.Value (Spinner)
+                    & "  "
+                    & SR.Completed'Image
+                    & " done of"
+                    & SR.Total'Image
+                    & "   "
+                    & Elapsed
+                    & "   "
+                    & PI.Spinners.Value (Spinner));
+            end;
+        end Update;
     begin
+        Start_Time := Ada.Calendar.Clock;
         loop
             select
                 accept Stop;
@@ -16,14 +51,7 @@ package body SP.Progress is
                 -- exit when SR.Total /= 0 and then SR.Completed = SR.Total;
             end select;
 
-            SP.Terminal.Beginning_Of_Line;
-            SP.Terminal.Clear_Line;
-            SR := Work.Report;
-            PI.Spinners.Tick(Spinner);
-
-            SP.Terminal.Put
-                (PI.Spinners.Value (Spinner) & "  " & SR.Completed'Image &
-                    " done of" & SR.Total'Image & "   " & PI.Spinners.Value (Spinner));
+            Update;
         end loop;
     end Update_Progress;
 
