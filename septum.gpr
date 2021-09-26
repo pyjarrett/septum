@@ -12,10 +12,12 @@ project Septum is
    Septum_Sources := ("src/common");
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("SEPTUM_COMPILE_CHECKS", "enabled");
-   Runtime_Checks : Enabled_Kind := External ("SEPTUM_RUNTIME_CHECKS", "enabled");
-   Style_Checks : Enabled_Kind := External ("SEPTUM_STYLE_CHECKS", "enabled");
-   Contracts_Checks : Enabled_Kind := External ("SEPTUM_CONTRACTS", "enabled");
+   Checks_Enabled : Enabled_Kind := "enabled";
+
+   Compile_Checks   : Enabled_Kind := External ("SEPTUM_COMPILE_CHECKS", Checks_Enabled);
+   Runtime_Checks   : Enabled_Kind := External ("SEPTUM_RUNTIME_CHECKS", Checks_Enabled);
+   Style_Checks     : Enabled_Kind := External ("SEPTUM_STYLE_CHECKS",   Checks_Enabled);
+   Contracts_Checks : Enabled_Kind := External ("SEPTUM_CONTRACTS",      Checks_Enabled);
 
    type Platform_Type is ("windows", "linux", "macos");
    Platform : Platform_Type := external ("Septum_Platform");
