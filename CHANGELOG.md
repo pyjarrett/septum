@@ -15,7 +15,11 @@ Types of changes:
 ## [0.0.1-beta3]
 
 - ✅ Added `test` command to see which filters will match.
+- ✅ Added `--version` command to print the executable version.
+- ✅ Added duration reporting and progress spinners to search.
 - 🛠️ Fixed `source` command to prevent cyclic inclusion of scripts.
+- 🛠️ Fixed issue where max results would be ignored.
+- 🛠️ Fixed issue where `pop` would crash.
 
 ## [0.0.1-beta2]
 
