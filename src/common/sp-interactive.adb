@@ -28,8 +28,8 @@ with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
 with Trendy_Terminal.Environments;
-with Trendy_Terminal.Input;
 with Trendy_Terminal.IO;
+with Trendy_Terminal.Lines;
 with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
@@ -129,10 +129,10 @@ package body SP.Interactive is
         Current_Cursor : Natural := 1;
     begin
         while Next <= Natural (E.Spacers.Length) loop
-            Current_Cursor := Current_Cursor + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (E.Spacers (Next)));
+            Current_Cursor := Current_Cursor + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (E.Spacers (Next)));
 
             if Next <= Positive (E.Words.Length) then
-                Current_Cursor := Current_Cursor + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (E.Words (Next)));
+                Current_Cursor := Current_Cursor + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (E.Words (Next)));
             end if;
             exit when Current_Cursor >= Cursor_Position;
             Next := Next + 1;
@@ -238,11 +238,11 @@ package body SP.Interactive is
     end Word_Cursor_End;
 
     -- Completion callback based on the number of history inputs.
-    function Complete_Input (L : Trendy_Terminal.Input.Line_Input)
+    function Complete_Input (L : Trendy_Terminal.Lines.Line)
         return Trendy_Terminal.IO.Line_Vectors.Vector
     is
-        E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Input.Current (L));
-        Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Input.Get_Cursor_Index (L));
+        E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
+        Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
         Result      : Trendy_Terminal.IO.Line_Vectors.Vector;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
@@ -256,8 +256,8 @@ package body SP.Interactive is
                 Completion := SP.Commands.Target_Command (E.Words(1));
                 Suffix := Trailing_End (E.Words (1), Completion);
                 E.Words (1) := E.Words (1) & Suffix;
-                Result.Append (Trendy_Terminal.Input.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
-                    Trendy_Terminal.Input.Get_Cursor_Index (L) + Trendy_Terminal.Input.Num_Cursor_Positions (ASU.To_String (Suffix))));
+                Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                    Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
                 return Result;
             end if;
         else
@@ -272,7 +272,7 @@ package body SP.Interactive is
                 for Completion of Completions loop
                     -- SP.Terminal.Put_Line (Completion);
                     E.Words (Cursor_Word) := Completion;
-                    Result.Append (Trendy_Terminal.Input.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word)));
+                    Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word)));
                 end loop;
             end;
         end if;
