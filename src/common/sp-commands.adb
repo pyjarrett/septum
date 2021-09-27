@@ -302,7 +302,7 @@ package body SP.Commands is
     function Test_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
-            Put_Line ("Must provide one or more config files to run.");
+            Put_Line ("No filters to test.");
             return Command_Failed;
         end if;
 
