@@ -201,6 +201,10 @@ package body SP.Interactive is
                 declare
                     Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
                 begin
+                    if not SP.File_System.Is_Dir (ASU.To_String (Parent)) then
+                        return Result;
+                    end if;
+
                     Contents  := SP.File_System.Contents (ASU.To_String (Parent));
                     Similar   := Parent;
                     Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
@@ -250,6 +254,10 @@ package body SP.Interactive is
         use SP.Strings.String_Vectors;
         use type Ada.Containers.Count_Type;
     begin
+        if E.Words.Length = 0 then
+            return Result;
+        end if;
+
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
