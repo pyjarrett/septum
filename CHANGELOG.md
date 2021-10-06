@@ -12,6 +12,11 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [Unreleased]
+
+- 🛠️ Fixed tab crash on Linux.
+- 🛠️ Fixed case of slow output in certain Linux terminals.
+
 ## [0.0.1-beta3]
 
 - ✅ Added `test` command to see which filters will match.
