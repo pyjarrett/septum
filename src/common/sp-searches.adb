@@ -393,14 +393,23 @@ package body SP.Searches is
         Put_Line (To_String (Context.File_Name));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
-                Put ("->");
-            end if;
-            Set_Col (3);
-            if Srch.Print_Line_Numbers then
-                Put (Line_Num'Image);
-                Set_Col (13);
+                Put ("-> ");
             else
-                Set_Col(5);
+                Put ("   ");
+            end if;
+            if Srch.Print_Line_Numbers then
+                declare
+                    Max_Line_Name_Width : constant := 5;
+                    Line                : constant String := Line_Num'Image;
+                    Spaces              : constant String (1 .. Max_Line_Name_Width - Line'Length) := (others => ' ');
+                begin
+                    if Spaces'Length > 0 then
+                        Put (Spaces);
+                    end if;
+                    Put (Line);
+                end;
+            else
+                Put ("  ");
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
                 Put_Line (SP.Terminal.Colorize (
