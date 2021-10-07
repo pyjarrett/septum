@@ -12,7 +12,7 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-## [Unreleased]
+## [0.0.3]
 
 - 🛠️ Fixed tab crash on Linux.
 - 🛠️ Fixed case of slow output in certain Linux terminals.
