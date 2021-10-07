@@ -166,7 +166,7 @@ package body SP.Commands is
     begin
         if Get_Search_On_Filters_Changed (Srch) then
             Contexts := Matching_Contexts (Srch);
-            Print_Contexts (Srch, Contexts, 1, SP.Searches.No_Limit);
+            Print_Contexts (Srch, Contexts, 1, Get_Max_Results (Srch));
         end if;
     end Search_Updated;
 
