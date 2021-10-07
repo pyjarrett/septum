@@ -399,7 +399,7 @@ package body SP.Searches is
             end if;
             if Srch.Print_Line_Numbers then
                 declare
-                    Max_Line_Name_Width : constant := 5;
+                    Max_Line_Name_Width : constant := 6;
                     Line                : constant String := Line_Num'Image;
                     Spaces              : constant String (1 .. Max_Line_Name_Width - Line'Length) := (others => ' ');
                 begin
@@ -408,7 +408,6 @@ package body SP.Searches is
                     end if;
                     Put (Line);
                 end;
-            else
                 Put ("  ");
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
