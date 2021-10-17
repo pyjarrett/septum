@@ -30,8 +30,8 @@ with Progress_Indicators.Spinners;
 with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is
-    function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
     -- Convenience function for converting strings to unbounded.
+    function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
 
     function Is_Text (File_Name : String) return Boolean is
         -- This is probably better written to look at encoding (such as invalid sequences in UTF-8, etc.)
@@ -61,7 +61,6 @@ package body SP.Cache is
     end Is_Text;
 
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : Ada.Strings.Unbounded.Unbounded_String) is
-        -- Adds the contents of a file to the file cache.
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
         if SP.File_System.Read_Lines (To_String (File_Name), Lines) then
@@ -120,6 +119,12 @@ package body SP.Cache is
 
     end Async_File_Cache;
 
+    -- Adds all directories to the file cache.
+    --
+    -- Most users will probably only have source on a single medium, so
+    -- parallelizing the load probably won't improve speed.  The split of
+    -- parsing tasks is to support more complicated caching methods in the
+    -- future, as we're I/O bound here based on the disk speed.
     procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) is
         package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
             (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
@@ -132,8 +137,10 @@ package body SP.Cache is
         Progress : aliased PI.Work_Trackers.Work_Tracker;
     begin
         declare
-            task Dir_Loader_Task with CPU => 1 is
-            end Dir_Loader_Task;
+            -- A directory loading task builds a queue of files to parse for the
+            -- file loader tasks.
+            task Dir_Loader_Task with CPU => 1 is end;
+
             task body Dir_Loader_Task is
                 Dir_Walk : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir);
                 use type Ada.Directories.File_Kind;

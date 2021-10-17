@@ -44,8 +44,8 @@ with Ada.Strings.Unbounded;
 -- approach.
 --
 -- What I probably should have done initially was to define a private string
--- type to use every with easy conversions and use either string interning or
--- underlying unbounded strings.  The current form of `Unbounded_String` is
+-- type to use everywhere with easy conversions and use either string interning
+-- or underlying unbounded strings.  The current form of `Unbounded_String` is
 -- also somewhat unwieldly.
 --
 -- The [VSS](https://github.com/AdaCore/VSS) library looks like a viable
