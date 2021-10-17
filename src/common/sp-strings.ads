@@ -18,6 +18,51 @@ with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+-- A lot of what happens in Septum is related to strings.  It reads them from
+-- file, uses them as input for commands, looks for them with filters, attempts
+-- to match them with regular expressions and prints them to users.
+--
+-- ## UTF-8 Compatibility
+--
+-- Any solution to handling all of these in a UTF-8 compatible manner, must
+-- then deal appropriately with all of the interfaces with which these things
+-- touch.  Due to the tight binding within Septum of all of these behaviors,
+-- it may not be possible to extricate enough of string handling for a drop in
+-- replacement, and a complete refactoring to properly handle UTF-8 in all
+-- situations may be impossible.
+--
+-- The binding of strings to fixed sizes also remains painful, as it requires
+-- the use of an additional unbounded type, and often semantically meaningless
+-- and inefficient conversions between the two types.  In many situations,
+-- fixed strings aren't possible, such as being stored in vectors, sets or used
+-- as keys in maps.  This often results in doubling the size of the interface,
+-- or clumsily converting as needed.
+--
+-- My approach thus far has been to write interfaces using `String` as much as
+-- possible, falling back to unbounded strings only when absolutely necessary.
+-- There is likely a considerable amount of time needed to convert due to this
+-- approach.
+--
+-- What I probably should have done initially was to define a private string
+-- type to use every with easy conversions and use either string interning or
+-- underlying unbounded strings.  The current form of `Unbounded_String` is
+-- also somewhat unwieldly.
+--
+-- The [VSS](https://github.com/AdaCore/VSS) library looks like a viable
+-- alternative to `Unbounded_String`, though it is marked with "Warning: This is
+-- experimental work in progress, everything is subject to change. It may be or
+-- may be not part of GNATCOLL or standard Ada library in the future."
+--
+-- Known systems which use strings:
+-- - Terminal I/O (Trendy Terminal)
+--   - Formatting
+--   - Hinting system
+--   - Autocomplete
+-- - Search
+--   - Regular expressions
+-- - File I/O
+-- - Command interpretation
+--
 package SP.Strings is
     package ASU renames Ada.Strings.Unbounded;
 
@@ -38,6 +83,16 @@ package SP.Strings is
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
 
+    -- An exploded form of a line which allows the line to be recombined
+    -- transparently to a user, by reapplying the appropriate amounts and types
+    -- of spacing between words.
+    --
+    -- This looks like:
+    -- [_space_]*[WORD][_space_][WORD][_space_][WORD][_space_]
+    --
+    -- To prevent complications regarding whether a word or space is first, and
+    -- simplify iteration over words, the leading space is always stored, and
+    -- may be empty.
     type Exploded_Line is record
         -- The first space is "Leading spacing"
         -- Spaces(i) is what preceeds Words(i)
