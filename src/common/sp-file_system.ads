@@ -17,12 +17,19 @@
 with Ada.Directories;
 with SP.Strings;
 
+-- Wraps file system operations to make them simpler, and handle cases without
+-- using exceptions.
 package SP.File_System is
     use SP.Strings;
 
+    -- Checks that a file at the given path exists.
     function Is_File (Target : String) return Boolean;
+
+    -- Checks that a dir at the given path exists.
     function Is_Dir (Target : String) return Boolean;
 
+    -- Ada.Directories.Hierarchical_File_Names is optional, and doesn't exist
+    -- on some of the Linux platforms tested for Alire crates.
     function Is_Current_Or_Parent_Directory (Dir_Entry : Ada.Directories.Directory_Entry_Type) return Boolean;
 
     type Dir_Contents is record
@@ -30,9 +37,11 @@ package SP.File_System is
         Subdirs : String_Vectors.Vector;
     end record;
 
+    -- The immediate, non-recursive, contents of the given directory.
     function Contents (Dir_Name : String) return Dir_Contents;
-    -- The immediate contents of the given directory.
 
+    -- Pulls the contents of a textual file, which might possibly fail due to
+    -- the file not existing or being a directory instead of a file.
     function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
 
 end SP.File_System;
