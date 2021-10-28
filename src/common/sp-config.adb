@@ -31,14 +31,7 @@ package body SP.Config is
     Config_Dir_Name  : constant String := ".septum";
     Config_File_Name : constant String := ".config";
 
-    -- Septum data is stored locally in the Next_Dir working directory on load or in the home directory of the user
-    -- running the command.  This allows users to maintain general configuration in their home directory based
-    -- on the settings they want to work with, and then have per-project settings that they can use.
-    --
-    -- Septum configuration setup.
-    -- Containing_Directory/
-    --     .septum/                 Directory to contain all Septum related data.
-    --         .config              Commands to run on startup.
+    -- Finds the config which is the closest ancestor to the given directory.
     function Closest_Config (Dir_Name : String) return ASU.Unbounded_String with
         Pre  => AD.Exists (Dir_Name),
         Post => (Closest_Config'Result = ASU.Null_Unbounded_String)

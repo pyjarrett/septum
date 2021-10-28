@@ -48,6 +48,8 @@ package body SP.Commands is
     package Command_Maps is new Ada.Containers.Ordered_Maps
         (Key_Type => Unbounded_String, Element_Type => Executable_Command);
 
+    -- The command map is split between a the procedure to execute, and also a
+    -- command to print help information.
     Command_Map : Command_Maps.Map;
 
     function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String (S)));

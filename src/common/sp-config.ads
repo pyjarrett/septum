@@ -14,10 +14,22 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with SP.Strings; use SP.Strings;
+with SP.Strings;
 
+-- Septum data is stored locally in the Next_Dir working directory on load or in the home directory of the user
+-- running the command.  This allows users to maintain general configuration in their home directory based
+-- on the settings they want to work with, and then have per-project settings that they can use.
+--
+-- Septum configuration setup.
+-- Containing_Directory/
+--     .septum/                 Directory to contain all Septum related data.
+--         .config              Commands to run on startup.
 package SP.Config is
 
+    use SP.Strings;
+
+    -- A list of all possible locations which might have a configuration which
+    -- can be read on program startup.
     function Config_Locations return String_Vectors.Vector;
 
 end SP.Config;
