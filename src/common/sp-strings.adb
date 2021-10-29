@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded.Text_IO;
 with Ada.Characters.Latin_1;
 
 with GNAT.OS_Lib;

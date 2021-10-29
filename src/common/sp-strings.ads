@@ -63,7 +63,9 @@ with Ada.Strings.Unbounded;
 -- - File I/O
 -- - Command interpretation
 --
-package SP.Strings is
+package SP.Strings
+    with Preelaborate
+is
     package ASU renames Ada.Strings.Unbounded;
 
     package String_Sets is new Ada.Containers.Ordered_Sets

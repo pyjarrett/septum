@@ -20,7 +20,9 @@ with Ada.Strings.Unbounded;
 
 with SP.Strings;
 
-package SP.Contexts is
+package SP.Contexts
+    with Preelaborate
+is
 
     package Line_Matches is new Ada.Containers.Ordered_Sets (Element_Type => Positive);
 

@@ -4,7 +4,9 @@ with Atomic.Signed;
 
 generic
     type T (<>) is private;
-package SP.Memory is
+package SP.Memory
+    with Preelaborate
+is
 
     -- Atomic reference counting pointer.
     type Arc is new Ada.Finalization.Controlled with private;

@@ -25,7 +25,6 @@ with SP.Strings;
 --     .septum/                 Directory to contain all Septum related data.
 --         .config              Commands to run on startup.
 package SP.Config is
-
     use SP.Strings;
 
     -- A list of all possible locations which might have a configuration which

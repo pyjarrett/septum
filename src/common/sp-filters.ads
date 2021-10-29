@@ -21,7 +21,9 @@ with SP.Contexts;
 with SP.Memory;
 with SP.Strings;
 
-package SP.Filters is
+package SP.Filters
+    with Preelaborate
+is
     use SP.Strings;
 
     -- Filters need to do different things. Some filters match line contents, whereas others want to remove any match

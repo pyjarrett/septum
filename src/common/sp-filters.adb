@@ -18,8 +18,6 @@ with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 
-with SP.Terminal;
-
 package body SP.Filters is
     use Ada.Strings.Unbounded;
 
@@ -64,7 +62,6 @@ package body SP.Filters is
     exception
         -- Unable to compile the regular expression.
         when GNAT.Regpat.Expression_Error =>
-            SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
             return Pointers.Make_Null;
     end Find_Regex;
 
@@ -77,7 +74,6 @@ package body SP.Filters is
     exception
         -- Unable to compile the regular expression.
         when GNAT.Regpat.Expression_Error =>
-            SP.Terminal.Put_Line ("Unable to create regex filter from: " & Text);
             return Pointers.Make_Null;
     end Exclude_Regex;
 
