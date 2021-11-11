@@ -6,7 +6,8 @@ package body SP.Memory_Tests is
     package TT renames Trendy_Test;
     use Trendy_Test.Assertions.Integer_Assertions;
 
-    package Int_Ptr is new SP.Memory (T => Integer);
+    type Int_Access is access Integer;
+    package Int_Ptr is new SP.Memory (T => Integer, T_Access => Int_Access);
 
     procedure Test_Count (Op : in out TT.Operation'Class) is
     begin

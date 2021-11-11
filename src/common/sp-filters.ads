@@ -40,7 +40,8 @@ is
     -- Determine if a filter matches a string.
     function Matches_Line (F : Filter; Str : String) return Boolean is abstract;
 
-    package Pointers is new SP.Memory (T => Filter'Class);
+    type Filter_Access is access Filter'Class;
+    package Pointers is new SP.Memory (T => Filter'Class, T_Access => Filter_Access);
 
     subtype Filter_Ptr is Pointers.Arc;
 
@@ -66,7 +67,8 @@ is
 
 private
 
-    package Rc_Regex is new SP.Memory (T => GNAT.Regpat.Pattern_Matcher);
+    type Regex_Access is access GNAT.Regpat.Pattern_Matcher;
+    package Rc_Regex is new SP.Memory (T => GNAT.Regpat.Pattern_Matcher, T_Access => Regex_Access);
 
     type Case_Sensitive_Match_Filter is new Filter with record
         Text : Ada.Strings.Unbounded.Unbounded_String;

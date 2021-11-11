@@ -4,6 +4,7 @@ with Atomic.Signed;
 
 generic
     type T (<>) is private;
+    type T_Access is access T;
 package SP.Memory
     with Preelaborate
 is
@@ -11,7 +12,6 @@ is
     -- Atomic reference counting pointer.
     type Arc is new Ada.Finalization.Controlled with private;
 
-    type T_Access is access T;
     type Reference_Type (Element : access T) is limited null record
         with Implicit_Dereference => Element;
 
