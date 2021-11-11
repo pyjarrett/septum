@@ -106,7 +106,7 @@ is
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
     -- the command line formatter stood up more quickly.
     function Make (S : String) return Exploded_Line;
-    function Get_Word (E : Exploded_Line; Index : Positive) return String is (ASU.To_String (E.Words (Index)));
+    function Get_Word (E : Exploded_Line; Index : Positive) return String is (ASU.To_String (E.Words.Element (Index)));
     function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
 
 end SP.Strings;

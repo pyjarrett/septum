@@ -12,7 +12,7 @@ executables = ["septum_tests"]
 septum = "~0.0.1"
 
 [[depends-on]]
-trendy_test = "~0.0.1"
+trendy_test = "~0.0.2"
 
 # Septum deps
 [[depends-on]]  # Added by alr
@@ -20,7 +20,7 @@ dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
-trendy_terminal = "~0.0.2"  # Added by alr
+trendy_terminal = "~0.0.3"  # Added by alr
 
 [[pins]]
 septum = { path = ".." }
