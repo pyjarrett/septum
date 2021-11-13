@@ -13,10 +13,6 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
-
-with Ada.Containers.Ordered_Maps;
-with Ada.Strings.Unbounded;
-
 with SP.Cache;
 with SP.Contexts;
 with SP.Filters;

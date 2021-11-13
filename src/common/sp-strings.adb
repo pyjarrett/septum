@@ -16,8 +16,6 @@
 with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
 
-with GNAT.OS_Lib;
-
 package body SP.Strings is
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
         return Ada.Strings.Unbounded.Unbounded_String
@@ -193,15 +191,5 @@ package body SP.Strings is
     begin
         return S'Length > 0 and then S (S'First) = S (S'Last) and then (for some X of Quote_Types => X = S (S'First));
     end Is_Quoted;
-
-    function Next_Word_Start (S : String; Start : Positive) return Natural is
-    begin
-        return Ada.Strings.Fixed.Index_Non_Blank (S, Start);
-    end Next_Word_Start;
-
-    function Next_Word_End (S : String; Start : Positive) return Natural is
-    begin
-        return 0;
-    end Next_Word_End;
 
 end SP.Strings;

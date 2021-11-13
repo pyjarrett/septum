@@ -25,7 +25,6 @@ package body SP.Config is
     package ASU renames Ada.Strings.Unbounded;
     package FS renames SP.File_System;
 
-    use type Ada.Directories.File_Kind;
     use type ASU.Unbounded_String;
 
     Config_Dir_Name  : constant String := ".septum";

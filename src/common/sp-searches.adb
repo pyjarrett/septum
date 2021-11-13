@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Strings.Unbounded;
 with ANSI;
 with Atomic.Signed;
 
@@ -134,7 +135,6 @@ package body SP.Searches is
 
     procedure Find_Regex (Srch : in out Search; Text : String) is
         F : constant Filter_Ptr := Filters.Find_Regex (Text);
-        use type Filter_Ptr;
     begin
         if F.Is_Valid then
             Srch.Line_Filters.Append (F);
@@ -143,7 +143,6 @@ package body SP.Searches is
 
     procedure Exclude_Regex (Srch : in out Search; Text : String) is
         F : constant Filter_Ptr := Filters.Exclude_Regex (Text);
-        use type Filter_Ptr;
     begin
         if F.Is_Valid then
             Srch.Line_Filters.Append (F);
@@ -427,8 +426,8 @@ package body SP.Searches is
         First    : Natural;
         Last     : Natural
     ) is
-        Max_Results : constant Natural := Srch.Max_Results;
-        Num_Results_Printed : Natural := 0;
+--        Max_Results : constant Natural := Srch.Max_Results;
+--        Num_Results_Printed : Natural := 0;
     begin
         if Natural (Contexts.Length) > Last - First + 1 and then First = 1 and then Last = No_Limit then
             Put_Line ("Found" & Contexts.Length'Image & " results.");

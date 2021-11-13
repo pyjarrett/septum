@@ -26,7 +26,6 @@ with SP.Terminal;
 with System.Multiprocessors.Dispatching_Domains;
 
 with Dir_Iterators.Recursive;
-with Progress_Indicators.Spinners;
 with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is

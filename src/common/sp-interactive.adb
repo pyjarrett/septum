@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 with Ada.Containers;
-with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -117,10 +116,11 @@ package body SP.Interactive is
         return Result;
     end Apply_Formatting;
 
-    function Format_Input (S : String) return String is
-        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (S);
+    function Format_Input (L : Trendy_Terminal.Lines.Line) return Trendy_Terminal.Lines.Line is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
+        New_Line : constant String := ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     begin
-        return ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
+        return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length);
     end Format_Input;
 
     function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural
@@ -186,7 +186,6 @@ package body SP.Interactive is
         Contents    : SP.File_System.Dir_Contents;
         Rewritten   : ASU.Unbounded_String := ASU.To_Unbounded_String (Rewrite_Path (Path));
         Similar     : ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.To_String (Rewritten)));
-        use all type ASU.Unbounded_String;
     begin
         -- Has no higher directory.
         if ASU.Length (Similar) = 0 then
@@ -219,15 +218,12 @@ package body SP.Interactive is
 
         -- The directory file contain paths with similar completions to the name.
         -- Filter out paths which don't have a matching prefix with the original.
-        declare
-            Simple : constant String := Ada.Directories.Simple_Name (Path);
-        begin
-            for Dir of Contents.Subdirs loop
-                if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
-                    Result.Append (Dir);
-                end if;
-            end loop;
-        end;
+        for Dir of Contents.Subdirs loop
+            if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
+                Result.Append (Dir);
+            end if;
+        end loop;
+
         return Result;
     end File_Completions;
 
@@ -272,8 +268,6 @@ package body SP.Interactive is
             declare
                 Completions : SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
                 package String_Sorting is new SP.Strings.String_Vectors.Generic_Sorting;
-
-                Lines       : Trendy_Terminal.IO.Line_Vectors.Vector;
             begin
                 String_Sorting.Sort (Completions);
                 -- SP.Terminal.New_Line;

@@ -1,4 +1,4 @@
-with Ada.Calendar.Formatting;
+with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Progress_Indicators.Spinners;
 with SP.Terminal;

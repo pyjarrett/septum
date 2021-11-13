@@ -28,8 +28,6 @@ package body SP.Filters is
     end To_Upper_Case;
 
     function Find_Text (Text : String) return Filter_Ptr is
-        Base : constant Case_Sensitive_Match_Filter := (Action => Keep, Text => To_Unbounded_String (Text));
-        Ptr  : Filter_Ptr;
     begin
         return Pointers.Make (new Case_Sensitive_Match_Filter' (Action => Keep, Text => To_Unbounded_String (Text)));
     end Find_Text;
@@ -55,7 +53,6 @@ package body SP.Filters is
 
     function Find_Regex (Text : String) return Filter_Ptr is
         Matcher : Rc_Regex.Arc;
-        Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
         return Pointers.Make (new Regex_Filter' (Action => Keep, Source => To_Unbounded_String(Text), Regex => Matcher));
@@ -67,7 +64,6 @@ package body SP.Filters is
 
     function Exclude_Regex (Text : String) return Filter_Ptr is
         Matcher : Rc_Regex.Arc;
-        Ptr     : Filter_Ptr;
     begin
         Matcher := Rc_Regex.Make (new GNAT.Regpat.Pattern_Matcher'(GNAT.Regpat.Compile (Text)));
         return Pointers.Make (new Regex_Filter' (Action => Exclude, Source => To_Unbounded_String(Text), Regex => Matcher));
@@ -84,6 +80,7 @@ package body SP.Filters is
         declare
             Matcher : constant GNAT.Regpat.Pattern_Matcher := GNAT.Regpat.Compile (S);
         begin
+            pragma Unreferenced (Matcher);
             null;
         end;
         return True;

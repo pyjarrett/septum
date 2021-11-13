@@ -1,8 +1,4 @@
-with Interfaces;
-
 package body SP.Memory is
-    use all type Interfaces.Integer_32;
-
     function Make (Allocated : T_Access) return Arc is
     begin
         return Arc' (Ada.Finalization.Controlled with
