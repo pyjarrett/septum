@@ -28,7 +28,7 @@ with SP.Strings;
 with SP.Terminal;
 with Trendy_Terminal.Environments;
 with Trendy_Terminal.IO;
-with Trendy_Terminal.Lines;
+with Trendy_Terminal.Lines.Line_Vectors;
 with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
@@ -239,11 +239,11 @@ package body SP.Interactive is
 
     -- Completion callback based on the number of history inputs.
     function Complete_Input (L : Trendy_Terminal.Lines.Line)
-        return Trendy_Terminal.IO.Line_Vectors.Vector
+        return Trendy_Terminal.Lines.Line_Vectors.Vector
     is
         E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
         Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
-        Result      : Trendy_Terminal.IO.Line_Vectors.Vector;
+        Result      : Trendy_Terminal.Lines.Line_Vectors.Vector;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
         use all type ASU.Unbounded_String;

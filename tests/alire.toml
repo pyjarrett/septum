@@ -25,4 +25,4 @@ trendy_terminal = "~0.0.3"  # Added by alr
 [[pins]]
 septum = { path = ".." }
 trendy_test = { url = "https://github.com/pyjarrett/trendy_test", branch="main" }
-trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+#trendy_test = { path='../../trendy_test' }   # Added by alr
