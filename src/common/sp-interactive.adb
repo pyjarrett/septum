@@ -121,7 +121,7 @@ package body SP.Interactive is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
         New_Line : constant String := ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
     begin
-        return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length);
+        return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length + 1);
     end Format_Input;
 
     function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural
