@@ -12,7 +12,7 @@ project Septum is
    Septum_Sources := ("src/common");
 
    type Enabled_Kind is ("enabled", "disabled");
-   Checks_Enabled : Enabled_Kind := "disabled";
+   Checks_Enabled : Enabled_Kind := "enabled";
 
    Compile_Checks   : Enabled_Kind := External ("SEPTUM_COMPILE_CHECKS", Checks_Enabled);
    Runtime_Checks   : Enabled_Kind := External ("SEPTUM_RUNTIME_CHECKS", Checks_Enabled);
@@ -28,7 +28,7 @@ project Septum is
    end case;
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("SEPTUM_BUILD_MODE", "optimize");
+   Build_Mode : Build_Kind := External ("SEPTUM_BUILD_MODE", "debug");
 
    for Source_Dirs use Septum_Sources;
    for Object_Dir use "obj";

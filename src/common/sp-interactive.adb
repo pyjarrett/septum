@@ -27,7 +27,8 @@ with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
 with Trendy_Terminal.Environments;
-with Trendy_Terminal.IO;
+with Trendy_Terminal.Histories;
+with Trendy_Terminal.IO.Line_Editors;
 with Trendy_Terminal.Lines.Line_Vectors;
 with Trendy_Terminal.Platform;
 
@@ -286,20 +287,11 @@ package body SP.Interactive is
         return Result;
     end Complete_Input;
 
-    function Read_Command return SP.Strings.String_Vectors.Vector is
-    begin
-        declare
-            Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
-                Trendy_Terminal.IO.Get_Line(
-                    Format_Fn => Format_Input'Access,
-                    Completion_Fn => Complete_Input'Access
-                )
-            );
-            Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
-            Result : SP.Strings.String_Vectors.Vector;
-        begin
-            New_Line;
+    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
 
+    begin
+        return Result : SP.Strings.String_Vectors.Vector do
             for Word of Exploded.Words loop
                 if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
                     Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
@@ -307,19 +299,33 @@ package body SP.Interactive is
                     Result.Append (Word);
                 end if;
             end loop;
+        end return;
+    end Split_Command;
 
-            return Result;
-        end;
+    function Read_Command (Line_History : aliased in out Trendy_Terminal.Histories.History) return ASU.Unbounded_String is
+        Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
+            Trendy_Terminal.IO.Line_Editors.Get_Line (
+                Format_Fn     => Format_Input'Access,
+                Completion_Fn => Complete_Input'Access,
+                Line_History  => Line_History'Unchecked_Access
+            ));
+    begin
+        -- Keep the input remaining on the line without clearing it.
+        New_Line;
+
+        return Input;
     end Read_Command;
 
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
     procedure Main is
+        Input        : ASU.Unbounded_String;
         Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
         Environment  : Trendy_Terminal.Environments.Environment;
         Result       : SP.Commands.Command_Result;
+        Line_History : aliased Trendy_Terminal.Histories.History;
     begin
         if not Environment.Is_Available then
             Ada.Text_IO.Put_Line ("[ERROR] No support either for UTF-8 or VT100.");
@@ -350,10 +356,13 @@ package body SP.Interactive is
 
         loop
             Write_Prompt (Srch);
-            Command_Line := Read_Command;
+            Input := Read_Command (Line_History);
+            Command_Line := Split_Command (Input);
             Result := SP.Commands.Execute (Srch, Command_Line);
             case Result is
                 when SP.Commands.Command_Success => null;
+                    -- Add command to history
+                    Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
                 when SP.Commands.Command_Failed =>
                     Put_Line ("Command failed");
                 when SP.Commands.Command_Unknown =>
