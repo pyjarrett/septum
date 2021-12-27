@@ -336,6 +336,7 @@ package body SP.Interactive is
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
+        Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Signals_As_Input, True);
 
         Put_Line ("septum v" & SP.Version);
         New_Line;
