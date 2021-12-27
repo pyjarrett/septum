@@ -31,8 +31,8 @@ trendy_terminal = "~0.0.3"  # Added by alr
 # developed in parallel with this project.
 [[pins]]  # Added by alr
 # For concurrent local development with trendy terminal
-trendy_terminal = { path='../trendy_terminal' }   # Added by alr
+# trendy_terminal = { path='../trendy_terminal' }   # Added by alr
 # To be used for CI
-#trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="develop" }
 [[depends-on]]  # Added by alr
 atomic = "~0.3.0"  # Added by alr
