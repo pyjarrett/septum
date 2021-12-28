@@ -15,6 +15,7 @@ Types of changes:
 ## [0.0.4] (unreleased)
 
 - 🔄 **BREAKING CHANGE!**  config file name from `.config` to `config`.
+- ✅ Added `drop` command to remove filters out of order.
 - ✅ Added filter list to the prompt.
 - ✅ Added up arrow to scroll through history.
 - 🛠️ Fixed jumping/blinking cursor when predicting commands.

@@ -149,15 +149,25 @@ package body SP.Searches is
         end if;
     end Exclude_Regex;
 
-    procedure Pop_Filter (Srch : in out Search) is
-        Filter_Being_Popped : constant Filter_Ptr :=
-            (if Srch.Line_Filters.Is_Empty then Pointers.Make_Null else Srch.Line_Filters.Last_Element);
+    procedure Drop_Filter (Srch : in out Search; Index : Positive) is
+        Filter_Being_Dropped : constant Filter_Ptr :=
+            (if Natural (Index) > Natural (Srch.Line_Filters.Length)
+                then Pointers.Make_Null else Srch.Line_Filters.Element (Index));
     begin
-        if not Filter_Being_Popped.Is_Valid then
-            SP.Terminal.Put_Line ("No more filters to pop.");
+        if not Filter_Being_Dropped.Is_Valid then
+            SP.Terminal.Put_Line ("No filter exists at that index to drop.");
         else
-            SP.Terminal.Put_Line ("Popping filter: " & Image (Filter_Being_Popped.Get));
-            Srch.Line_Filters.Delete_Last;
+            SP.Terminal.Put_Line ("Dropping filter: " & Image (Filter_Being_Dropped.Get));
+            Srch.Line_Filters.Delete (Index);
+        end if;
+    end Drop_Filter;
+
+    procedure Pop_Filter (Srch : in out Search) is
+    begin
+        if Srch.Line_Filters.Is_Empty then
+            SP.Terminal.Put_line ("There are no filters to pop.");
+        else
+            Drop_Filter (Srch, Positive (Srch.Line_Filters.Length));
         end if;
     end Pop_Filter;
 
@@ -207,6 +217,8 @@ package body SP.Searches is
             end loop;
         end return;
     end List_Filter_Names;
+
+    function Num_Filters (Srch : Search) return Natural is (Integer (Srch.Line_Filters.Length));
 
     function Matching_Contexts
         (File_Name : String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)

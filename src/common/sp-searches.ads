@@ -50,6 +50,8 @@ package SP.Searches is
 
     procedure Exclude_Regex (Srch : in out Search; Text : String);
 
+    procedure Drop_Filter (Srch : in out Search; Index : Positive);
+
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 
@@ -72,6 +74,7 @@ package SP.Searches is
     function Get_Print_Line_Numbers (Srch : in Search) return Boolean;
 
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
+    function Num_Filters (Srch : in Search) return Natural;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 

@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Vectors;
 with Ada.Directories;
 with SP.Config;
 with SP.Contexts;
@@ -581,6 +582,57 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Drop_Help is
+    begin
+        Put_Line ("Drops given filters, or the most recent filter if non given.");
+    end Drop_Help;
+
+    function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            SP.Searches.Pop_Filter (Srch);
+            Search_Updated (Srch);
+            return Command_Success;
+        end if;
+
+        declare
+            Index : Positive := Positive'Last;
+            package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
+            package Positive_Vector_Sorting is new Positive_Vectors.Generic_Sorting ("<" => ">");
+            Indices : Positive_Vectors.Vector;
+            use type Ada.Containers.Count_Type;
+        begin
+            for Index_String of Command_Line loop
+                if Try_Parse (ASU.To_String (Index_String), Index) then
+                    if Natural (Index) > SP.Searches.Num_Filters (Srch) then
+                        Put_Line ("Filter index out of range:" & Index'Image);
+                    else
+                        Indices.Append (Index);
+                    end if;
+                else
+                    Put_Line (Index_String & " is not an index");
+                end if;
+            end loop;
+
+            -- Prefer to not alter anything if the parameters are borked.
+            if Indices.Length /= Command_Line.Length then
+                return Command_Failed;
+            end if;
+
+            -- Drop filters in reverse order to preserve semantics while keeping
+            -- the interface of SP.Searches simple.
+            Positive_Vector_Sorting.Sort (Indices);
+            for I of Indices loop
+                SP.Searches.Drop_Filter (Srch, I);
+            end loop;
+            return Command_Success;
+        end;
+    end Drop_Exec;
+
+
+    ----------------------------------------------------------------------------
+
     procedure Pop_Help is
     begin
         Put_Line ("Pops the last applied filter from the search.");
@@ -881,6 +933,7 @@ begin
     Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
+    Make_Command ("drop", "Drops the filters at the given indices", Drop_Help'Access, Drop_Exec'Access);
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
     Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);
 
