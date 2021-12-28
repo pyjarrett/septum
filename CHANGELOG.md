@@ -14,8 +14,10 @@ Types of changes:
 
 ## [0.0.4] (unreleased)
 
-- 🔄 Changed `.config` file to `config`.
+- 🔄 **BREAKING CHANGE!**  config file name from `.config` to `config`.
 - ✅ Added up arrow to scroll through history.
+- 🛠️ Fixed jumping/blinking cursor when predicting commands.
+- 🛠️ Fixed jumping/blinking cursor in progress update.
 
 ## [0.0.3]
 
