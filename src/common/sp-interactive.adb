@@ -222,18 +222,21 @@ package body SP.Interactive is
             Write_Prompt (Srch);
             Input := Read_Command (Line_History);
             Command_Line := SP.Strings.Split_Command (Input);
-            Result := SP.Commands.Execute (Srch, Command_Line);
-            case Result is
-                when SP.Commands.Command_Success => null;
-                    -- Add command to history
-                    Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
-                when SP.Commands.Command_Failed =>
-                    Put_Line ("Command failed");
-                when SP.Commands.Command_Unknown =>
-                    Put_Line ("Unknown command");
-                when SP.Commands.Command_Exit_Requested =>
-                    return;
-            end case;
+
+            if not Command_Line.Is_Empty then
+                Result := SP.Commands.Execute (Srch, Command_Line);
+                case Result is
+                    when SP.Commands.Command_Success => null;
+                        -- Add command to history
+                        Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
+                    when SP.Commands.Command_Failed =>
+                        Put_Line ("Command failed");
+                    when SP.Commands.Command_Unknown =>
+                        Put_Line ("Unknown command");
+                    when SP.Commands.Command_Exit_Requested =>
+                        return;
+                end case;
+            end if;
         end loop;
     end Main;
 end SP.Interactive;
