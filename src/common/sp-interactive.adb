@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 with Ada.Containers;
 with Ada.IO_Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with ANSI;
@@ -38,16 +39,18 @@ package body SP.Interactive is
 
     procedure Write_Prompt (Srch : in SP.Searches.Search) is
         -- Writes the prompt and get ready to read user input.
+        Filter_Names   : constant Sp.Strings.String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
         Default_Prompt : constant String  := " > ";
         Extensions     : constant SP.Strings.String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
         Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
         Max_Results    : constant Natural := SP.Searches.Get_Max_Results (Srch);
         Second_Col     : constant := 30;
     begin
+
         New_Line;
         Put ("Files:     " & SP.Searches.Num_Files (Srch)'Image);
         Set_Col (Second_Col);
-        Put ("Extensions: ");
+        Put ("Extensions:   ");
         if Extensions.Is_Empty then
             Put ("Any");
         else
@@ -61,6 +64,22 @@ package body SP.Interactive is
         Put ("Distance:  " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
         Set_Col (Second_Col);
         Put ("Max Results: " & (if Max_Results = SP.Searches.No_Max_Results then "Unlimited" else Max_Results'Image));
+        New_Line;
+
+        Put ("Filters: ");
+        if Integer (Filter_Names.Length) = 0 then
+            Put ("None");
+        end if;
+        New_Line;
+        for Index in 1 .. SP.Strings.String_Vectors.Length (Filter_Names) loop
+            Put ("  " & Ada.Strings.Fixed.Trim (Index'Image, Ada.Strings.Left));
+            Set_Col (6);
+            for Spacer in 1 .. Index loop
+                Put ("    ");
+            end loop;
+            Put_Line (Filter_Names.Element (Integer(Index)));
+        end loop;
+
         New_Line;
         Put (Default_Prompt);
     end Write_Prompt;
