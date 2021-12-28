@@ -2,6 +2,7 @@ with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Progress_Indicators.Spinners;
 with SP.Terminal;
+with Trendy_Terminal.VT100;
 
 package body SP.Progress is
 
@@ -42,13 +43,14 @@ package body SP.Progress is
         end Update;
     begin
         Start_Time := Ada.Calendar.Clock;
+        Trendy_Terminal.VT100.Hide_Cursor;
         loop
             select
                 accept Stop;
+                Trendy_Terminal.VT100.Show_Cursor;
                 exit;
             or
                 delay 0.2;
-                -- exit when SR.Total /= 0 and then SR.Completed = SR.Total;
             end select;
 
             Update;
