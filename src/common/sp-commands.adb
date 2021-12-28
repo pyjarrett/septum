@@ -16,6 +16,7 @@
 
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
+with SP.Config;
 with SP.Contexts;
 with SP.File_System;
 with SP.Terminal;
@@ -179,9 +180,15 @@ package body SP.Commands is
     begin
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
+
         Put_Line ("Searches occur across multi-line 'contexts'.  Specify what");
         Put_Line ("those must include with 'find' commands, and skip contexts");
         Put_Line ("containing elements with 'exclude' commands.");
+        New_Line;
+
+        Put_Line ("Configurations are loaded from " & SP.Config.Config_Dir_Name & " directories,");
+        Put_Line ("in the user's home directory and the current directory when Septum is started.");
+        Put_Line ("Commands will be executed from the " & SP.Config.Config_File_Name & " files in these on startup.");
         New_Line;
 
         -- Print commands.

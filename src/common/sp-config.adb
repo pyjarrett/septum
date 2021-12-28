@@ -29,9 +29,6 @@ package body SP.Config is
 
     use type ASU.Unbounded_String;
 
-    Config_Dir_Name  : constant String := ".septum";
-    Config_File_Name : constant String := ".config";
-
     procedure Create_Local_Config is
         Current_Dir : constant String := AD.Current_Directory;
         Config_Dir  : constant String := Current_Dir & "/" & Config_Dir_Name;
