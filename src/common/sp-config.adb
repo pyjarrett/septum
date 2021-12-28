@@ -16,6 +16,8 @@
 
 with Ada.Directories;
 with Ada.Strings.Unbounded;
+with Ada.Streams.Stream_IO;
+with Ada.Text_IO;
 with Dir_Iterators.Ancestor;
 with SP.File_System;
 with SP.Platform;
@@ -29,6 +31,50 @@ package body SP.Config is
 
     Config_Dir_Name  : constant String := ".septum";
     Config_File_Name : constant String := ".config";
+
+    procedure Create_Local_Config is
+        Current_Dir : constant String := AD.Current_Directory;
+        Config_Dir  : constant String := Current_Dir & "/" & Config_Dir_Name;
+        Config_File : constant String := Config_Dir & "/" & Config_File_Name;
+    begin
+        if not AD.Exists (Config_Dir) then
+            begin
+                AD.Create_Directory (Config_Dir);
+            exception
+                when AD.Name_Error | AD.Use_Error =>
+                    return;
+            end;
+        end if;
+
+        if SP.File_System.Is_File (Config_File)
+            or else SP.File_System.Is_Dir (Config_File) then
+                Ada.Text_IO.Put_Line ("Unable to create config file, something already exists there: " &
+                    Config_File);
+                return;
+        end if;
+
+        declare
+            File : Ada.Streams.Stream_IO.File_Type;
+
+            use Ada.Streams;
+        begin
+            Stream_IO.Create (File, Ada.Streams.Stream_IO.Out_File, Config_File);
+            Stream_IO.Close (File);
+
+            -- Compiler bug?
+            -- warning: "File" modified by call, but value might not be referenced
+            pragma Unreferenced (File);
+
+            Ada.Text_IO.Put_Line ("Configuration directory: " & Ada.Directories.Full_Name (Config_Dir));
+            Ada.Text_IO.Put_Line ("Configuration file:      " & Ada.Directories.Full_Name (Config_File));
+            Ada.Text_IO.New_Line;
+            Ada.Text_IO.Put_Line (Config_Dir_Name & " is for Septum settings and configuration.");
+            Ada.Text_IO.Put_Line (Config_File_Name & " contains commands to run when starting in this directory.");
+        exception
+            when Stream_IO.Name_Error | Stream_IO.Use_Error =>
+                Ada.Text_IO.Put_Line ("Unable to create configuration file.");
+        end;
+    end Create_Local_Config;
 
     -- Finds the config which is the closest ancestor to the given directory.
     function Closest_Config (Dir_Name : String) return ASU.Unbounded_String with

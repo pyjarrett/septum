@@ -20,6 +20,7 @@ with Ada.Text_IO;
 
 with GNAT.Traceback.Symbolic;
 
+with SP.Config;
 with SP.Interactive;
 
 procedure Septum is
@@ -33,11 +34,20 @@ begin
         return;
     end if;
 
+    -- Create a local configuration file in the current directory.
+    if Ada.Command_Line.Argument_Count = 1
+        and then Ada.Command_Line.Argument (1) = "init"
+    then
+        SP.Config.Create_Local_Config;
+        return;
+    end if;
+
     -- Don't recognize any other arguments.
     if Ada.Command_Line.Argument_Count /= 0 then
         Put_Line ("Unrecognized command line arguments.");
         New_Line;
         Put_Line ("Usage: septum --version        print program version");
+        Put_Line ("       septum init             creates config directory with empty config");
         Put_Line ("       septum                  run interactive search mode");
         return;
     end if;

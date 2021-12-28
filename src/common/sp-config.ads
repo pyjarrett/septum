@@ -31,4 +31,7 @@ package SP.Config is
     -- can be read on program startup.
     function Config_Locations return String_Vectors.Vector;
 
+    -- Creates a configuration in the given directory.
+    procedure Create_Local_Config;
+
 end SP.Config;
