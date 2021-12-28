@@ -185,11 +185,60 @@ package body SP.Strings is
         end return;
     end Common_Prefix_Length;
 
+    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
+        Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
+        Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Desired, Prefix_Length + 1, ASU.Length (Desired));
+    begin
+        return Suffix;
+    end Matching_Suffix;
+
     function Is_Quoted (S : String) return Boolean is
         use Ada.Characters.Latin_1;
         Quote_Types : constant array (Positive range <>) of Character := (Quotation, Apostrophe);
     begin
         return S'Length > 0 and then S (S'First) = S (S'Last) and then (for some X of Quote_Types => X = S (S'First));
     end Is_Quoted;
+
+    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
+
+    begin
+        return Result : SP.Strings.String_Vectors.Vector do
+            for Word of Exploded.Words loop
+                if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
+                    Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
+                else
+                    Result.Append (Word);
+                end if;
+            end loop;
+        end return;
+    end Split_Command;
+
+    function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural
+    is
+        Next           : Natural := 1;
+        Current_Cursor : Natural := 1;
+    begin
+        while Next <= Natural (E.Spacers.Length) loop
+            Current_Cursor := Current_Cursor + ASU.To_String (E.Spacers (Next))'Length;
+
+            if Next <= Positive (E.Words.Length) then
+                Current_Cursor := Current_Cursor + ASU.To_String (E.Words (Next))'Length;
+            end if;
+            exit when Current_Cursor >= Cursor_Position;
+            Next := Next + 1;
+        end loop;
+        return Next;
+    end Get_Cursor_Word;
+
+    function Cursor_Position_At_End_Of_Word (E : SP.Strings.Exploded_Line; Word : Positive) return Positive is
+    begin
+        return Cursor_Position : Positive := 1 do
+            for I in 1 .. Word loop
+                Cursor_Position := Cursor_Position + ASU.Length (E.Spacers (I));
+                Cursor_Position := Cursor_Position + ASU.Length (E.Words (I));
+            end loop;
+        end return;
+    end Cursor_Position_At_End_Of_Word;
 
 end SP.Strings;

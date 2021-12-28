@@ -82,8 +82,12 @@ is
     with
         Post => Common_Prefix_Length'Result <= Natural'Max (ASU.Length (A), ASU.Length (B));
 
+    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String;
+
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
+
+    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector;
 
     -- An exploded form of a line which allows the line to be recombined
     -- transparently to a user, by reapplying the appropriate amounts and types
@@ -108,5 +112,8 @@ is
     function Make (S : String) return Exploded_Line;
     function Get_Word (E : Exploded_Line; Index : Positive) return String is (ASU.To_String (E.Words.Element (Index)));
     function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
+
+    function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural;
+    function Cursor_Position_At_End_Of_Word (E : SP.Strings.Exploded_Line; Word : Positive) return Positive;
 
 end SP.Strings;

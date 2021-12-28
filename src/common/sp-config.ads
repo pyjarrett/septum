@@ -28,7 +28,7 @@ package SP.Config is
     use SP.Strings;
 
     Config_Dir_Name  : constant String := ".septum";
-    Config_File_Name : constant String := ".config";
+    Config_File_Name : constant String := "config";
 
     -- A list of all possible locations which might have a configuration which
     -- can be read on program startup.

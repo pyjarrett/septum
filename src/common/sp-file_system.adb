@@ -14,9 +14,11 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
+with SP.Platform;
 with SP.Terminal;
 
 package body SP.File_System is
@@ -95,5 +97,92 @@ package body SP.File_System is
             SP.Terminal.Put_Line ("Unable to read contents of: " & File_Name);
             return False;
     end Read_Lines;
+
+    -- Finds a path similar to the given one with the same basic stem.
+    function Similar_Path (Path : String) return String is
+    begin
+        -- TODO: This is bad.
+        -- Naive loop cutting off the end of the string one character at a time.
+        for Last_Index in reverse 2 .. Path'Length loop
+            declare
+                Shortened_Path : constant String := Path (Path'First .. Last_Index);
+            begin
+                if Is_File (Shortened_Path) then
+                    return Shortened_Path;
+                elsif Is_Dir (Shortened_Path) then
+                    return Shortened_Path;
+                end if;
+            end;
+        end loop;
+        return "";
+    exception
+        when others => return "";
+    end Similar_Path;
+
+    -- Rewrite a path with all forward slashes for simplicity.
+    function Rewrite_Path (Path : String) return String is
+        S        : String := Path;
+        Opposite : constant Character := SP.Platform.Path_Opposite_Separator;
+        Local    : constant Character := SP.Platform.Path_Separator;
+    begin
+        for I in 1 .. S'Length loop
+            if (Path (I) = Opposite) then
+                S(I) := Local;
+            else
+                S(I) := Path (I);
+            end if;
+        end loop;
+        return S;
+    end Rewrite_Path;
+
+    -- Produces all of the possible options for a path.
+    function File_Completions (Path : String) return SP.Strings.String_Vectors.Vector
+    is
+        Result      : SP.Strings.String_Vectors.Vector;
+        Files       : Dir_Contents;
+        Rewritten   : ASU.Unbounded_String := ASU.To_Unbounded_String (Rewrite_Path (Path));
+        Similar     : ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.To_String (Rewritten)));
+    begin
+        -- Has no higher directory.
+        if ASU.Length (Similar) = 0 then
+            return Result;
+        end if;
+
+        begin
+            if (Is_Dir (ASU.To_String (Similar))
+                and then ASU.Element (Similar, ASU.Length (Similar)) = SP.Platform.Path_Separator)
+                or else ASU.Length (Similar) = 1
+            then
+                Files := Contents (ASU.To_String (Similar));
+            else
+                declare
+                    Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
+                begin
+                    if not Is_Dir (ASU.To_String (Parent)) then
+                        return Result;
+                    end if;
+
+                    Files  := Contents (ASU.To_String (Parent));
+                    Similar   := Parent;
+                    Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
+                end;
+            end if;
+        exception
+            -- Skip over files we're not allowed to read.
+            when Ada.IO_Exceptions.Use_Error =>
+                null;
+        end;
+
+
+        -- The directory file contain paths with similar completions to the name.
+        -- Filter out paths which don't have a matching prefix with the original.
+        for Dir of Files.Subdirs loop
+            if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
+                Result.Append (Dir);
+            end if;
+        end loop;
+
+        return Result;
+    end File_Completions;
 
 end SP.File_System;

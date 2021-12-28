@@ -65,13 +65,6 @@ package body SP.Interactive is
         Put (Default_Prompt);
     end Write_Prompt;
 
-    function Trailing_End (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
-        Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
-        Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Desired, Prefix_Length + 1, ASU.Length (Desired));
-    begin
-        return Suffix;
-    end Trailing_End;
-
     function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
         Result : SP.Strings.String_Vectors.Vector;
         use all type ASU.Unbounded_String;
@@ -88,7 +81,7 @@ package body SP.Interactive is
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
                             Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
-                            Suffix  : constant ASU.Unbounded_String := Trailing_End (US, Command);
+                            Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
                         begin
                             Result.Append (
                                 SP.Terminal.Colorize (US, ANSI.Yellow)
@@ -124,126 +117,12 @@ package body SP.Interactive is
         return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length + 1);
     end Format_Input;
 
-    function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural
-    is
-        Next           : Natural := 1;
-        Current_Cursor : Natural := 1;
-    begin
-        while Next <= Natural (E.Spacers.Length) loop
-            Current_Cursor := Current_Cursor + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (E.Spacers (Next)));
-
-            if Next <= Positive (E.Words.Length) then
-                Current_Cursor := Current_Cursor + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (E.Words (Next)));
-            end if;
-            exit when Current_Cursor >= Cursor_Position;
-            Next := Next + 1;
-        end loop;
-        -- SP.Terminal.Put_Line ("Cursor stopped at: " & Natural'Image (Current_Cursor)
-        --     & " on word: " & Positive'Image (Next));
-        return Next;
-    end Get_Cursor_Word;
-
-    -- Finds a path similar to the given one with the same basic stem.
-    function Similar_Path (Path : String) return String is
-    begin
-        -- TODO: This is bad.
-        -- Naive loop cutting off the end of the string one character at a time.
-        for Last_Index in reverse 2 .. Path'Length loop
-            declare
-                Shortened_Path : constant String := Path (Path'First .. Last_Index);
-            begin
-                if SP.File_System.Is_File (Shortened_Path) then
-                    return Shortened_Path;
-                elsif SP.File_System.Is_Dir (Shortened_Path) then
-                    return Shortened_Path;
-                end if;
-            end;
-        end loop;
-        return "";
-    exception
-        when others => return "";
-    end Similar_Path;
-
-    -- Rewrite a path with all forward slashes for simplicity.
-    function Rewrite_Path (Path : String) return String is
-        S        : String := Path;
-        Opposite : constant Character := SP.Platform.Path_Opposite_Separator;
-        Local    : constant Character := SP.Platform.Path_Separator;
-    begin
-        for I in 1 .. S'Length loop
-            if (Path (I) = Opposite) then
-                S(I) := Local;
-            else
-                S(I) := Path (I);
-            end if;
-        end loop;
-        return S;
-    end Rewrite_Path;
-
-    -- Produces all of the possible options for a path.
-    function File_Completions (Path : String) return SP.Strings.String_Vectors.Vector
-    is
-        Result      : SP.Strings.String_Vectors.Vector;
-        Contents    : SP.File_System.Dir_Contents;
-        Rewritten   : ASU.Unbounded_String := ASU.To_Unbounded_String (Rewrite_Path (Path));
-        Similar     : ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.To_String (Rewritten)));
-    begin
-        -- Has no higher directory.
-        if ASU.Length (Similar) = 0 then
-            return Result;
-        end if;
-
-        declare
-        begin
-            if (SP.File_System.Is_Dir (ASU.To_String (Similar)) and then ASU.Element (Similar, ASU.Length (Similar)) = SP.Platform.Path_Separator) or else ASU.Length (Similar) = 1 then
-                Contents := SP.File_System.Contents (ASU.To_String (Similar));
-            else
-                declare
-                    Parent : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Similar_Path (ASU.Slice (Similar, 1, ASU.Length (Similar) - 1)));
-                begin
-                    if not SP.File_System.Is_Dir (ASU.To_String (Parent)) then
-                        return Result;
-                    end if;
-
-                    Contents  := SP.File_System.Contents (ASU.To_String (Parent));
-                    Similar   := Parent;
-                    Rewritten := ASU.To_Unbounded_String (Rewrite_Path (ASU.To_String (Similar)));
-                end;
-            end if;
-        exception
-            -- Skip over files we're not allowed to read.
-            when Ada.IO_Exceptions.Use_Error =>
-                null;
-        end;
-
-
-        -- The directory file contain paths with similar completions to the name.
-        -- Filter out paths which don't have a matching prefix with the original.
-        for Dir of Contents.Subdirs loop
-            if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
-                Result.Append (Dir);
-            end if;
-        end loop;
-
-        return Result;
-    end File_Completions;
-
-    function Word_Cursor_End (E : SP.Strings.Exploded_Line; Word : Positive) return Positive is
-    begin
-        return Cursor_Position : Positive := 1 do
-            for I in 1 .. Word loop
-                Cursor_Position := Cursor_Position + ASU.Length (E.Spacers (I));
-                Cursor_Position := Cursor_Position + ASU.Length (E.Words (I));
-            end loop;
-        end return;
-    end Word_Cursor_End;
-
     -- Completion callback based on the number of history inputs.
     function Complete_Input (L : Trendy_Terminal.Lines.Line)
         return Trendy_Terminal.Lines.Line_Vectors.Vector
     is
         E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
-        Cursor_Word : constant Positive := Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
+        Cursor_Word : constant Positive := SP.Strings.Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
         Result      : Trendy_Terminal.Lines.Line_Vectors.Vector;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
@@ -259,7 +138,7 @@ package body SP.Interactive is
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
                 Completion := SP.Commands.Target_Command (E.Words(1));
-                Suffix := Trailing_End (E.Words (1), Completion);
+                Suffix := SP.Strings.Matching_Suffix (E.Words (1), Completion);
                 E.Words (1) := E.Words (1) & Suffix;
                 Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
                     Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
@@ -267,15 +146,14 @@ package body SP.Interactive is
             end if;
         else
             declare
-                Completions : SP.Strings.String_Vectors.Vector := File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                Completions : SP.Strings.String_Vectors.Vector := SP.File_System.File_Completions (ASU.To_String (E.Words (Cursor_Word)));
                 package String_Sorting is new SP.Strings.String_Vectors.Generic_Sorting;
             begin
                 String_Sorting.Sort (Completions);
-                -- SP.Terminal.New_Line;
                 for Completion of Completions loop
-                    -- SP.Terminal.Put_Line (Completion);
                     E.Words (Cursor_Word) := Completion;
-                    Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)), Word_Cursor_End (E, Cursor_Word)));
+                    Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                        SP.Strings.Cursor_Position_At_End_Of_Word (E, Cursor_Word)));
                 end loop;
             end;
         end if;
@@ -286,21 +164,6 @@ package body SP.Interactive is
 
         return Result;
     end Complete_Input;
-
-    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
-        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
-
-    begin
-        return Result : SP.Strings.String_Vectors.Vector do
-            for Word of Exploded.Words loop
-                if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
-                    Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
-                else
-                    Result.Append (Word);
-                end if;
-            end loop;
-        end return;
-    end Split_Command;
 
     function Read_Command (Line_History : aliased in out Trendy_Terminal.Histories.History) return ASU.Unbounded_String is
         Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
@@ -358,7 +221,7 @@ package body SP.Interactive is
         loop
             Write_Prompt (Srch);
             Input := Read_Command (Line_History);
-            Command_Line := Split_Command (Input);
+            Command_Line := SP.Strings.Split_Command (Input);
             Result := SP.Commands.Execute (Srch, Command_Line);
             case Result is
                 when SP.Commands.Command_Success => null;

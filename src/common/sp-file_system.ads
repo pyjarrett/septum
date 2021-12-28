@@ -44,4 +44,13 @@ package SP.File_System is
     -- the file not existing or being a directory instead of a file.
     function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;
 
+    -- Finds a path similar to the given one with the same basic stem.
+    function Similar_Path (Path : String) return String;
+
+    -- Rewrite a path with all forward slashes for simplicity.
+    function Rewrite_Path (Path : String) return String;
+
+    -- Produces all of the possible options for a path.
+    function File_Completions (Path : String) return String_Vectors.Vector;
+
 end SP.File_System;
