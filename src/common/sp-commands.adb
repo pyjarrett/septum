@@ -239,7 +239,9 @@ package body SP.Commands is
             Put_Line ("Refresh should have an empty command line.");
             return Command_Failed;
         end if;
-        SP.Searches.Reload_Working_Set (Srch);
+        if not SP.Searches.Reload_Working_Set (Srch) then
+            Put_Line ("Aborted reload.");
+        end if;
         return Command_Success;
     end Reload_Exec;
 
@@ -342,7 +344,9 @@ package body SP.Commands is
         end if;
 
         for Directory of Command_Line loop
-            SP.Searches.Add_Directory (Srch, To_String (Directory));
+            if not SP.Searches.Add_Directory (Srch, To_String (Directory)) then
+                Put_Line ("Directory load aborted.");
+            end if;
         end loop;
         return Command_Success;
     end Add_Dirs_Exec;

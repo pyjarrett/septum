@@ -17,6 +17,7 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
+with Ada.Task_Identification;
 
 with SP.Cache;
 with SP.File_System;
@@ -124,7 +125,10 @@ package body SP.Cache is
     -- parallelizing the load probably won't improve speed.  The split of
     -- parsing tasks is to support more complicated caching methods in the
     -- future, as we're I/O bound here based on the disk speed.
-    procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) is
+    function Add_Directory_Recursively (
+        A    : in out Async_File_Cache;
+        Dir  : String) return Boolean
+    is
         package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
             (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
         package String_Unbounded_Queue is new Ada.Containers.Unbounded_Synchronized_Queues
@@ -185,22 +189,50 @@ package body SP.Cache is
                 end loop;
             end File_Loader_Task;
 
+            Gate    : aliased SP.Terminal.Cancellation_Gate;
+            Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
+
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
+
+            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
+
+            task Watch is
+                entry Stop;
+            end;
+
+            task body Watch is
+            begin
+                loop
+                    select
+                        accept Stop;
+                        exit;
+                    or
+                        delay 0.1;
+                        if Gate.Is_Cancelled then
+                            for I in File_Loader'Range loop
+                                Ada.Task_Identification.Abort_Task (File_Loader(I)'Identity);
+                            end loop;
+                        end if;
+                    end select;
+                end loop;
+            end Watch;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             SP.Terminal.New_Line;
 
             declare
-                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
             begin
                 for I in File_Loader'Range loop
                     System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
                     File_Loader(I).Wake;
                 end loop;
+                System.Multiprocessors.Dispatching_Domains.Set_CPU (1, Watch'Identity);
             end;
+            Watch.Stop;
             Progress_Tracker.Stop;
             SP.Terminal.New_Line;
+            return True;
         end;
     end Add_Directory_Recursively;
 

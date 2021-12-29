@@ -14,6 +14,9 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Trendy_Terminal.Platform;
+with Trendy_Terminal.Maps;
+
 package body SP.Terminal is
 
     function Colorize (S : String; Color : ANSI.Colors) return String is
@@ -32,5 +35,37 @@ package body SP.Terminal is
             & US
             & ANSI.Foreground (ANSI.Default);
     end Colorize;
+
+    protected body Cancellation_Gate is
+        procedure Cancel is
+        begin
+            Cancelled := True;
+        end Cancel;
+
+        function Is_Cancelled return Boolean is
+        begin
+            return Cancelled;
+        end Is_Cancelled;
+    end Cancellation_Gate;
+
+    task body Terminal_Cancellation_Monitor is
+    begin
+        loop
+            select
+                delay 0.2;
+            then abort
+                declare
+                    Input : constant String := Trendy_Terminal.Platform.Get_Input;
+                    use all type Trendy_Terminal.Maps.Key;
+                begin
+                    if Trendy_Terminal.Maps.Key_For (Input) = Trendy_Terminal.Maps.Key_Ctrl_C then
+                        Put_Line ("Gate cancelled");
+                        Gate.Cancel;
+                        exit;
+                    end if;
+                end;
+            end select;
+        end loop;
+    end Terminal_Cancellation_Monitor;
 
 end SP.Terminal;

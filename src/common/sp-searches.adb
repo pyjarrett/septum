@@ -30,29 +30,35 @@ package body SP.Searches is
     use Ada.Strings.Unbounded;
     use SP.Terminal;
 
-    procedure Load_Directory (Srch : in out Search; Dir_Name : String) is
+    function Load_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
-        Path_Exists    : constant Boolean          := Exists (Dir_Name);
-        Is_Directory   : constant Boolean          := Path_Exists and then Kind (Dir_Name) = Directory;
+        Path_Exists    : constant Boolean := Exists (Dir_Name);
+        Is_Directory   : constant Boolean := Path_Exists and then Kind (Dir_Name) = Directory;
     begin
         if Is_Directory then
-            SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
+            return SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
         else
             SP.Terminal.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
+            return False;
         end if;
     end Load_Directory;
 
-    procedure Reload_Working_Set (Srch : in out Search) is
+    function Reload_Working_Set (Srch : in out Search)
+        return Boolean is
     begin
         -- TODO: The file cache should watch files to know when it needs a refresh such as examining last time modified
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            Load_Directory (Srch, To_String (Dir_Name));
+            if not Load_Directory (Srch, To_String (Dir_Name)) then
+                Put_Line ("Directory load cancelled.");
+                return False;
+            end if;
         end loop;
+        return True;
     end Reload_Working_Set;
 
-    procedure Add_Directory (Srch : in out Search; Dir_Name : String) is
+    function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
         Unbounded_Name : constant Unbounded_String := To_Unbounded_String (Dir_Name);
         Path_Exists    : constant Boolean          := Exists (Dir_Name);
@@ -60,11 +66,17 @@ package body SP.Searches is
     begin
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
-            Srch.Directories.Insert (Unbounded_Name);
-            Load_Directory (Srch, Dir_Name);
-            SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
+            if Load_Directory (Srch, Dir_Name) then
+                Srch.Directories.Insert (Unbounded_Name);
+                SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
+                return True;
+            else
+                Put_Line ("Directory load cancelled.");
+                return False;
+            end if;
         else
             SP.Terminal.Put_Line ("Could not add " & Dir_Name & " to search path.");
+            return True;
         end if;
     end Add_Directory;
 

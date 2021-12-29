@@ -78,6 +78,6 @@ package SP.Cache is
     end Async_File_Cache;
 
     -- Adds a directory and all of its recursive subdirectories into the file cache.
-    procedure Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String);
+    function Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) return Boolean;
 
 end SP.Cache;

@@ -28,10 +28,10 @@ package SP.Searches is
     package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
     use all type Ada.Containers.Count_Type;
 
-    procedure Reload_Working_Set (Srch : in out Search);
+    function Reload_Working_Set (Srch : in out Search) return Boolean;
     -- Dumps currently loaded search text and loads it again.
 
-    procedure Add_Directory (Srch : in out Search; Dir_Name : String);
+    function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean;
 
     function List_Directories (Srch : in Search) return String_Vectors.Vector;
     -- Lists top level search directories.
