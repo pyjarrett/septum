@@ -95,6 +95,12 @@ package SP.Searches is
         First    : Natural;
         Last     : Natural);
 
+    procedure Print_Contexts_With_Cancellation(
+        Srch     : in Search;
+        Contexts : SP.Contexts.Context_Vectors.Vector;
+        First    : Natural;
+        Last     : Natural);
+
     function Num_Files (Srch : in Search) return Natural;
     function Num_Lines (Srch : in Search) return Natural;
 
