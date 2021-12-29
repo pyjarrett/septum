@@ -16,6 +16,7 @@ Types of changes:
 
 - 🔄 **BREAKING CHANGE!**  config file name from `.config` to `config`.
 - ✅ Added `drop` command to remove filters out of order.
+- ✅ Added `reorder` command to change filter application order.
 - ✅ Added filter list to the prompt.
 - ✅ Added up arrow to scroll through history.
 - 🛠️ Fixed jumping/blinking cursor when predicting commands.

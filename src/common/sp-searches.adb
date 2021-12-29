@@ -171,6 +171,16 @@ package body SP.Searches is
         end if;
     end Pop_Filter;
 
+    procedure Reorder_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector) is
+        New_Filters : Filter_List.Vector := Filter_List.Empty_Vector;
+    begin
+        for Index of Indices loop
+            New_Filters.Append (Srch.Line_Filters.Element (Index));
+        end loop;
+        Srch.Line_Filters.Move (New_Filters);
+        pragma Unreferenced (New_Filters);
+    end Reorder_Filters;
+
     procedure Clear_Filters (Srch : in out Search) is
     begin
         Srch.Line_Filters.Clear;

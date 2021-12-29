@@ -586,45 +586,56 @@ package body SP.Commands is
         Put_Line ("Reorders filters, possibly dropping some of them.");
     end Reorder_Help;
 
-    function Reorder_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
+        Index : Positive := Positive'Last;
     begin
-        if Command_Line.Is_Empty then
-            Put_Line ("Ignoring unnecessary command line parameters.");
-            SP.Searches.Pop_Filter (Srch);
-            Search_Updated (Srch);
-            return Command_Success;
-        end if;
-
-        declare
-            Index : Positive := Positive'Last;
-            package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
-            package Positive_Vector_Sorting is new Positive_Vectors.Generic_Sorting ("<" => ">");
-            Indices : Positive_Vectors.Vector;
-            use type Ada.Containers.Count_Type;
-        begin
+        return Indices : SP.Searches.Positive_Vectors.Vector do
             for Index_String of Command_Line loop
                 if Try_Parse (ASU.To_String (Index_String), Index) then
-                    if Natural (Index) > SP.Searches.Num_Filters (Srch) then
-                        Put_Line ("Filter index out of range:" & Index'Image);
-                    else
-                        Indices.Append (Index);
-                    end if;
+                    Indices.Append (Index);
                 else
                     Put_Line (Index_String & " is not an index");
                 end if;
             end loop;
+        end return;
+    end Parse_Positive_Vector;
+
+    function Reorder_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if SP.Searches.Num_Filters (Srch) = 0 then
+            Put_Line ("There are no filters to reorder.");
+            return Command_Failed;
+        end if;
+
+        if Command_Line.Is_Empty then
+            Put_Line ("Filter indices to keep must be provided with reorder.");
+            return Command_Failed;
+        end if;
+
+        declare
+            Indices : constant SP.Searches.Positive_Vectors.Vector := Parse_Positive_Vector (Command_Line);
+            Max_Filter_Index : constant Natural := SP.Searches.Num_Filters (Srch);
+            use type Ada.Containers.Count_Type;
+        begin
 
             -- Prefer to not alter anything if the parameters are borked.
             if Indices.Length /= Command_Line.Length then
                 return Command_Failed;
             end if;
 
-            -- Drop filters in reverse order to preserve semantics while keeping
-            -- the interface of SP.Searches simple.
-            Positive_Vector_Sorting.Sort (Indices);
-            for I of Indices loop
-                SP.Searches.Drop_Filter (Srch, I);
-            end loop;
+            if (for some Index of Indices => Natural (Index) > Max_Filter_Index) then
+                Put_Line ("There are" & Max_Filter_Index'Image & " filters.");
+                Put_Line ("All filter indices must be in the range 1 .." & Max_Filter_Index'Image);
+                return Command_Failed;
+            end if;
+
+            if (for some I in 1 .. Max_Filter_Index => not Indices.Contains (I)) then
+                Put_Line ("All filter indices must be provided.");
+                Put_Line ("Use 'drop' to remove filters you don't want by index.");
+                return Command_Failed;
+            end if;
+
+            SP.Searches.Reorder_Filters (Srch, Indices);
             return Command_Success;
         end;
     end Reorder_Exec;
@@ -645,10 +656,9 @@ package body SP.Commands is
         end if;
 
         declare
-            Index : Positive := Positive'Last;
-            package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
-            package Positive_Vector_Sorting is new Positive_Vectors.Generic_Sorting ("<" => ">");
-            Indices : Positive_Vectors.Vector;
+            package Positive_Vector_Sorting is new SP.Searches.Positive_Vectors.Generic_Sorting ("<" => ">");
+            Index   : Positive := Positive'Last;
+            Indices : SP.Searches.Positive_Vectors.Vector;
             use type Ada.Containers.Count_Type;
         begin
             for Index_String of Command_Line loop
@@ -677,7 +687,6 @@ package body SP.Commands is
             return Command_Success;
         end;
     end Drop_Exec;
-
 
     ----------------------------------------------------------------------------
 
@@ -981,7 +990,7 @@ begin
     Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
-    Make_Command ("reorder", "Reorder filters given by indices", Reorder_Help'Access, Reorder_Exec'Access);
+    Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
     Make_Command ("drop", "Drops the filters at the given indices", Drop_Help'Access, Drop_Exec'Access);
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
     Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);

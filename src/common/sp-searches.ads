@@ -13,6 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+with Ada.Containers.Vectors;
+
 with SP.Cache;
 with SP.Contexts;
 with SP.Filters;
@@ -22,6 +24,9 @@ package SP.Searches is
     use SP.Strings;
 
     type Search is limited private;
+
+    package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
+    use all type Ada.Containers.Count_Type;
 
     procedure Reload_Working_Set (Srch : in out Search);
     -- Dumps currently loaded search text and loads it again.
@@ -54,6 +59,11 @@ package SP.Searches is
 
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
+
+    procedure Reorder_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector)
+        with Pre => (for all Index of Indices => Natural (Index) <= Num_Filters (Srch))
+            and then (Natural (Indices.Length) = Num_Filters (Srch))
+            and then (for all I in 1 .. Num_Filters (Srch) => Indices.Contains (I));
 
     procedure Clear_Filters (Srch : in out Search);
 
