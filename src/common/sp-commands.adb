@@ -669,7 +669,7 @@ package body SP.Commands is
                         Indices.Append (Index);
                     end if;
                 else
-                    Put_Line (Index_String & " is not an index");
+                    Put_Line (Index_String & " is not an index.");
                 end if;
             end loop;
 
@@ -991,7 +991,7 @@ begin
     Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
     Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
-    Make_Command ("drop", "Drops the filters at the given indices", Drop_Help'Access, Drop_Exec'Access);
+    Make_Command ("drop", "Drops the filters at the given indices.", Drop_Help'Access, Drop_Exec'Access);
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
     Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);
 
