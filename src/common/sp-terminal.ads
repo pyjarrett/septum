@@ -51,10 +51,14 @@ package SP.Terminal is
     --  function "&" (Ada : Unbounded_String; B : String) return Unbounded_String renames Ada.Strings.Unbounded."&";
 
     protected type Cancellation_Gate is
+        entry Closed;
+        procedure Finish;
         procedure Cancel;
         function Is_Cancelled return Boolean;
+        function Is_Finished return Boolean;
     private
         Cancelled : Boolean := False;
+        Finished  : Boolean := False;
     end Cancellation_Gate;
 
     task type Terminal_Cancellation_Monitor(Gate : not null access Cancellation_Gate) is end;

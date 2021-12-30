@@ -137,7 +137,9 @@ package body SP.Cache is
         File_Queue : String_Unbounded_Queue.Queue;
 
         package PI renames Progress_Indicators;
-        Progress : aliased PI.Work_Trackers.Work_Tracker;
+        Progress     : aliased PI.Work_Trackers.Work_Tracker;
+        Live_Workers : aliased PI.Work_Trackers.Work_Tracker;
+        Gate         : aliased SP.Terminal.Cancellation_Gate;
     begin
         declare
             -- A directory loading task builds a queue of files to parse for the
@@ -173,6 +175,8 @@ package body SP.Cache is
                         terminate;
                     end select;
 
+                    Live_Workers.Start_Work (1);
+
                     loop
                         select
                             File_Queue.Dequeue (Elem);
@@ -186,50 +190,60 @@ package body SP.Cache is
                         end if;
                         Progress.Finish_Work (1);
                     end loop;
+
+                    Live_Workers.Finish_Work (1);
                 end loop;
             end File_Loader_Task;
-
-            Gate    : aliased SP.Terminal.Cancellation_Gate;
-            Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
 
-            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
-
-            task Watch is
-                entry Stop;
-            end;
-
-            task body Watch is
-            begin
-                loop
-                    select
-                        accept Stop;
-                        exit;
-                    or
-                        delay 0.1;
-                        if Gate.Is_Cancelled then
-                            for I in File_Loader'Range loop
-                                Ada.Task_Identification.Abort_Task (File_Loader(I)'Identity);
-                            end loop;
-                        end if;
-                    end select;
-                end loop;
-            end Watch;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             SP.Terminal.New_Line;
 
             declare
+                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
+                Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
+
+                -- task Watch is
+                --     entry Stop;
+                -- end;
+
+                -- task body Watch is
+                -- begin
+                --     loop
+                --         select
+                --             accept Stop;
+                --             exit;
+                --         or
+                --             delay 0.1;
+                --             if Gate.Is_Cancelled then
+                --                 for I in File_Loader'Range loop
+                --                     Ada.Task_Identification.Abort_Task (File_Loader(I)'Identity);
+                --                     exit;
+                --                 end loop;
+                --             end if;
+
+                --             if Live_Workers.Report.Completed = Live_Workers.Report.Total then
+                --                 exit;
+                --             end if;
+                --         end select;
+                --     end loop;
+                -- end Watch;
             begin
                 for I in File_Loader'Range loop
                     System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
                     File_Loader(I).Wake;
                 end loop;
-                System.Multiprocessors.Dispatching_Domains.Set_CPU (1, Watch'Identity);
+                -- System.Multiprocessors.Dispatching_Domains.Set_CPU (1, Watch'Identity);
             end;
-            Watch.Stop;
+
+            SP.Terminal.Put_Line ("Terminating monitor.");
+            Gate.Finish;
+            -- abort Monitor;
+            SP.Terminal.Put_Line ("Monitor is dead.");
+
             Progress_Tracker.Stop;
             SP.Terminal.New_Line;
             return True;
