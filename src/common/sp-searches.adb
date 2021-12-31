@@ -51,7 +51,7 @@ package body SP.Searches is
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
             if not Load_Directory (Srch, To_String (Dir_Name)) then
-                Put_Line ("Directory load cancelled.");
+                Put_Line ("Did not finish loading directory: " & To_String (Dir_Name));
                 return False;
             end if;
         end loop;
@@ -66,8 +66,8 @@ package body SP.Searches is
     begin
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
+            Srch.Directories.Insert (Unbounded_Name);
             if Load_Directory (Srch, Dir_Name) then
-                Srch.Directories.Insert (Unbounded_Name);
                 SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
                 return True;
             else

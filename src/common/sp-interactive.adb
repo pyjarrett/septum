@@ -46,7 +46,6 @@ package body SP.Interactive is
         Max_Results    : constant Natural := SP.Searches.Get_Max_Results (Srch);
         Second_Col     : constant := 30;
     begin
-
         New_Line;
         Put ("Files:     " & SP.Searches.Num_Files (Srch)'Image);
         Set_Col (Second_Col);
@@ -220,6 +219,7 @@ package body SP.Interactive is
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Signals_As_Input, True);
 
+        Set_Col(1);
         Put_Line ("septum v" & SP.Version);
         New_Line;
 

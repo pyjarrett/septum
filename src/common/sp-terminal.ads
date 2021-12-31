@@ -17,6 +17,8 @@
 with Ada.Strings.Unbounded;
 with ANSI;
 
+with System;
+
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 
@@ -50,6 +52,14 @@ package SP.Terminal is
     --  function "&" (A : String; B : Unbounded_String) return Unbounded_String renames Ada.Strings.Unbounded."&";
     --  function "&" (Ada : Unbounded_String; B : String) return Unbounded_String renames Ada.Strings.Unbounded."&";
 
+    type FILE_Ptr is new System.Address;
+    stdin : FILE_Ptr;
+    pragma Import (C, stdin, "stdin");
+
+    -- stdio.h
+    procedure clearerr (Stream : FILE_Ptr);
+    pragma Import (C, clearerr, "clearerr");
+
     protected type Cancellation_Gate is
         entry Closed;
         procedure Finish;
@@ -61,5 +71,8 @@ package SP.Terminal is
         Finished  : Boolean := False;
     end Cancellation_Gate;
 
-    task type Terminal_Cancellation_Monitor(Gate : not null access Cancellation_Gate) is end;
+    task type Terminal_Cancellation_Monitor(Gate : not null access Cancellation_Gate) is
+        entry Cancel;
+        entry Stop;
+    end;
 end SP.Terminal;

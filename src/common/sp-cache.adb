@@ -178,6 +178,8 @@ package body SP.Cache is
                     Live_Workers.Start_Work (1);
 
                     loop
+                        exit when Gate.Is_Cancelled;
+
                         select
                             File_Queue.Dequeue (Elem);
                         or
@@ -197,15 +199,13 @@ package body SP.Cache is
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
-
+            -- Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
+            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             SP.Terminal.New_Line;
 
             declare
-                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
-                Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
-
                 -- task Watch is
                 --     entry Stop;
                 -- end;
@@ -221,8 +221,8 @@ package body SP.Cache is
                 --             if Gate.Is_Cancelled then
                 --                 for I in File_Loader'Range loop
                 --                     Ada.Task_Identification.Abort_Task (File_Loader(I)'Identity);
-                --                     exit;
                 --                 end loop;
+                --                 exit;
                 --             end if;
 
                 --             if Live_Workers.Report.Completed = Live_Workers.Report.Total then
@@ -239,14 +239,16 @@ package body SP.Cache is
                 -- System.Multiprocessors.Dispatching_Domains.Set_CPU (1, Watch'Identity);
             end;
 
-            SP.Terminal.Put_Line ("Terminating monitor.");
             Gate.Finish;
-            -- abort Monitor;
-            SP.Terminal.Put_Line ("Monitor is dead.");
+
+            -- if not Monitor'Terminated then
+            --     Monitor.Stop;
+            -- end if;
 
             Progress_Tracker.Stop;
             SP.Terminal.New_Line;
-            return True;
+
+            return not Gate.Is_Cancelled;
         end;
     end Add_Directory_Recursively;
 

@@ -64,9 +64,7 @@ package body SP.Terminal is
     end Cancellation_Gate;
 
     task body Terminal_Cancellation_Monitor is
-        task Input_Thread is
-            entry Stopped;
-        end;
+        task Input_Thread is end;
 
         task body Input_Thread is
             use all type Trendy_Terminal.Maps.Key;
@@ -75,31 +73,43 @@ package body SP.Terminal is
                 declare
                     Input : constant String := Trendy_Terminal.Platform.Get_Input;
                 begin
-                    if Trendy_Terminal.Maps.Key_For (Trendy_Terminal.Platform.Get_Input) = Trendy_Terminal.Maps.Key_Ctrl_C then
+                    if Trendy_Terminal.Maps.Key_For (Input) = Trendy_Terminal.Maps.Key_Ctrl_C then
                         select
-                            accept Stopped;
+                            Cancel;
                             exit;
                         else
                             null;
                         end select;
+                    elsif Trendy_Terminal.Maps.Key_For (Input) = Trendy_Terminal.Maps.Key_Ctrl_D then
+                        exit;
+                    else
+                        null;
                     end if;
                 end;
             end loop;
         end Input_Thread;
+
+        Done : Boolean := False;
     begin
         loop
             select
-                Input_Thread.Stopped;
-                Put_Line ("Stopped");
-                exit;
+                accept Cancel do
+                    Done := True;
+                    Gate.Cancel;
+                end;
             or
-                delay 1.0;
-                Trendy_Terminal.Platform.Abort_Input;
-                abort Input_Thread;
-                Put_Line ("Aborted input thread.");
-                exit;
+                accept Stop do
+                    Done := True;
+                end;
+            or
+                terminate;
             end select;
+
+            exit when Done;
         end loop;
+
+        Trendy_Terminal.Platform.Abort_Input;
+        abort Input_Thread;
     end Terminal_Cancellation_Monitor;
 
 end SP.Terminal;
