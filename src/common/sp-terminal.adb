@@ -108,7 +108,6 @@ package body SP.Terminal is
             exit when Done;
         end loop;
 
-        Trendy_Terminal.Platform.Abort_Input;
         abort Input_Thread;
     end Terminal_Cancellation_Monitor;
 
