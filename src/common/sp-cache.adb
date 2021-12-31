@@ -138,8 +138,6 @@ package body SP.Cache is
 
         package PI renames Progress_Indicators;
         Progress     : aliased PI.Work_Trackers.Work_Tracker;
-        Live_Workers : aliased PI.Work_Trackers.Work_Tracker;
-        Gate         : aliased SP.Terminal.Cancellation_Gate;
     begin
         declare
             -- A directory loading task builds a queue of files to parse for the
@@ -175,11 +173,7 @@ package body SP.Cache is
                         terminate;
                     end select;
 
-                    Live_Workers.Start_Work (1);
-
                     loop
-                        exit when Gate.Is_Cancelled;
-
                         select
                             File_Queue.Dequeue (Elem);
                         or
@@ -192,63 +186,28 @@ package body SP.Cache is
                         end if;
                         Progress.Finish_Work (1);
                     end loop;
-
-                    Live_Workers.Finish_Work (1);
                 end loop;
             end File_Loader_Task;
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
             Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
-            -- Monitor : SP.Terminal.Terminal_Cancellation_Monitor(Gate'Access);
-            File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             SP.Terminal.New_Line;
 
             declare
-                -- task Watch is
-                --     entry Stop;
-                -- end;
-
-                -- task body Watch is
-                -- begin
-                --     loop
-                --         select
-                --             accept Stop;
-                --             exit;
-                --         or
-                --             delay 0.1;
-                --             if Gate.Is_Cancelled then
-                --                 for I in File_Loader'Range loop
-                --                     Ada.Task_Identification.Abort_Task (File_Loader(I)'Identity);
-                --                 end loop;
-                --                 exit;
-                --             end if;
-
-                --             if Live_Workers.Report.Completed = Live_Workers.Report.Total then
-                --                 exit;
-                --             end if;
-                --         end select;
-                --     end loop;
-                -- end Watch;
+                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
             begin
                 for I in File_Loader'Range loop
                     System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
                     File_Loader(I).Wake;
                 end loop;
-                -- System.Multiprocessors.Dispatching_Domains.Set_CPU (1, Watch'Identity);
             end;
-
-            Gate.Finish;
-
-            -- if not Monitor'Terminated then
-            --     Monitor.Stop;
-            -- end if;
 
             Progress_Tracker.Stop;
             SP.Terminal.New_Line;
 
-            return not Gate.Is_Cancelled;
+            return True;
         end;
     end Add_Directory_Recursively;
 
