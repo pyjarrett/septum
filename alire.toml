@@ -1,6 +1,6 @@
 name = "septum"
 description = "An interactive context-based text search tool for large codebases."
-version = "0.0.3"
+version = "0.0.4"
 website = "https://github.com/pyjarrett/septum"
 
 authors = ["Paul Jarrett"]
@@ -26,13 +26,13 @@ dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
-trendy_terminal = "~0.0.3"  # Added by alr
+trendy_terminal = "~0.0.4"  # Added by alr
 # Leaving this here to locally targeting trendy_terminal which is being
 # developed in parallel with this project.
 [[pins]]  # Added by alr
 # For concurrent local development with trendy terminal
 # trendy_terminal = { path='../trendy_terminal' }   # Added by alr
 # To be used for CI
-trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+#trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 [[depends-on]]  # Added by alr
 atomic = "~0.3.0"  # Added by alr
