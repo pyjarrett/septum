@@ -1,3 +1,4 @@
+with "atomic.gpr";
 with "trendy_test.gpr";
 with "septum.gpr";
 
