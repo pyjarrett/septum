@@ -148,7 +148,7 @@ package body SP.Interactive is
         use SP.Strings.String_Vectors;
         use type Ada.Containers.Count_Type;
     begin
-        if E.Words.Length = 0 then
+        if E.Words.Length < Ada.Containers.Count_Type (Cursor_Word) then
             return Result;
         end if;
 
