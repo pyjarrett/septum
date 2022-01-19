@@ -12,7 +12,11 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-## [0.0.4] (unreleased)
+## [0.0.5]
+
+- 🛠️ Fixed crash when tab completing an empty command.
+
+## [0.0.4]
 
 - 🔄 **BREAKING CHANGE!**  config file name from `.config` to `config`.
 - ✅ Added `drop` command to remove filters out of order.

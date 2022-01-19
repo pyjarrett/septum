@@ -1,6 +1,6 @@
 name = "septum"
 description = "An interactive context-based text search tool for large codebases."
-version = "0.0.4"
+version = "0.0.5"
 website = "https://github.com/pyjarrett/septum"
 
 authors = ["Paul Jarrett"]
