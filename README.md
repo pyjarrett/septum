@@ -11,14 +11,19 @@ Context-based code search tool
 Septum is like `grep`, but searches for matching contexts of contiguous lines,
 rather than just single lines.
 
+Limiting the search into blocks around search terms allows searching for elements
+in arbitrary order which may span across lines, in a way which can be difficult
+to express in other tools. Sometimes terms appear multiple times in a project and
+have names which change based on context. Septum allows exclusion of these contexts.
+
 ## Why does this exist?
 
 Finding what you need in large codebases is hard.  Sometimes terms have multiple
 meanings in different parts of the project, and figuring out what you're looking
 for needs to be done in an incremental fashion.
 
-Septum is a stack of applied search filters that you can push and pop interactively
-as you search.
+Septum provides an interactive environment to push and pop search filters
+to narrow or expand a search.
 
 ## Example
 
@@ -47,6 +52,23 @@ as you search.
 
 Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
 
+# Building
+
+1. This project requires a recent release of the [Alire](https://github.com/alire-project/alire/releases) tool to build.
+2. Install a toolchain.
+
+```bash
+alr toolchain --select
+```
+   
+3. Build
+
+```bash
+alr build
+```
+
+4. Executable should be at `bin/septum(.exe)`
+
 # Installation
 
 > Septum is currently available as a prerelease beta.
@@ -54,8 +76,12 @@ Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
 **Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
 
 ```powershell
-choco install septum --pre
+choco install septum --version=0.0.4
 ```
+
+⚠️ The 0.0.4 version on Chocolatey has a crash (an internal assert) when trying to tab complete an
+empty string.  This is fixed in 0.0.5, but a new version can't be published until 0.0.4 gets through
+Chocolatey moderation.  This doesn't affect typical use and a new version published as soon as possible.
 
 # Design principles
 
