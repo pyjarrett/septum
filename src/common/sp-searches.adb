@@ -423,7 +423,7 @@ package body SP.Searches is
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        Put_Line (To_String (Context.File_Name));
+        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), ANSI.Light_Magenta));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
                 Put ("-> ");
