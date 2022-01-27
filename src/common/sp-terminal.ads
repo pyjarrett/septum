@@ -52,14 +52,6 @@ package SP.Terminal is
     --  function "&" (A : String; B : Unbounded_String) return Unbounded_String renames Ada.Strings.Unbounded."&";
     --  function "&" (Ada : Unbounded_String; B : String) return Unbounded_String renames Ada.Strings.Unbounded."&";
 
-    type FILE_Ptr is new System.Address;
-    stdin : FILE_Ptr;
-    pragma Import (C, stdin, "stdin");
-
-    -- stdio.h
-    procedure clearerr (Stream : FILE_Ptr);
-    pragma Import (C, clearerr, "clearerr");
-
     protected type Cancellation_Gate is
         entry Closed;
         procedure Finish;
