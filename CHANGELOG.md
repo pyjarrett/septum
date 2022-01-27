@@ -12,6 +12,10 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [0.0.6 (unreleased)]
+
+- ✅ Added coloration of file names in search results.
+
 ## [0.0.5]
 
 - 🛠️ Fixed crash when tab completing an empty command.
