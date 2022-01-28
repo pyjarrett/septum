@@ -6,17 +6,23 @@
 
 Context-based code search tool
 
-## What does this do?
+[![asciicast](https://asciinema.org/a/459292.svg)](https://asciinema.org/a/459292)
+
+# What does this do?
 
 Septum is like `grep`, but searches for matching contexts of contiguous lines,
 rather than just single lines.
+
+![Include match](docs/context_match.png)
 
 Limiting the search into blocks around search terms allows searching for elements
 in arbitrary order which may span across lines, in a way which can be difficult
 to express in other tools. Sometimes terms appear multiple times in a project and
 have names which change based on context. Septum allows exclusion of these contexts.
 
-## Why does this exist?
+![Exclude match](docs/excluded_match.png)
+
+# Why does this exist?
 
 Finding what you need in large codebases is hard.  Sometimes terms have multiple
 meanings in different parts of the project, and figuring out what you're looking
@@ -25,32 +31,12 @@ for needs to be done in an incremental fashion.
 Septum provides an interactive environment to push and pop search filters
 to narrow or expand a search.
 
-## Example
+Septum is designed to be a standalone application for the lone developer on
+their own hardware, searching closed source software. This means the program
+should use a minimum number of dependencies to simplify security auditing and
+perform no network operations.
 
-      > add-dirs D:/dev/calendon/src
-      > find-regex ^\s*#\s*if
-      > find-text clang
-      > exclude-text pop
-      > match-contexts
-
-       D:\dev\calendon\src\tests\unit\test-utf8.c
-       1        #include <calendon/test.h>
-       2
-       3        #include <calendon/utf8.h>
-       4
-       5        #include <stdlib.h>
-       6        #include <stdio.h>
-       7
-    -> 8        #if defined(__clang__)
-    -> 9            #pragma clang diagnostic push
-    -> 10           #pragma clang diagnostic ignored "-Wpointer-sign"
-       11       #endif
-       12
-       13       CN_TEST_SUITE_BEGIN("UTF-8")
-       14
-       15           CN_TEST_UNIT("Bytes in UTF-8 code point") {
-
-Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
+![Command diagram](docs/command_overview.png)
 
 # Building
 
@@ -60,7 +46,7 @@ Commands can be abbreviated, e.g. `find-regex` can be abbreviated as `find-r`.
 ```bash
 alr toolchain --select
 ```
-   
+
 3. Build
 
 ```bash
@@ -82,13 +68,6 @@ choco install septum --version=0.0.4
 ⚠️ The 0.0.4 version on Chocolatey has a crash (an internal assert) when trying to tab complete an
 empty string.  This is fixed in 0.0.5, but a new version can't be published until 0.0.4 gets through
 Chocolatey moderation.  This doesn't affect typical use and a new version published as soon as possible.
-
-# Design principles
-
-septum shall:
-
-- provide features to help search large codebases
-- only read the search tree, except for .septum/ directories
 
 # Contributing
 
