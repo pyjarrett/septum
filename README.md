@@ -6,21 +6,19 @@
 
 Context-based code search tool
 
-[![asciicast](https://asciinema.org/a/459292.svg)](https://asciinema.org/a/459292)
-
 # What does this do?
 
 Septum is like `grep`, but searches for matching contexts of contiguous lines,
 rather than just single lines.
 
-![Include match](docs/context_match.png)
+![Include match](docs/images/context_match.png)
 
 Limiting the search into blocks around search terms allows searching for elements
 in arbitrary order which may span across lines, in a way which can be difficult
 to express in other tools. Sometimes terms appear multiple times in a project and
 have names which change based on context. Septum allows exclusion of these contexts.
 
-![Exclude match](docs/excluded_match.png)
+![Exclude match](docs/images/excluded_match.png)
 
 # Why does this exist?
 
@@ -36,7 +34,11 @@ their own hardware, searching closed source software. This means the program
 should use a minimum number of dependencies to simplify security auditing and
 perform no network operations.
 
-![Command diagram](docs/command_overview.png)
+![Command diagram](docs/images/command_overview.png)
+
+# Example
+
+[![asciicast](https://asciinema.org/a/459292.svg)](https://asciinema.org/a/459292)
 
 # Building
 
