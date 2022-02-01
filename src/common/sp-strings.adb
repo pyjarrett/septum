@@ -194,9 +194,10 @@ package body SP.Strings is
 
     function Is_Quoted (S : String) return Boolean is
         use Ada.Characters.Latin_1;
-        Quote_Types : constant array (Positive range <>) of Character := (Quotation, Apostrophe);
     begin
-        return S'Length > 0 and then S (S'First) = S (S'Last) and then (for some X of Quote_Types => X = S (S'First));
+        return S'Length >= 2
+            and then S (S'First) in Quotation | Apostrophe
+            and then S (S'First) = S (S'Last);
     end Is_Quoted;
 
     function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
