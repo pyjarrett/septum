@@ -37,27 +37,24 @@ package body SP.Cache is
         -- This is probably better written to look at encoding (such as invalid sequences in UTF-8, etc.)
         -- instead of being a hodgepodge of various formats I know that I care about right now.
         -- TODO: Adding more file types I care about now, this needs to be fixed properly.
-        Ext : constant Ada.Strings.Unbounded.Unbounded_String :=
-            To_Unbounded_String (Ada.Directories.Extension (File_Name));
-        Known_Text : constant array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String :=
-            (+"ads", -- Ada
-             +"adb",
-             +"c",   -- c
-             +"h",
-             +"cpp", -- C++
-             +"C",
-             +"hpp",
-             +"hh",
-             +"inl",
-             +"lock",
-             +"toml",
-             +"cs",  -- C#
-             +"hs",  -- Haskell
-             +"py",  -- Python
-             +"rs"   -- Rust
-        );
+        Extension : String renames Ada.Directories.Extension (File_Name);
     begin
-        return (for some X of Known_Text => Ext = X);
+        return Extension in
+            "ads"  |  -- Ada
+            "adb"  |
+            "c"    |  -- c
+            "h"    |
+            "cpp"  |  -- C++
+            "C"    |
+            "hpp"  |
+            "hh"   |
+            "inl"  |
+            "lock" |
+            "toml" |
+            "cs"   |  -- C#
+            "hs"   |  -- Haskell
+            "py"   |  -- Python
+            "rs";     -- Rust
     end Is_Text;
 
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : Ada.Strings.Unbounded.Unbounded_String) is
