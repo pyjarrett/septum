@@ -64,12 +64,8 @@ alr build
 **Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
 
 ```powershell
-choco install septum --version=0.0.4
+choco install septum --version=0.0.6
 ```
-
-⚠️ The 0.0.4 version on Chocolatey has a crash (an internal assert) when trying to tab complete an
-empty string.  This is fixed in 0.0.5, but a new version can't be published until 0.0.4 gets through
-Chocolatey moderation.  This doesn't affect typical use and a new version published as soon as possible.
 
 # Contributing
 
