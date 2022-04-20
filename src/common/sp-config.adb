@@ -16,7 +16,6 @@
 
 with Ada.Directories;
 with Ada.Strings.Unbounded;
-with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 with Dir_Iterators.Ancestor;
 with SP.File_System;
@@ -51,12 +50,13 @@ package body SP.Config is
         end if;
 
         declare
-            File : Ada.Streams.Stream_IO.File_Type;
-
-            use Ada.Streams;
+            File : Ada.Text_IO.File_Type;
         begin
-            Stream_IO.Create (File, Ada.Streams.Stream_IO.Out_File, Config_File);
-            Stream_IO.Close (File);
+            Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Config_File);
+            Ada.Text_IO.Put_Line (File, "enable-line-numbers");
+            Ada.Text_IO.Put_Line (File, "enable-line-colors");
+            Ada.Text_IO.Put_Line (File, "set-max-results 200");
+            Ada.Text_IO.Close (File);
 
             -- Compiler bug?
             -- warning: "File" modified by call, but value might not be referenced
@@ -68,7 +68,7 @@ package body SP.Config is
             Ada.Text_IO.Put_Line (Config_Dir_Name & " is for Septum settings and configuration.");
             Ada.Text_IO.Put_Line (Config_File_Name & " contains commands to run when starting in this directory.");
         exception
-            when Stream_IO.Name_Error | Stream_IO.Use_Error =>
+            when Ada.Text_IO.Name_Error | Ada.Text_IO.Use_Error =>
                 Ada.Text_IO.Put_Line ("Unable to create configuration file.");
         end;
     end Create_Local_Config;
