@@ -64,7 +64,7 @@ alr build
 **Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
 
 ```powershell
-choco install septum --version=0.0.6
+choco install septum --version=0.0.7
 ```
 
 # Contributing
