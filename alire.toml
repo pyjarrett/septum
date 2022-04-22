@@ -19,14 +19,14 @@ macos = { Septum_Platform = "macos" }
 [available.'case(os)']
 linux = true
 windows = true
-macos = false
+macos = true
 
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
-trendy_terminal = "~0.0.4"  # Added by alr
+trendy_terminal = "~0.0.5"  # Added by alr
 # Leaving this here to locally targeting trendy_terminal which is being
 # developed in parallel with this project.
 [[pins]]  # Added by alr
