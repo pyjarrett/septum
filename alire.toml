@@ -16,11 +16,6 @@ windows = { Septum_Platform = "windows" }
 linux = { Septum_Platform = "linux" }
 macos = { Septum_Platform = "macos" }
 
-[available.'case(os)']
-linux = true
-windows = true
-macos = true
-
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.3"  # Added by alr
 [[depends-on]]  # Added by alr
