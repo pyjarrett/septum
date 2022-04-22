@@ -412,7 +412,11 @@ package body SP.Searches is
             Work.Start_Work (Integer (Files.Length));
             Merged_Results.Wait_For (Natural (Files.Length));
             for I in All_Searches'Range loop
-                MP.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
+                begin
+                    MP.Dispatching_Domains.Set_CPU (I, All_Searches (I)'Identity);
+                exception
+                    when MP.Dispatching_Domains.Dispatching_Domain_Error => null;
+                end;
                 All_Searches (I).Start;
             end loop;
             Merged_Results.Get_Results (Result);

@@ -196,7 +196,11 @@ package body SP.Cache is
                 File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
             begin
                 for I in File_Loader'Range loop
-                    System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
+                    begin
+                        System.Multiprocessors.Dispatching_Domains.Set_CPU (I, File_Loader(I)'Identity);
+                    exception
+                        when System.Multiprocessors.Dispatching_Domains.Dispatching_Domain_Error => null;
+                    end;
                     File_Loader(I).Wake;
                 end loop;
             end;
