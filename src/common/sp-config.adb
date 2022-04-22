@@ -56,6 +56,13 @@ package body SP.Config is
             Ada.Text_IO.Put_Line (File, "enable-line-numbers");
             Ada.Text_IO.Put_Line (File, "enable-line-colors");
             Ada.Text_IO.Put_Line (File, "set-max-results 200");
+            declare
+                Current_Dir : constant String := Ada.Directories.Full_Name(Ada.Directories.Current_Directory);
+            begin
+                Ada.Text_IO.Put_Line (File, "add-dirs " & Current_Dir);
+            exception
+                when Ada.Directories.Use_Error => null;
+            end;
             Ada.Text_IO.Close (File);
 
             -- Compiler bug?

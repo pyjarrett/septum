@@ -14,8 +14,9 @@ Types of changes:
 
 ## [0.0.7]
 
-- ✅ Preliminary mac support.
-- 🛠️ Fix some linux issues.
+- ✅ Added useful startup commands to .septum/config when running `init`
+- ✅ Added preliminary mac support.
+- 🛠️ Fixed some linux issues.
 
 ## [0.0.6]
 
