@@ -12,6 +12,11 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [0.0.7]
+
+- ✅ Preliminary mac support.
+- 🛠️ Fix some linux issues.
+
 ## [0.0.6]
 
 - ✅ Added coloration of file names in search results.
