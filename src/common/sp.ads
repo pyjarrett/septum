@@ -2,6 +2,6 @@ package SP
     with Pure
 is
 
-    Version : constant String := "0.0.6";
+    Version : constant String := "0.0.7";
 
 end SP;
