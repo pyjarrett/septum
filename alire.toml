@@ -1,6 +1,6 @@
 name = "septum"
 description = "An interactive context-based text search tool for large codebases."
-version = "0.0.7"
+version = "0.0.8"
 website = "https://github.com/pyjarrett/septum"
 
 authors = ["Paul Jarrett"]
@@ -17,7 +17,7 @@ linux = { Septum_Platform = "linux" }
 macos = { Septum_Platform = "macos" }
 
 [[depends-on]]  # Added by alr
-dir_iterators = "~0.0.3"  # Added by alr
+dir_iterators = "~0.0.4"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
@@ -30,4 +30,4 @@ trendy_terminal = "~0.0.5"  # Added by alr
 # To be used for CI
 #trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 [[depends-on]]  # Added by alr
-atomic = "~0.3.0"  # Added by alr
+atomic = "~0.4.1"  # Added by alr
