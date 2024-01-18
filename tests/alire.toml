@@ -27,4 +27,4 @@ septum = { path = ".." }
 #trendy_test = { url = "https://github.com/pyjarrett/trendy_test", branch="main" }
 #trendy_test = { path='../../trendy_test' }   # Added by alr
 [[depends-on]]  # Added by alr
-atomic = "~0.3.0"  # Added by alr
+atomic = "~0.5.0"  # Added by alr
