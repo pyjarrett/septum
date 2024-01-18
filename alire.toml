@@ -30,4 +30,4 @@ trendy_terminal = "~0.0.5"  # Added by alr
 # To be used for CI
 #trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 [[depends-on]]  # Added by alr
-atomic = "~0.4.1"  # Added by alr
+atomic = "~0.5.0"  # Added by alr
