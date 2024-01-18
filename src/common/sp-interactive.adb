@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 with Ada.Containers;
-with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -23,7 +22,6 @@ with SP.Commands;
 with SP.Config;
 with SP.File_System;
 with SP.Filters;
-with SP.Platform;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;

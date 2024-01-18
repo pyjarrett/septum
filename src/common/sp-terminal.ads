@@ -17,8 +17,6 @@
 with Ada.Strings.Unbounded;
 with ANSI;
 
-with System;
-
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 

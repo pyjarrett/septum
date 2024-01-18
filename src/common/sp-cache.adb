@@ -17,7 +17,6 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
-with Ada.Task_Identification;
 
 with SP.Cache;
 with SP.File_System;
@@ -30,9 +29,6 @@ with Dir_Iterators.Recursive;
 with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is
-    -- Convenience function for converting strings to unbounded.
-    function "+" (Str : String) return Ada.Strings.Unbounded.Unbounded_String renames To_Unbounded_String;
-
     function Is_Text (File_Name : String) return Boolean is
         -- This is probably better written to look at encoding (such as invalid sequences in UTF-8, etc.)
         -- instead of being a hodgepodge of various formats I know that I care about right now.

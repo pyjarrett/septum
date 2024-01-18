@@ -26,7 +26,6 @@ package SP.Searches is
     type Search is limited private;
 
     package Positive_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Positive);
-    use all type Ada.Containers.Count_Type;
 
     function Reload_Working_Set (Srch : in out Search) return Boolean;
     -- Dumps currently loaded search text and loads it again.

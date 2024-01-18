@@ -15,7 +15,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Maps;
-with Ada.Containers.Vectors;
 with Ada.Directories;
 with SP.Config;
 with SP.Contexts;
