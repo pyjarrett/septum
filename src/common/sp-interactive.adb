@@ -93,32 +93,32 @@ package body SP.Interactive is
             begin
                 if Positive (Index) = 1 then
                     if SP.Commands.Is_Command (S) or else (SP.Commands.Is_Like_Command (S) and then V.Length > 1) then
-                        Result.Append (ASU.To_String (SP.Terminal.Colorize(US, ANSI.Green)));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
                             Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
                             Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
                         begin
-                            Result.Append (Asu.To_String (
-                                SP.Terminal.Colorize (US, ANSI.Yellow)
-                                & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan)));
+                            Result.Append (
+                                SP.Terminal.Colorize (S, ANSI.Yellow)
+                                & SP.Terminal.Colorize (To_String (Suffix), ANSI.Light_Cyan));
                         end;
                     else
-                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Red)));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
                     end if;
                 elsif SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "find-regex"
                     or else SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "exclude-regex"
                 then
                     if SP.Filters.Is_Valid_Regex (S) then
-                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Green)));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     else
-                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Red)));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
                     end if;
                 else
                     if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
-                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Magenta)));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Magenta));
                     else
-                        Result.Append (Asu.To_String (Us));
+                        Result.Append (S);
                     end if;
                 end if;
             end;

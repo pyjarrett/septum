@@ -28,10 +28,10 @@ package SP.Terminal is
 
     procedure Put (C : Character) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : String) renames Trendy_Terminal.IO.Put;
-    procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put;
+--    procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put;
 
     procedure Put_Line (Str : String) renames Trendy_Terminal.IO.Put_Line;
-    procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put_Line;
+--    procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put_Line;
 
     procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.IO.New_Line;
 
@@ -41,8 +41,8 @@ package SP.Terminal is
     procedure Clear_Line renames Trendy_Terminal.VT100.Clear_Line;
 
     function Colorize (S : String; Color : ANSI.Colors) return String;
-    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
-        return Ada.Strings.Unbounded.Unbounded_String;
+--    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
+--        return Ada.Strings.Unbounded.Unbounded_String;
 
     -- I'm not convinced that these aren't useful. I haven't figured out how best to deal with the really long and
     -- verbose terminology of Ada.Strings.Unbounded.Unbounded_String.

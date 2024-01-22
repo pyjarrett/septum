@@ -123,7 +123,7 @@ package body SP.Commands is
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result is
         Commands : SP.Strings.String_Vectors.Vector;
-        function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
+--        function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
     begin
         if not Ada.Directories.Exists (File) then
             Put_Line ("No config to read at: " & Ada.Directories.Full_Name (File));
@@ -143,16 +143,16 @@ package body SP.Commands is
                 Result : Command_Result;
             begin
                 New_Line;
-                Put_Line (+" > " & Command);
+                Put_Line (" > " & Command);
                 Result := SP.Commands.Execute (Srch, Command_Line);
 
                 case Result is
                     when Command_Success => null;
                     when Command_Failed =>
-                        Put_Line (+"Command failed: " & Command);
+                        Put_Line ("Command failed: " & Command);
                         return Command_Failed;
                     when Command_Unknown =>
-                        Put_Line (+"Unable to execute: " & Command);
+                        Put_Line ("Unable to execute: " & Command);
                         return Command_Unknown;
                     when Command_Exit_Requested =>
                         return Command_Exit_Requested;
@@ -195,9 +195,9 @@ package body SP.Commands is
 
         -- Print commands.
         for Cursor in Command_Map.Iterate loop
-            Put ("    " & Key (Cursor));
+            Put ("    " & To_String (Key (Cursor)));
             Set_Col (30);
-            Put_Line (Element (Cursor).Simple_Help);
+            Put_Line (To_String (Element (Cursor).Simple_Help));
         end loop;
     end Help_Help;
 
