@@ -14,7 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Containers.Ordered_Sets;
+with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Strings.Unbounded;
 
@@ -68,9 +68,11 @@ package SP.Strings
 is
     package ASU renames Ada.Strings.Unbounded;
 
-    package String_Sets is new Ada.Containers.Ordered_Sets
-        (Element_Type => ASU.Unbounded_String, "<" => ASU."<",
-         "="          => ASU."=");
+    package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets
+        (Element_Type => String,
+         "<"          => Standard."<",
+         "="          => Standard."=");
+
     package String_Vectors is new Ada.Containers.Indefinite_Vectors
         (Index_Type   => Positive,
          Element_Type => String);

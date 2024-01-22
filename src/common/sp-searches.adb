@@ -50,8 +50,8 @@ package body SP.Searches is
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            if not Load_Directory (Srch, To_String (Dir_Name)) then
-                Put_Line ("Did not finish loading directory: " & To_String (Dir_Name));
+            if not Load_Directory (Srch, Dir_Name) then
+                Put_Line ("Did not finish loading directory: " & Dir_Name);
                 return False;
             end if;
         end loop;
@@ -60,13 +60,12 @@ package body SP.Searches is
 
     function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
-        Unbounded_Name : constant Unbounded_String := To_Unbounded_String (Dir_Name);
-        Path_Exists    : constant Boolean          := Exists (Dir_Name);
-        Is_Directory   : constant Boolean          := Path_Exists and then Kind (Dir_Name) = Directory;
+        Path_Exists    : constant Boolean := Exists (Dir_Name);
+        Is_Directory   : constant Boolean := Path_Exists and then Kind (Dir_Name) = Directory;
     begin
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
-        if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
-            Srch.Directories.Insert (Unbounded_Name);
+        if Is_Directory and then not Srch.Directories.Contains (Dir_Name) then
+            Srch.Directories.Insert (Dir_Name);
             if Load_Directory (Srch, Dir_Name) then
                 SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
                 return True;
@@ -84,7 +83,7 @@ package body SP.Searches is
     begin
         return Result : String_Vectors.Vector do
             for Directory of Srch.Directories loop
-                Result.Append (Asu.To_String (Directory));
+                Result.Append (Directory);
             end loop;
         end return;
     end List_Directories;
@@ -96,18 +95,16 @@ package body SP.Searches is
     end Clear_Directories;
 
     procedure Add_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
-        if not Srch.Extensions.Contains (Ext) then
-            Srch.Extensions.Insert (Ext);
+        if not Srch.Extensions.Contains (Extension) then
+            Srch.Extensions.Insert (Extension);
         end if;
     end Add_Extension;
 
     procedure Remove_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
-        if Srch.Extensions.Contains (Ext) then
-            Srch.Extensions.Delete (Ext);
+        if Srch.Extensions.Contains (Extension) then
+            Srch.Extensions.Delete (Extension);
         end if;
     end Remove_Extension;
 
@@ -120,7 +117,7 @@ package body SP.Searches is
     begin
         return Exts : String_Vectors.Vector do
             for Ext of Srch.Extensions loop
-                Exts.Append (Asu.To_String (Ext));
+                Exts.Append (Ext);
             end loop;
         end return;
     end List_Extensions;
@@ -362,7 +359,7 @@ package body SP.Searches is
                 declare
                     Extension : constant String := Ada.Directories.Extension (File);
                 begin
-                    if Srch.Extensions.Contains (To_Unbounded_String(Extension)) then
+                    if Srch.Extensions.Contains (Extension) then
                         Result.Append (File);
                     end if;
                 end;
@@ -520,16 +517,16 @@ package body SP.Searches is
 
 
     function Is_Running_Script (Srch : Search; Script_Path : String) return Boolean
-        is (Srch.Script_Stack.Contains (ASU.To_Unbounded_String (Script_Path)));
+        is (Srch.Script_Stack.Contains (Script_Path));
 
     procedure Push_Script (Srch : in out Search; Script_Path : String) is
     begin
-        Srch.Script_Stack.Insert (ASU.To_Unbounded_String (Script_Path));
+        Srch.Script_Stack.Insert (Script_Path);
     end Push_Script;
 
     procedure Pop_Script (Srch : in out Search; Script_Path : String) is
     begin
-        Srch.Script_Stack.Delete (ASU.To_Unbounded_String (Script_Path));
+        Srch.Script_Stack.Delete (Script_Path);
     end Pop_Script;
 
     procedure Test (Srch : Search; Input : String) is
