@@ -17,30 +17,34 @@ with Ada.Strings.Fixed;
 with Ada.Characters.Latin_1;
 
 package body SP.Strings is
+
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
-        return Ada.Strings.Unbounded.Unbounded_String
+        return String -- Ada.Strings.Unbounded.Unbounded_String
     is
         use Ada.Strings.Unbounded;
         use SP.Strings.String_Vectors;
         L : Natural := 1;
         R : Natural := 1;
+        Result : Ada.Strings.Unbounded.Unbounded_String;
     begin
-        return Result : Ada.Strings.Unbounded.Unbounded_String do
-            while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
-                if L <= Natural (Length (Left)) then
-                    Append (Result, Left (L));
-                    L := L + 1;
-                end if;
+    --    return 
+      while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
+         if L <= Natural (Length (Left)) then
+            Append (Result, Left (L));
+            L := L + 1;
+         end if;
 
-                if R <= Natural (Length (Right)) then
-                    Append (Result, Right (R));
-                    R := R + 1;
-                end if;
-            end loop;
-        end return;
+         if R <= Natural (Length (Right)) then
+            Append (Result, Right (R));
+            R := R + 1;
+         end if;
+      end loop;
+      --   end return;
+      return To_String (Result);
     end Zip;
 
-    function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String is
+    function Format_Array (S : SP.Strings.String_Vectors.Vector) return String is
+      --  Ada.Strings.Unbounded.Unbounded_String is
         use Ada.Strings.Unbounded;
         Result : Unbounded_String;
     begin
@@ -53,7 +57,7 @@ package body SP.Strings is
             Append (Result, To_Unbounded_String (" "));
         end loop;
         Append (Result, To_Unbounded_String ("]"));
-        return Result;
+        return To_String (Result);
     end Format_Array;
 
     -- TODO: This will eventually need to be rewritten to account for multi-byte
@@ -173,24 +177,27 @@ package body SP.Strings is
     end Make;
 
     function Common_Prefix_Length
-        (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
+--        (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
+      (A : String; B : String) return Natural
+    is
         use Ada.Strings.Unbounded;
         -- Finds the number of common starting characters between two strings.
     begin
         return Count : Natural := 0 do
-            while Count < Length (A) and then Count < Length (B)
-                and then Element (A, Count + 1) = Element (B, Count + 1) loop
+         while Count < A'Length and then Count < B'Length
+                and then A (Count + 1) = B (Count + 1) loop
                 Count := Count + 1;
             end loop;
         end return;
     end Common_Prefix_Length;
 
-    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
-        Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
-        Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Desired, Prefix_Length + 1, ASU.Length (Desired));
-    begin
-        return Suffix;
-    end Matching_Suffix;
+--   function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
+   function Matching_Suffix (Current, Desired : String) return String is
+      Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
+      Suffix        : constant String  := Desired (Prefix_Length + 1 .. Desired'Length);
+   begin
+      return Suffix;
+   end Matching_Suffix;
 
     function Is_Quoted (S : String) return Boolean is
         use Ada.Characters.Latin_1;

@@ -69,7 +69,7 @@ package body SP.Commands is
 
         for Cursor in Command_Map.Iterate loop
             Next_Match      := Command_Maps.Key (Cursor);
-            Next_Match_Size := Common_Prefix_Length (Next_Match, Command_Name);
+            Next_Match_Size := Common_Prefix_Length (To_String (Next_Match), To_String (Command_Name));
             if Next_Match_Size = Length(Command_Name) then
                 if Next_Match_Size = Best_Match_Size then
                     -- Two things with the same prefix, the prefix is ambiguous.

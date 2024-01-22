@@ -177,7 +177,7 @@ package body SP.File_System is
         -- The directory file contain paths with similar completions to the name.
         -- Filter out paths which don't have a matching prefix with the original.
         for Dir of Files.Subdirs loop
-            if SP.Strings.Common_Prefix_Length (Rewritten, Asu.To_Unbounded_String (Dir)) = ASU.Length (Rewritten) then
+            if SP.Strings.Common_Prefix_Length (Asu.To_String (Rewritten), Dir) = ASU.Length (Rewritten) then
                 Result.Append (Dir);
             end if;
         end loop;

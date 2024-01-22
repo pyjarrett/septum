@@ -97,11 +97,11 @@ package body SP.Interactive is
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
                             Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
-                            Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
+                            Suffix  : constant String := SP.Strings.Matching_Suffix (To_String (Us), To_String (Command));
                         begin
                             Result.Append (
                                 SP.Terminal.Colorize (S, ANSI.Yellow)
-                                & SP.Terminal.Colorize (To_String (Suffix), ANSI.Light_Cyan));
+                                & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan));
                         end;
                     else
                         Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
@@ -128,7 +128,7 @@ package body SP.Interactive is
 
     function Format_Input (L : Trendy_Terminal.Lines.Line) return Trendy_Terminal.Lines.Line is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
-        New_Line : constant String := ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
+        New_Line : constant String := SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words));
     begin
         return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length + 1);
     end Format_Input;
@@ -154,9 +154,9 @@ package body SP.Interactive is
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (E.Words(1)) then
                 Completion := SP.Commands.Target_Command (Asu.To_Unbounded_String (E.Words(1)));
-                Suffix := SP.Strings.Matching_Suffix (Asu.To_Unbounded_String (E.Words (1)), Completion);
+                Suffix := Asu.To_Unbounded_String (SP.Strings.Matching_Suffix (E.Words (1), Asu.To_String (Completion)));
                 E.Words (1) := E.Words (1) & Asu.To_String (Suffix);
-                Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                Result.Append (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
                     Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
                 return Result;
             end if;
@@ -168,7 +168,7 @@ package body SP.Interactive is
                 String_Sorting.Sort (Completions);
                 for Completion of Completions loop
                     E.Words (Cursor_Word) := Completion;
-                    Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                    Result.Append (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
                         SP.Strings.Cursor_Position_At_End_Of_Word (E, Cursor_Word)));
                 end loop;
             end;

@@ -77,14 +77,16 @@ is
         (Index_Type   => Positive,
          Element_Type => String);
 
-    function Zip (Left, Right : String_Vectors.Vector) return ASU.Unbounded_String;
-    function Format_Array (S : String_Vectors.Vector) return ASU.Unbounded_String;
+    function Zip (Left, Right : String_Vectors.Vector) return String; -- ASU.Unbounded_String;
+    function Format_Array (S : String_Vectors.Vector) return String; -- ASU.Unbounded_String;
 
-    function Common_Prefix_Length (A, B : ASU.Unbounded_String) return Natural
+    -- function Common_Prefix_Length (A, B : ASU.Unbounded_String) return Natural
+    function Common_Prefix_Length (A, B : String) return Natural
     with
-        Post => Common_Prefix_Length'Result <= Natural'Max (ASU.Length (A), ASU.Length (B));
+        Post => Common_Prefix_Length'Result <= Natural'Max (A'Length, B'Length);
 
-    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String;
+    -- function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String;
+    function Matching_Suffix (Current, Desired : String) return String;
 
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
