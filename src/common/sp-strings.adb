@@ -86,7 +86,7 @@ package body SP.Strings is
                 -- No more text follows the whitespace.
                 exit when After_Last = 0;
 
-                Result.Spacers.Append (To_Unbounded_String (S (First .. After_Last - 1)));
+                Result.Spacers.Append (S (First .. After_Last - 1));
                 exit when After_Last > S'Length;
             end;
 
@@ -162,9 +162,9 @@ package body SP.Strings is
 
                 pragma Assert (Length (Word) > 0);
                 if SP.Strings.Is_Quoted (ASU.To_String (Word)) and then Length (Word) > 1 then
-                    Result.Words.Append (Unbounded_Slice (Word, 2, Length (Word) - 1));
+                    Result.Words.Append (Slice (Word, 2, Length (Word) - 1));
                 else
-                    Result.Words.Append (Word);
+                    Result.Words.Append (To_String (Word));
                 end if;
             end;
         end loop;
@@ -206,8 +206,8 @@ package body SP.Strings is
     begin
         return Result : SP.Strings.String_Vectors.Vector do
             for Word of Exploded.Words loop
-                if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
-                    Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
+                if SP.Strings.Is_Quoted (Word) then
+                    Result.Append (Word (2 .. Word'Length - 1));
                 else
                     Result.Append (Word);
                 end if;
@@ -221,10 +221,10 @@ package body SP.Strings is
         Current_Cursor : Natural := 1;
     begin
         while Next <= Natural (E.Spacers.Length) loop
-            Current_Cursor := Current_Cursor + ASU.To_String (E.Spacers (Next))'Length;
+            Current_Cursor := Current_Cursor + String'(E.Spacers (Next))'Length;
 
             if Next <= Positive (E.Words.Length) then
-                Current_Cursor := Current_Cursor + ASU.To_String (E.Words (Next))'Length;
+                Current_Cursor := Current_Cursor + String'(E.Words (Next))'Length;
             end if;
             exit when Current_Cursor >= Cursor_Position;
             Next := Next + 1;
@@ -236,8 +236,8 @@ package body SP.Strings is
     begin
         return Cursor_Position : Positive := 1 do
             for I in 1 .. Word loop
-                Cursor_Position := Cursor_Position + ASU.Length (E.Spacers (I));
-                Cursor_Position := Cursor_Position + ASU.Length (E.Words (I));
+                Cursor_Position := Cursor_Position + String'(E.Spacers (I))'Length;
+                Cursor_Position := Cursor_Position + String'(E.Words (I))'Length;
             end loop;
         end return;
     end Cursor_Position_At_End_Of_Word;

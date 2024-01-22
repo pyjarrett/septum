@@ -107,13 +107,13 @@ package body SP.Config is
         return V : String_Vectors.Vector do
             -- Look for the global user config.
             if FS.Is_File (ASU.To_String (Home_Dir_Config)) then
-                V.Append (Home_Dir_Config);
+                V.Append (ASU.To_String (Home_Dir_Config));
             end if;
 
             if Current_Dir_Config /= ASU.Null_Unbounded_String
                 and then FS.Is_File (ASU.To_String (Current_Dir_Config))
             then
-                V.Append (Current_Dir_Config);
+                V.Append (ASU.To_String (Current_Dir_Config));
             end if;
         end return;
     end Config_Locations;

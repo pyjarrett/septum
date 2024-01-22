@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Containers.Ordered_Sets;
-with Ada.Containers.Vectors;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Strings.Unbounded;
 
 -- A lot of what happens in Septum is related to strings.  It reads them from
@@ -71,9 +71,9 @@ is
     package String_Sets is new Ada.Containers.Ordered_Sets
         (Element_Type => ASU.Unbounded_String, "<" => ASU."<",
          "="          => ASU."=");
-    package String_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => ASU.Unbounded_String,
-         "="        => ASU."=");
+    package String_Vectors is new Ada.Containers.Indefinite_Vectors
+        (Index_Type   => Positive,
+         Element_Type => String);
 
     function Zip (Left, Right : String_Vectors.Vector) return ASU.Unbounded_String;
     function Format_Array (S : String_Vectors.Vector) return ASU.Unbounded_String;
@@ -110,7 +110,10 @@ is
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
     -- the command line formatter stood up more quickly.
     function Make (S : String) return Exploded_Line;
-    function Get_Word (E : Exploded_Line; Index : Positive) return String is (ASU.To_String (E.Words.Element (Index)));
+
+    function Get_Word (E : Exploded_Line; Index : Positive) return String
+    is (E.Words.Element (Index));
+
     function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
 
     function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural;

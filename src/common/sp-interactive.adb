@@ -87,38 +87,38 @@ package body SP.Interactive is
     begin
         for Index in 1 .. V.Length loop
             declare
-                US : constant ASU.Unbounded_String := V ( Positive (Index));
+                US : constant ASU.Unbounded_String := ASU.To_Unbounded_String (V ( Positive (Index)));
                 S  : constant String := ASU.To_String (US);
                 use all type Ada.Containers.Count_Type;
             begin
                 if Positive (Index) = 1 then
                     if SP.Commands.Is_Command (S) or else (SP.Commands.Is_Like_Command (S) and then V.Length > 1) then
-                        Result.Append (SP.Terminal.Colorize(US, ANSI.Green));
+                        Result.Append (ASU.To_String (SP.Terminal.Colorize(US, ANSI.Green)));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
                             Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
                             Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
                         begin
-                            Result.Append (
+                            Result.Append (Asu.To_String (
                                 SP.Terminal.Colorize (US, ANSI.Yellow)
-                                & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan));
+                                & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan)));
                         end;
                     else
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
+                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Red)));
                     end if;
-                elsif SP.Commands.Target_Command (V (1)) = "find-regex"
-                    or else SP.Commands.Target_Command (V (1)) = "exclude-regex"
+                elsif SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "find-regex"
+                    or else SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "exclude-regex"
                 then
                     if SP.Filters.Is_Valid_Regex (S) then
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Green));
+                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Green)));
                     else
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
+                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Red)));
                     end if;
                 else
                     if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Magenta));
+                        Result.Append (Asu.To_String (SP.Terminal.Colorize (US, ANSI.Magenta)));
                     else
-                        Result.Append (US);
+                        Result.Append (Asu.To_String (Us));
                     end if;
                 end if;
             end;
@@ -142,7 +142,7 @@ package body SP.Interactive is
         Result      : Trendy_Terminal.Lines.Line_Vectors.Vector;
         Completion  : ASU.Unbounded_String;
         Suffix      : ASU.Unbounded_String;
-        use all type ASU.Unbounded_String;
+--        use all type ASU.Unbounded_String;
         use SP.Strings.String_Vectors;
         use type Ada.Containers.Count_Type;
     begin
@@ -152,17 +152,17 @@ package body SP.Interactive is
 
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
-            if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
-                Completion := SP.Commands.Target_Command (E.Words(1));
-                Suffix := SP.Strings.Matching_Suffix (E.Words (1), Completion);
-                E.Words (1) := E.Words (1) & Suffix;
+            if SP.Commands.Is_Like_Command (E.Words(1)) then
+                Completion := SP.Commands.Target_Command (Asu.To_Unbounded_String (E.Words(1)));
+                Suffix := SP.Strings.Matching_Suffix (Asu.To_Unbounded_String (E.Words (1)), Completion);
+                E.Words (1) := E.Words (1) & Asu.To_String (Suffix);
                 Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
                     Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
                 return Result;
             end if;
         else
             declare
-                Completions : SP.Strings.String_Vectors.Vector := SP.File_System.File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                Completions : SP.Strings.String_Vectors.Vector := SP.File_System.File_Completions (E.Words (Cursor_Word));
                 package String_Sorting is new SP.Strings.String_Vectors.Generic_Sorting;
             begin
                 String_Sorting.Sort (Completions);
@@ -222,14 +222,14 @@ package body SP.Interactive is
         New_Line;
 
         for Config of Configs loop
-            Result := SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config));
+            Result := SP.Commands.Run_Commands_From_File (Srch, Config);
             case Result is
                 when SP.Commands.Command_Success => null;
                 when SP.Commands.Command_Failed =>
-                    Put_Line ("Failing running commands from: " & ASU.To_String(Config));
+                    Put_Line ("Failing running commands from: " & Config);
                     return;
                 when SP.Commands.Command_Unknown =>
-                    Put_Line ("Unknown command in: " & ASU.To_String(Config));
+                    Put_Line ("Unknown command in: " & Config);
                 when SP.Commands.Command_Exit_Requested =>
                     return;
             end case;

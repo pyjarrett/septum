@@ -131,7 +131,7 @@ package body SP.Filters is
     ----------------------------------------------------------------------------
 
     function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean is
-        Match : constant Boolean := (for some Line of Lines => Matches_Line (F, To_String (Line)));
+        Match : constant Boolean := (for some Line of Lines => Matches_Line (F, Line));
     begin
         case F.Action is
             when Keep =>
@@ -148,7 +148,7 @@ package body SP.Filters is
     begin
         return L : SP.Contexts.Line_Matches.Set do
             for Line of Lines loop
-                if Matches_Line (F, To_String (Line)) then
+                if Matches_Line (F, Line) then
                     L.Insert (Line_Num);
                 end if;
                 Line_Num := Line_Num + 1;

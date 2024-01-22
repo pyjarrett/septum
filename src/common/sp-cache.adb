@@ -100,14 +100,14 @@ package body SP.Cache is
         begin
             return Result : String_Vectors.Vector do
                 for Cursor in Contents.Iterate loop
-                    Result.Append (SP.Cache.File_Maps.Key (Cursor));
+                    Result.Append (To_String (SP.Cache.File_Maps.Key (Cursor)));
                 end loop;
             end return;
         end Files;
 
         function File_Line (File_Name : in Unbounded_String; Line : in Positive) return Unbounded_String is
         begin
-            return Contents.Element (File_Name).Element (Line);
+            return To_Unbounded_String (Contents.Element (File_Name).Element (Line));
         end File_Line;
 
     end Async_File_Cache;

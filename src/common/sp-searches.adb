@@ -84,7 +84,7 @@ package body SP.Searches is
     begin
         return Result : String_Vectors.Vector do
             for Directory of Srch.Directories loop
-                Result.Append (Directory);
+                Result.Append (Asu.To_String (Directory));
             end loop;
         end return;
     end List_Directories;
@@ -120,7 +120,7 @@ package body SP.Searches is
     begin
         return Exts : String_Vectors.Vector do
             for Ext of Srch.Extensions loop
-                Exts.Append (Ext);
+                Exts.Append (Asu.To_String (Ext));
             end loop;
         end return;
     end List_Extensions;
@@ -235,7 +235,7 @@ package body SP.Searches is
     begin
         return V : String_Vectors.Vector do
             for F of Srch.Line_Filters loop
-                V.Append (To_Unbounded_String (F.Get.Action'Image & " : " & Image (F.Get)));
+                V.Append (F.Get.Action'Image & " : " & Image (F.Get));
             end loop;
         end return;
     end List_Filter_Names;
@@ -360,7 +360,7 @@ package body SP.Searches is
 
             for File of Srch.File_Cache.Files loop
                 declare
-                    Extension : constant String := Ada.Directories.Extension (To_String(File));
+                    Extension : constant String := Ada.Directories.Extension (File);
                 begin
                     if Srch.Extensions.Contains (To_Unbounded_String(Extension)) then
                         Result.Append (File);
@@ -391,7 +391,7 @@ package body SP.Searches is
             loop
                 Next_Index := Natural (Atomic_Int.Fetch_Add (Next_Access.all, 1));
                 if Next_Index <= Natural (Files.Length) then
-                    Next_File := Files (Next_Index);
+                    Next_File := Asu.To_Unbounded_String (Files (Next_Index));
                     Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
                 else
                     exit;

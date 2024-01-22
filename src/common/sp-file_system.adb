@@ -63,8 +63,8 @@ package body SP.File_System is
                 Get_Next_Entry (Dir_Search, Next_Entry);
                 if not Is_Current_Or_Parent_Directory (Next_Entry) then
                     case Kind (Next_Entry) is
-                        when Directory => Result.Subdirs.Append (Ada.Strings.Unbounded.To_Unbounded_String(Full_Name (Next_Entry)));
-                        when Ordinary_File => Result.Files.Append (Ada.Strings.Unbounded.To_Unbounded_String(Full_Name (Next_Entry)));
+                        when Directory => Result.Subdirs.Append (Full_Name (Next_Entry));
+                        when Ordinary_File => Result.Files.Append (Full_Name (Next_Entry));
                             when others => null;
                     end case;
                 end if;
@@ -82,7 +82,7 @@ package body SP.File_System is
         Ada.Text_IO.Open (File => File, Mode => Ada.Text_IO.In_File, Name => File_Name);
         while not Ada.Text_IO.End_Of_File (File) loop
             Line := Ada.Strings.Unbounded.Text_IO.Get_Line (File);
-            Result.Append (Line);
+            Result.Append (Asu.To_String (Line));
         end loop;
 
         Ada.Text_IO.Close (File);
@@ -177,7 +177,7 @@ package body SP.File_System is
         -- The directory file contain paths with similar completions to the name.
         -- Filter out paths which don't have a matching prefix with the original.
         for Dir of Files.Subdirs loop
-            if SP.Strings.Common_Prefix_Length (Rewritten, Dir) = ASU.Length (Rewritten) then
+            if SP.Strings.Common_Prefix_Length (Rewritten, Asu.To_Unbounded_String (Dir)) = ASU.Length (Rewritten) then
                 Result.Append (Dir);
             end if;
         end loop;
