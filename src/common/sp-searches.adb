@@ -252,7 +252,9 @@ package body SP.Searches is
 
     procedure Matching_Contexts_In_File
         -- TODO: This code is a horrible mess and needs to be split up.
-        (Srch : in Search; File : in Unbounded_String; Concurrent_Results : in out Concurrent_Context_Results) is
+     (Srch : in Search;
+      File : in Sp.Cache.File_Name_String;   -- Unbounded_String
+      Concurrent_Results : in out Concurrent_Context_Results) is
         Excluded_Lines : SP.Contexts.Line_Matches.Set;
         First_Pass     : Boolean := True; -- The first filter pass has nothing to merge into.
         Lines          : SP.Contexts.Line_Matches.Set;
@@ -273,7 +275,7 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines,
+                            (File, Natural (Srch.File_Cache.Lines (File).Length), Lines,
                              Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
@@ -389,7 +391,7 @@ package body SP.Searches is
                 Next_Index := Natural (Atomic_Int.Fetch_Add (Next_Access.all, 1));
                 if Next_Index <= Natural (Files.Length) then
                     Next_File := Asu.To_Unbounded_String (Files (Next_Index));
-                    Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
+                    Matching_Contexts_In_File (Srch, Asu.To_String (Next_File), Merged_Results);
                 else
                     exit;
                 end if;
@@ -446,10 +448,10 @@ package body SP.Searches is
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
                 Put_Line (SP.Terminal.Colorize (
-                    To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
+                    Srch.File_Cache.File_Line (Asu.To_String (Context.File_Name), Line_Num),
                     ANSI.Green));
             else
-                Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+                Put_Line (Srch.File_Cache.File_Line (To_String (Context.File_Name), Line_Num));
             end if;
         end loop;
         New_Line;

@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with SP.Strings;
-with Ada.Containers.Ordered_Maps;
+--  with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 
 -- Super simple text file caching.
@@ -34,15 +34,22 @@ with Ada.Strings.Unbounded;
 -- block with mmap and then replace newlines with '\0' and store byte counts
 -- to the initial part of every string.
 --
+with Ada.Containers.Indefinite_Ordered_Maps;
+
 package SP.Cache is
 
     use Ada.Strings.Unbounded;
     use SP.Strings;
+   
+   subtype File_Name_String is String;
 
-    package File_Maps is new Ada.Containers.Ordered_Maps (
-        Key_Type     => Ada.Strings.Unbounded.Unbounded_String,
+   package File_Maps is new Ada.Containers.Indefinite_Ordered_Maps
+     (
+        Key_Type     => File_Name_String,        --  Ada.Strings.Unbounded.Unbounded_String,
         Element_Type => String_Vectors.Vector,
-         "<"         => Ada.Strings.Unbounded."<", "=" => String_Vectors."=");
+        "<"          => Standard."<",            -- Ada.Strings.Unbounded."<",
+        "="          => String_Vectors."="
+     );
 
     -- The available in-memory contents of files loaded from files.
     --
@@ -55,7 +62,8 @@ package SP.Cache is
         procedure Clear;
 
         -- Cache the contents of a file, replacing any existing contents.
-        procedure Cache_File (File_Name : Unbounded_String; Lines : String_Vectors.Vector);
+        procedure Cache_File (File_Name : File_Name_String; -- Unbounded_String;
+                              Lines     : String_Vectors.Vector);
 
         -- The total number of loaded files in the file cache.
         function Num_Files return Natural;
@@ -63,11 +71,13 @@ package SP.Cache is
         -- The total number of loaded lines in the file cache.
         function Num_Lines return Natural;
 
-        function Lines (File_Name : Unbounded_String) return String_Vectors.Vector;
+        function Lines (File_Name : File_Name_String) -- Unbounded_String)
+                       return String_Vectors.Vector;
 
         function Files return String_Vectors.Vector;
 
-        function File_Line (File_Name : Unbounded_String; Line : Positive) return Unbounded_String;
+        function File_Line (File_Name : File_Name_String; --  Unbounded_String;
+                            Line      : Positive) return String; -- Unbounded_String;
 
     private
 
