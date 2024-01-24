@@ -39,9 +39,9 @@ package SP.Commands is
     --
     -- A completion might be ambiguous, which would result in a null string
     -- being returned.
-    function Target_Command (Command_Name : ASU.Unbounded_String) return ASU.Unbounded_String
-        with Post => Target_Command'Result = ASU.Null_Unbounded_String
-            or else Is_Command (ASU.To_String (Target_Command'Result));
+    function Target_Command (Command_Name : String) return String
+        with Post => Target_Command'Result = ""
+            or else Is_Command (Target_Command'Result);
 
     type Command_Result is (
         Command_Success,

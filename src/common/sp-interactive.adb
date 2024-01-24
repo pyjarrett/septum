@@ -96,8 +96,8 @@ package body SP.Interactive is
                         Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
-                            Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
-                            Suffix  : constant String := SP.Strings.Matching_Suffix (To_String (Us), To_String (Command));
+                            Command : constant String := SP.Commands.Target_Command (S);
+                            Suffix  : constant String := SP.Strings.Matching_Suffix (To_String (Us), Command);
                         begin
                             Result.Append (
                                 SP.Terminal.Colorize (S, ANSI.Yellow)
@@ -106,8 +106,8 @@ package body SP.Interactive is
                     else
                         Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
                     end if;
-                elsif SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "find-regex"
-                    or else SP.Commands.Target_Command (Asu.To_Unbounded_String (V (1))) = "exclude-regex"
+                elsif SP.Commands.Target_Command (V (1)) = "find-regex"
+                    or else SP.Commands.Target_Command (V (1)) = "exclude-regex"
                 then
                     if SP.Filters.Is_Valid_Regex (S) then
                         Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
@@ -153,8 +153,8 @@ package body SP.Interactive is
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (E.Words(1)) then
-                Completion := SP.Commands.Target_Command (Asu.To_Unbounded_String (E.Words(1)));
-                Suffix := Asu.To_Unbounded_String (SP.Strings.Matching_Suffix (E.Words (1), Asu.To_String (Completion)));
+                Completion := Asu.To_Unbounded_String (SP.Commands.Target_Command (E.Words(1)));
+                Suffix := Asu.To_Unbounded_String     (SP.Strings.Matching_Suffix (E.Words (1), Asu.To_String (Completion)));
                 E.Words (1) := E.Words (1) & Asu.To_String (Suffix);
                 Result.Append (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
                     Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));

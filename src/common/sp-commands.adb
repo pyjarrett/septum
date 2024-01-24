@@ -14,7 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Directories;
 with SP.Config;
 with SP.Contexts;
@@ -46,16 +46,17 @@ package body SP.Commands is
         -- Executes the command.
     end record;
 
-    package Command_Maps is new Ada.Containers.Ordered_Maps
-        (Key_Type => Unbounded_String, Element_Type => Executable_Command);
+    package Command_Maps is new Ada.Containers.Indefinite_Ordered_Maps
+        (Key_Type     => String,
+         Element_Type => Executable_Command);
 
     -- The command map is split between a the procedure to execute, and also a
     -- command to print help information.
     Command_Map : Command_Maps.Map;
 
-    function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String (S)));
+    function Is_Command (S : String) return Boolean is (Command_Map.Contains (S));
 
-    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String
+    function Target_Command (Command_Name : String) return String -- Unbounded_String
     is
         Best_Match      : Unbounded_String := Null_Unbounded_String;
         Best_Match_Size : Natural          := 0;
@@ -68,9 +69,9 @@ package body SP.Commands is
         end if;
 
         for Cursor in Command_Map.Iterate loop
-            Next_Match      := Command_Maps.Key (Cursor);
-            Next_Match_Size := Common_Prefix_Length (To_String (Next_Match), To_String (Command_Name));
-            if Next_Match_Size = Length(Command_Name) then
+            Next_Match      := Asu.To_Unbounded_String (Command_Maps.Key (Cursor));
+            Next_Match_Size := Common_Prefix_Length (To_String (Next_Match), Command_Name);
+            if Next_Match_Size = Command_Name'Length then
                 if Next_Match_Size = Best_Match_Size then
                     -- Two things with the same prefix, the prefix is ambiguous.
                     Best_Match := Null_Unbounded_String;
@@ -83,10 +84,11 @@ package body SP.Commands is
             end if;
         end loop;
 
-        return (if Ambiguous then Null_Unbounded_String else Best_Match);
+        return (if Ambiguous then "" else To_String (Best_Match));
     end Target_Command;
 
-    function Is_Like_Command (S : String) return Boolean is (Target_Command (To_Unbounded_String (S)) /= Null_Unbounded_String);
+    function Is_Like_Command (S : String) return Boolean
+     is (Target_Command (S) /= ""); -- Null_Unbounded_String);
 
     function Try_Parse (Str : String; Value : in out Positive) return Boolean is
     begin
@@ -97,12 +99,13 @@ package body SP.Commands is
             return False;
     end Try_Parse;
 
-    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
-        Command_Name : constant Unbounded_String :=
+    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result
+    is
+        Command_Name : constant String :=
           (if Command_Line.Is_Empty
-           then To_Unbounded_String ("")
-           else To_Unbounded_String (Command_Line.First_Element));
-        Best_Command : constant Unbounded_String := Target_Command (Command_Name);
+           then ""
+           else Command_Line.First_Element);
+        Best_Command : constant String := Target_Command (Command_Name);
     begin
         if Command_Map.Contains (Best_Command) then
             declare
@@ -112,7 +115,7 @@ package body SP.Commands is
             begin
                 Parameters.Delete_First;
                 if Best_Command /= Command_Name then
-                    Put_Line ("Resolved to: " & To_String (Best_Command));
+                    Put_Line ("Resolved to: " & Best_Command);
                 end if;
                 New_Line;
                 return Command.Exec.all (Srch, Parameters);
@@ -195,16 +198,16 @@ package body SP.Commands is
 
         -- Print commands.
         for Cursor in Command_Map.Iterate loop
-            Put ("    " & To_String (Key (Cursor)));
+            Put ("    " & Key (Cursor));
             Set_Col (30);
             Put_Line (To_String (Element (Cursor).Simple_Help));
         end loop;
     end Help_Help;
 
-    function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
-        Command : constant Unbounded_String :=
-            (if Command_Line.Is_Empty then Null_Unbounded_String else To_Unbounded_String (Command_Line.First_Element));
-        Target : constant Unbounded_String := Target_Command (Command);
+    function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result
+    is
+        Command : constant String := (if Command_Line.Is_Empty then "" else Command_Line.First_Element);
+        Target  : constant String := Target_Command (Command);
         use Command_Maps;
     begin
         pragma Unreferenced (Srch);
@@ -969,10 +972,10 @@ package body SP.Commands is
     ----------------------------------------------------------------------------
 
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
-        Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
+        Pre => Command'Length > 0 and then not Command_Map.Contains (Command)
     is
     begin
-        Command_Map.Insert (To_Unbounded_String (Command), (To_Unbounded_String (Simple_Help), Help, Exec));
+        Command_Map.Insert (Command, (To_Unbounded_String (Simple_Help), Help, Exec));
     end Make_Command;
 
 begin
