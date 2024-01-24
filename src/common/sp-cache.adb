@@ -54,7 +54,6 @@ package body SP.Cache is
     end Is_Text;
 
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : File_Name_String) is
-      -- Ada.Strings.Unbounded.Unbounded_String) is
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
         if SP.File_System.Read_Lines (File_Name, Lines) then
@@ -69,7 +68,7 @@ package body SP.Cache is
             Contents.Clear;
         end Clear;
 
-      procedure Cache_File (File_Name : in File_Name_String; -- Unbounded_String;
+      procedure Cache_File (File_Name : in File_Name_String;
                             Lines : in String_Vectors.Vector) is
         begin
             if Contents.Contains (File_Name) then
@@ -94,7 +93,7 @@ package body SP.Cache is
             end return;
         end Num_Lines;
 
-        function Lines (File_Name : in File_Name_String) --Unbounded_String)
+        function Lines (File_Name : in File_Name_String)
                      return String_Vectors.Vector is
         begin
             return Contents (File_Name);
@@ -109,8 +108,8 @@ package body SP.Cache is
             end return;
         end Files;
 
-      function File_Line (File_Name : in File_Name_String; -- Unbounded_String;
-                          Line : in Positive) return String is  -- Unbounded_String is
+      function File_Line (File_Name : in File_Name_String;
+                          Line : in Positive) return String is
         begin
             return Contents.Element (File_Name).Element (Line);
         end File_Line;

@@ -45,9 +45,9 @@ package SP.Cache is
 
    package File_Maps is new Ada.Containers.Indefinite_Ordered_Maps
      (
-        Key_Type     => File_Name_String,        --  Ada.Strings.Unbounded.Unbounded_String,
+        Key_Type     => File_Name_String,
         Element_Type => String_Vectors.Vector,
-        "<"          => Standard."<",            -- Ada.Strings.Unbounded."<",
+        "<"          => Standard."<",
         "="          => String_Vectors."="
      );
 
@@ -62,7 +62,7 @@ package SP.Cache is
         procedure Clear;
 
         -- Cache the contents of a file, replacing any existing contents.
-        procedure Cache_File (File_Name : File_Name_String; -- Unbounded_String;
+        procedure Cache_File (File_Name : File_Name_String;
                               Lines     : String_Vectors.Vector);
 
         -- The total number of loaded files in the file cache.
@@ -71,13 +71,13 @@ package SP.Cache is
         -- The total number of loaded lines in the file cache.
         function Num_Lines return Natural;
 
-        function Lines (File_Name : File_Name_String) -- Unbounded_String)
+        function Lines (File_Name : File_Name_String)
                        return String_Vectors.Vector;
 
         function Files return String_Vectors.Vector;
 
-        function File_Line (File_Name : File_Name_String; --  Unbounded_String;
-                            Line      : Positive) return String; -- Unbounded_String;
+        function File_Line (File_Name : File_Name_String;
+                            Line      : Positive) return String;
 
     private
 
