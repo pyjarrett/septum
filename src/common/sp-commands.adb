@@ -36,7 +36,7 @@ package body SP.Commands is
     -- Executes a command.
 
     type Executable_Command is record
-        Simple_Help : Unbounded_String;
+        Simple_Help : String_Holders.Holder; -- Unbounded_String;
         -- A brief help description.
 
         Help : Help_Proc;
@@ -200,7 +200,7 @@ package body SP.Commands is
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
             Set_Col (30);
-            Put_Line (To_String (Element (Cursor).Simple_Help));
+            Put_Line (Element (Cursor).Simple_Help.Element);
         end loop;
     end Help_Help;
 
@@ -971,11 +971,16 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
-        Pre => Command'Length > 0 and then not Command_Map.Contains (Command)
+    procedure Make_Command (Command     : String;
+                            Simple_Help : String;
+                            Help        : Help_Proc;
+                            Exec        : Exec_Proc)
+    with
+       Pre => Command'Length > 0
+              and then not Command_Map.Contains (Command)
     is
     begin
-        Command_Map.Insert (Command, (To_Unbounded_String (Simple_Help), Help, Exec));
+        Command_Map.Insert (Command, (String_Holders.To_Holder (Simple_Help), Help, Exec));
     end Make_Command;
 
 begin
