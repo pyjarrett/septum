@@ -426,7 +426,7 @@ package body SP.Searches is
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), ANSI.Light_Magenta));
+        Put_Line (SP.Terminal.Colorize (Context.File_Name.Element, ANSI.Light_Magenta));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
                 Put ("-> ");
@@ -448,10 +448,10 @@ package body SP.Searches is
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
                 Put_Line (SP.Terminal.Colorize (
-                    Srch.File_Cache.File_Line (Asu.To_String (Context.File_Name), Line_Num),
+                    Srch.File_Cache.File_Line (Context.File_Name.Element, Line_Num),
                     ANSI.Green));
             else
-                Put_Line (Srch.File_Cache.File_Line (To_String (Context.File_Name), Line_Num));
+                Put_Line (Srch.File_Cache.File_Line (Context.File_Name.Element, Line_Num));
             end if;
         end loop;
         New_Line;

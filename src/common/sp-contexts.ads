@@ -16,7 +16,6 @@
 
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
 
 with SP.Strings;
 
@@ -27,7 +26,7 @@ is
     package Line_Matches is new Ada.Containers.Ordered_Sets (Element_Type => Positive);
 
     type Context_Match is record
-        File_Name        : Ada.Strings.Unbounded.Unbounded_String;
+        File_Name        : SP.Strings.String_Holders.Holder;
         Internal_Matches : Line_Matches.Set;
         Minimum          : Positive;
         Maximum          : Positive;
