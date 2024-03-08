@@ -72,10 +72,10 @@ package body SP.Strings.Tests is
     ---------------------------------------------------------------------------
     -- Test Registry
     ---------------------------------------------------------------------------
-    function All_Tests return Trendy_Test.Test_Group is (
+    function All_Tests return Trendy_Test.Test_Group is [
         Test_String_Split'Access,
         Test_Is_Quoted'Access,
         Test_Common_Prefix_Length'Access
-        );
+        ];
 
 end SP.Strings.Tests;

@@ -54,7 +54,7 @@ package body SP.File_System is
         use Ada.Directories;
         Dir_Search : Search_Type;
         Next_Entry : Directory_Entry_Type;
-        Filter     : constant Filter_Type := (Ordinary_File | Directory => True, others => False);
+        Filter     : constant Filter_Type := [Ordinary_File | Directory => True, others => False];
     begin
         return Result : Dir_Contents do
             Ada.Directories.Start_Search

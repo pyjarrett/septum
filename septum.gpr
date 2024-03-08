@@ -99,7 +99,7 @@ project Septum is
         ("-gnatw.X",      -- Disable warnings for No_Exception_Propagation
          "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
                           -- Do not attempt to suppress cascaded errors.
-         "-gnat12",       -- Use Ada 2012
+         "-gnat2022",     -- Use Ada 2012
          "-gnatw.oa",     -- Warning settings
          "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
         );

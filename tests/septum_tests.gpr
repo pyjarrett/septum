@@ -34,7 +34,7 @@ project Septum_Tests is
    case Runtime_Checks is
       when "enabled" =>
          Runtime_Checks_Switches := (
-            "-gnato",        -- Enable numeric overflow checking;         
+            "-gnato",        -- Enable numeric overflow checking;
             "-fstack-check", -- Stack overflow checking
             "-gnatVa"        -- All validity checks
          );
@@ -81,8 +81,8 @@ project Septum_Tests is
         Contracts_Switches &
         ("-gnatw.X",      -- Disable warnings for No_Exception_Propagation
          "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
-                          -- Do not attempt to suppress cascaded errors. 
-         "-gnat12",       -- Use Ada 2012
+                          -- Do not attempt to suppress cascaded errors.
+         "-gnat2022",     -- Use Ada 2022
          "-gnatw.oa",     -- Warning settings
          "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
         );
