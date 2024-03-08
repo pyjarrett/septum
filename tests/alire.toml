@@ -1,12 +1,28 @@
 name = "septum_tests"
 description = "Tests for septum"
-version = "0.0.4"
+version = "0.0.5"
 
 authors = ["Paul Jarrett"]
 maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
 maintainers-logins = ["pyjarrett"]
 
 executables = ["septum_tests"]
+
+[build-switches]
+"*".Compile_Checks = "Warnings"
+"*".Debug_Info = "Yes"
+"*".Contracts = "Yes"
+"*".Runtime_Checks = [
+    "-gnato",        # Enable numeric overflow checking;
+    "-fstack-check", # Stack overflow checking
+    "-gnatVa"        # All validity checks
+]
+"*".Ada_Version = "Ada2022"
+"*".Style_Checks = [
+    "-gnaty-d",   # Disable no DOS line terminators
+    "-gnatyM120", # Maximum line length
+    "-gnatyO"     # Overriding subprograms explicitly marked as such]
+]
 
 [[depends-on]]
 septum = "~0.0.8"
