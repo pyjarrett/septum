@@ -42,6 +42,7 @@ package body SP.Cache is
             "h"    |
             "cpp"  |  -- C++
             "C"    |
+            "cc"   |
             "hpp"  |
             "hh"   |
             "inl"  |
