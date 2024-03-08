@@ -9,18 +9,18 @@ maintainers-logins = ["pyjarrett"]
 executables = ["septum_tests"]
 
 [[depends-on]]
-septum = "~0.0.1"
+septum = "~0.0.8"
 
 [[depends-on]]
 trendy_test = "~0.0.3"
 
 # Septum deps
 [[depends-on]]  # Added by alr
-dir_iterators = "~0.0.3"  # Added by alr
+dir_iterators = "~0.0.4"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
-trendy_terminal = "~0.0.4"  # Added by alr
+trendy_terminal = "~0.0.5"  # Added by alr
 
 [[pins]]
 septum = { path = ".." }
