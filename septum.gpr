@@ -40,7 +40,7 @@ project Septum is
          "-c0",                     -- Don't change comments.
          "--no-separate-is",
          "--no-separate-loop-then",
-         "-l2"                      -- Compact layoud
+         "-l2"                      -- Compact layout
          );
    end Pretty_Printer;
 
