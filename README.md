@@ -52,20 +52,10 @@ alr toolchain --select
 3. Build
 
 ```bash
-alr build
+alr build --release
 ```
 
 4. Executable should be at `bin/septum(.exe)`
-
-# Installation
-
-> Septum is currently available as a prerelease beta.
-
-**Windows Chocolatey** users can it in the [Chocolatey Community Repository](https://community.chocolatey.org/packages/septum/):
-
-```powershell
-choco install septum --version=0.0.7
-```
 
 # Contributing
 
