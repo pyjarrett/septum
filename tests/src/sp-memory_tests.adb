@@ -51,8 +51,8 @@ package body SP.Memory_Tests is
     ---------------------------------------------------------------------------
     -- Test Registry
     ---------------------------------------------------------------------------
-    function All_Tests return Trendy_Test.Test_Group is (
+    function All_Tests return Trendy_Test.Test_Group is [
         1 => Test_Count'Access
-        );
+        ];
 
 end SP.Memory_Tests;

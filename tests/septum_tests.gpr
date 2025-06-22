@@ -1,92 +1,15 @@
 with "atomic.gpr";
+with "config/septum_tests_config.gpr";
 with "trendy_test.gpr";
 with "septum.gpr";
 
 project Septum_Tests is
 
-   for Source_Dirs use ("src");
-   for Object_Dir use "obj";
+   for Source_Dirs use ("src/", "config/");
+   for Object_Dir use "obj/" & Septum_Tests_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";
    for Main use ("septum_tests.adb");
-
-   type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("SEPTUM_TESTS_COMPILE_CHECKS", "enabled");
-   Runtime_Checks : Enabled_Kind := External ("SEPTUM_TESTS_RUNTIME_CHECKS", "enabled");
-   Style_Checks : Enabled_Kind := External ("SEPTUM_TESTS_STYLE_CHECKS", "enabled");
-   Contracts_Checks : Enabled_Kind := External ("SEPTUM_TESTS_CONTRACTS", "enabled");
-
-   type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("SEPTUM_TESTS_BUILD_MODE", "debug");
-
-   Compile_Checks_Switches := ();
-   case Compile_Checks is
-      when "enabled" =>
-         Compile_Checks_Switches := (
-            "-gnatwa",  -- All warnings
-            "-gnatVa",  -- All validity checks
-            "-gnatwe"   -- Warnings as errors
-         );
-      when others => null;
-   end case;
-
-   Runtime_Checks_Switches := ();
-   case Runtime_Checks is
-      when "enabled" =>
-         Runtime_Checks_Switches := (
-            "-gnato",        -- Enable numeric overflow checking;         
-            "-fstack-check", -- Stack overflow checking
-            "-gnatVa"        -- All validity checks
-         );
-      when others =>
-         Runtime_Checks_Switches :=
-           ("-gnatp"); -- Suppress checks
-   end case;
-
-   Style_Checks_Switches := ();
-   case Style_Checks is
-      when "enabled" =>
-         Style_Checks_Switches := (
-            "-gnaty-d",   -- Disable no DOS line terminators
-            "-gnatyM120", -- Maximum line length
-            "-gnatyO"     -- Overriding subprograms explicitly marked as such
-         );
-      when others => null;
-   end case;
-
-   Contracts_Switches := ();
-   case Contracts_Checks is
-      when "enabled" =>
-         Contracts_Switches :=
-           ("-gnata"); --  Enable assertions and contracts
-      when others => null;
-   end case;
-
-   Build_Switches := ();
-   case Build_Mode is
-      when "optimize" =>
-         Build_Switches := ("-O3",     -- Optimization
-                            "-gnatn"); -- Enable inlining
-      when "debug" =>
-         Build_Switches := ("-g",   -- Debug info
-                            "-Og"); -- No optimization
-   end case;
-
-   package Compiler is
-      for Default_Switches ("Ada") use
-        Compile_Checks_Switches &
-        Build_Switches &
-        Runtime_Checks_Switches &
-        Style_Checks_Switches &
-        Contracts_Switches &
-        ("-gnatw.X",      -- Disable warnings for No_Exception_Propagation
-         "-gnatf",        -- Full errors. Multiple errors per line, all undefined references,
-                          -- Do not attempt to suppress cascaded errors. 
-         "-gnat12",       -- Use Ada 2012
-         "-gnatw.oa",     -- Warning settings
-         "-gnatQ"         -- Don't quit. Generate ALI and tree files even if illegalities
-        );
-   end Compiler;
 
    package Binder is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
@@ -102,5 +25,13 @@ project Septum_Tests is
          "-l2"                      -- Compact layoud
          );
    end Pretty_Printer;
+
+   package Compiler is
+      for Default_Switches ("Ada") use Septum_Tests_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
 
 end Septum_Tests;

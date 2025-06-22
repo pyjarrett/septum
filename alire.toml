@@ -1,6 +1,6 @@
 name = "septum"
 description = "An interactive context-based text search tool for large codebases."
-version = "0.0.8"
+version = "0.0.9"
 website = "https://github.com/pyjarrett/septum"
 
 authors = ["Paul Jarrett"]
@@ -15,6 +15,25 @@ executables = ["septum"]
 windows = { Septum_Platform = "windows" }
 linux = { Septum_Platform = "linux" }
 macos = { Septum_Platform = "macos" }
+
+[build-switches]
+Development.Debug_Info = "Yes"
+Development.Contracts = "Yes"
+Development.Runtime_Checks = [
+    "-gnato",        # Enable numeric overflow checking;
+    "-fstack-check", # Stack overflow checking
+    "-gnatVa"        # All validity checks
+]
+
+Release.Runtime_Checks = "None"
+
+"*".Compile_Checks = "Errors"
+"*".Ada_Version = "Ada2022"
+"*".Style_Checks = [
+    "-gnaty-d",   # Disable no DOS line terminators
+    "-gnatyM200", # Maximum line length
+    "-gnatyO"     # Overriding subprograms explicitly marked as such]
+]
 
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.4"  # Added by alr
