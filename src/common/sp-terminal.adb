@@ -26,16 +26,6 @@ package body SP.Terminal is
             & ANSI.Foreground (ANSI.Default);
     end Colorize;
 
-    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
-        return Ada.Strings.Unbounded.Unbounded_String
-    is
-        use all type Ada.Strings.Unbounded.Unbounded_String;
-    begin
-        return ANSI.Foreground (Color)
-            & US
-            & ANSI.Foreground (ANSI.Default);
-    end Colorize;
-
     protected body Cancellation_Gate is
         entry Closed when Finished is
         begin

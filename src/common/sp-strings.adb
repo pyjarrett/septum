@@ -19,7 +19,7 @@ with Ada.Characters.Latin_1;
 package body SP.Strings is
 
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
-        return String -- Ada.Strings.Unbounded.Unbounded_String
+        return String
     is
         use Ada.Strings.Unbounded;
         use SP.Strings.String_Vectors;
@@ -27,7 +27,6 @@ package body SP.Strings is
         R : Natural := 1;
         Result : Ada.Strings.Unbounded.Unbounded_String;
     begin
-    --    return 
       while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
          if L <= Natural (Length (Left)) then
             Append (Result, Left (L));
@@ -39,12 +38,11 @@ package body SP.Strings is
             R := R + 1;
          end if;
       end loop;
-      --   end return;
+
       return To_String (Result);
     end Zip;
 
     function Format_Array (S : SP.Strings.String_Vectors.Vector) return String is
-      --  Ada.Strings.Unbounded.Unbounded_String is
         use Ada.Strings.Unbounded;
         Result : Unbounded_String;
     begin
@@ -176,11 +174,12 @@ package body SP.Strings is
         return Result;
     end Make;
 
-    function Common_Prefix_Length
---        (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
-      (A : String; B : String) return Natural
+    --------------------------
+    -- Common_Prefix_Length --
+    --------------------------
+
+    function Common_Prefix_Length (A : String; B : String) return Natural
     is
-        use Ada.Strings.Unbounded;
         -- Finds the number of common starting characters between two strings.
     begin
         return Count : Natural := 0 do
@@ -191,10 +190,14 @@ package body SP.Strings is
         end return;
     end Common_Prefix_Length;
 
---   function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
-   function Matching_Suffix (Current, Desired : String) return String is
-      Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
-      Suffix        : constant String  := Desired (Prefix_Length + 1 .. Desired'Length);
+   ---------------------
+   -- Matching_Suffix --
+   ---------------------
+
+   function Matching_Suffix (Current, Desired : String) return String
+   is
+      Prefix_Length : constant Natural := Common_Prefix_Length (Current, Desired);
+      Suffix        : constant String  := Desired (Prefix_Length + Desired'First .. Desired'Last);
    begin
       return Suffix;
    end Matching_Suffix;

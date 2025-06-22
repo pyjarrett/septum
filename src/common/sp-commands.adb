@@ -36,7 +36,7 @@ package body SP.Commands is
     -- Executes a command.
 
     type Executable_Command is record
-        Simple_Help : String_Holders.Holder; -- Unbounded_String;
+        Simple_Help : String_Holders.Holder;
         -- A brief help description.
 
         Help : Help_Proc;
@@ -56,7 +56,7 @@ package body SP.Commands is
 
     function Is_Command (S : String) return Boolean is (Command_Map.Contains (S));
 
-    function Target_Command (Command_Name : String) return String -- Unbounded_String
+    function Target_Command (Command_Name : String) return String
     is
         Best_Match      : Unbounded_String := Null_Unbounded_String;
         Best_Match_Size : Natural          := 0;
@@ -88,7 +88,7 @@ package body SP.Commands is
     end Target_Command;
 
     function Is_Like_Command (S : String) return Boolean
-     is (Target_Command (S) /= ""); -- Null_Unbounded_String);
+     is (Target_Command (S) /= "");
 
     function Try_Parse (Str : String; Value : in out Positive) return Boolean is
     begin

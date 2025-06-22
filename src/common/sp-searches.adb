@@ -253,7 +253,7 @@ package body SP.Searches is
     procedure Matching_Contexts_In_File
         -- TODO: This code is a horrible mess and needs to be split up.
      (Srch : in Search;
-      File : in Sp.Cache.File_Name_String;   -- Unbounded_String
+      File : in Sp.Cache.File_Name_String;
       Concurrent_Results : in out Concurrent_Context_Results) is
         Excluded_Lines : SP.Contexts.Line_Matches.Set;
         First_Pass     : Boolean := True; -- The first filter pass has nothing to merge into.

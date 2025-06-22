@@ -17,8 +17,8 @@
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
+with Ada.Strings.Unbounded;
 
-with SP.Cache;
 with SP.File_System;
 with SP.Progress;
 with SP.Terminal;
@@ -69,8 +69,8 @@ package body SP.Cache is
             Contents.Clear;
         end Clear;
 
-      procedure Cache_File (File_Name : in File_Name_String;
-                            Lines : in String_Vectors.Vector) is
+        procedure Cache_File (File_Name : in File_Name_String;
+                              Lines : in String_Vectors.Vector) is
         begin
             if Contents.Contains (File_Name) then
                 SP.Terminal.Put_Line ("Replacing contents of " & File_Name);
@@ -109,8 +109,8 @@ package body SP.Cache is
             end return;
         end Files;
 
-      function File_Line (File_Name : in File_Name_String;
-                          Line : in Positive) return String is
+        function File_Line (File_Name : in File_Name_String;
+                            Line : in Positive) return String is
         begin
             return Contents.Element (File_Name).Element (Line);
         end File_Line;
@@ -160,7 +160,8 @@ package body SP.Cache is
             end File_Loader_Task;
 
             task body File_Loader_Task is
-                Elem : Ada.Strings.Unbounded.Unbounded_String;
+                use Ada.Strings.Unbounded;
+                Elem : Unbounded_String;
             begin
                 loop
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the

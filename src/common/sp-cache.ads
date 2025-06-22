@@ -14,9 +14,9 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Containers.Indefinite_Ordered_Maps;
+
 with SP.Strings;
---  with Ada.Containers.Ordered_Maps;
-with Ada.Strings.Unbounded;
 
 -- Super simple text file caching.
 --
@@ -34,22 +34,20 @@ with Ada.Strings.Unbounded;
 -- block with mmap and then replace newlines with '\0' and store byte counts
 -- to the initial part of every string.
 --
-with Ada.Containers.Indefinite_Ordered_Maps;
 
 package SP.Cache is
 
-    use Ada.Strings.Unbounded;
     use SP.Strings;
-   
-   subtype File_Name_String is String;
 
-   package File_Maps is new Ada.Containers.Indefinite_Ordered_Maps
-     (
-        Key_Type     => File_Name_String,
-        Element_Type => String_Vectors.Vector,
-        "<"          => Standard."<",
-        "="          => String_Vectors."="
-     );
+    subtype File_Name_String is String;
+
+    package File_Maps is new Ada.Containers.Indefinite_Ordered_Maps
+      (
+         Key_Type     => File_Name_String,
+         Element_Type => String_Vectors.Vector,
+         "<"          => Standard."<",
+         "="          => String_Vectors."="
+      );
 
     -- The available in-memory contents of files loaded from files.
     --

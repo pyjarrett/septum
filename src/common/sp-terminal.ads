@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
 with ANSI;
 
 with Trendy_Terminal.IO;
