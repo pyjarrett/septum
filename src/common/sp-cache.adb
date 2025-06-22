@@ -18,7 +18,6 @@ with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
 
-with SP.Cache;
 with SP.File_System;
 with SP.Progress;
 with SP.Terminal;
