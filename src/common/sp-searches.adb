@@ -27,6 +27,9 @@ with SP.Terminal;
 with System.Multiprocessors.Dispatching_Domains;
 
 package body SP.Searches is
+
+    package ASU renames Ada.Strings.Unbounded;
+
     use Ada.Strings.Unbounded;
     use SP.Terminal;
 

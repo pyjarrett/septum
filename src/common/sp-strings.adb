@@ -13,10 +13,14 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
-with Ada.Strings.Fixed;
+
 with Ada.Characters.Latin_1;
+with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 package body SP.Strings is
+
+    package ASU renames Ada.Strings.Unbounded;
 
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
         return String
@@ -210,9 +214,13 @@ package body SP.Strings is
             and then S (S'First) = S (S'Last);
     end Is_Quoted;
 
-    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
-        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
+    -------------------
+    -- Split_Command --
+    -------------------
 
+    function Split_Command (Input : String) return SP.Strings.String_Vectors.Vector
+    is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Input);
     begin
         return Result : SP.Strings.String_Vectors.Vector do
             for Word of Exploded.Words loop

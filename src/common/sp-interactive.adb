@@ -238,7 +238,7 @@ package body SP.Interactive is
         loop
             Write_Prompt (Srch);
             Input := Read_Command (Line_History);
-            Command_Line := SP.Strings.Split_Command (Input);
+            Command_Line := SP.Strings.Split_Command (ASU.To_String (Input));
 
             if not Command_Line.Is_Empty then
                 Result := SP.Commands.Execute (Srch, Command_Line);

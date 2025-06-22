@@ -17,7 +17,6 @@
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Indefinite_Holders;
-with Ada.Strings.Unbounded;
 
 -- A lot of what happens in Septum is related to strings.  It reads them from
 -- file, uses them as input for commands, looks for them with filters, attempts
@@ -67,7 +66,6 @@ with Ada.Strings.Unbounded;
 package SP.Strings
     with Preelaborate
 is
-    package ASU renames Ada.Strings.Unbounded;
 
     package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets
         (Element_Type => String,
@@ -93,7 +91,7 @@ is
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
 
-    function Split_Command (Input : ASU.Unbounded_String)
+    function Split_Command (Input : String)
                           return SP.Strings.String_Vectors.Vector;
 
     -- An exploded form of a line which allows the line to be recombined

@@ -23,7 +23,8 @@ with SP.Terminal;
 
 package body SP.File_System is
 
-    package AD renames Ada.Directories;
+    package AD  renames Ada.Directories;
+    package ASU renames Ada.Strings.Unbounded;
 
     function Is_File (Target : String) return Boolean is
         use type Ada.Directories.File_Kind;

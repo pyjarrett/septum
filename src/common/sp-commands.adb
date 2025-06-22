@@ -24,6 +24,8 @@ with SP.Terminal;
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
 
+    package ASU renames Ada.Strings.Unbounded;
+
     use Ada.Strings.Unbounded;
     use SP.Terminal;
 
