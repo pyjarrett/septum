@@ -75,7 +75,7 @@ is
     package String_Vectors is new Ada.Containers.Indefinite_Vectors
         (Index_Type   => Positive,
          Element_Type => String);
-   
+
     package String_Holders is new Ada.Containers.Indefinite_Holders
         (Element_Type => String);
 
