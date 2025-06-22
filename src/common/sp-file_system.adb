@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.IO_Exceptions;
-with Ada.Strings.Unbounded.Text_IO;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with SP.Platform;
@@ -74,16 +74,25 @@ package body SP.File_System is
         end return;
     end Contents;
 
+    ----------------
+    -- Read_Lines --
+    ----------------
+
     --  Reads all the lines from a file.
-    function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
+    function Read_Lines (File_Name : String;
+                         Result : out String_Vectors.Vector)
+                         return Boolean
+    is
         File : Ada.Text_IO.File_Type;
-        Line : Ada.Strings.Unbounded.Unbounded_String;
     begin
         String_Vectors.Clear (Result);
         Ada.Text_IO.Open (File => File, Mode => Ada.Text_IO.In_File, Name => File_Name);
         while not Ada.Text_IO.End_Of_File (File) loop
-            Line := Ada.Strings.Unbounded.Text_IO.Get_Line (File);
-            Result.Append (Asu.To_String (Line));
+            declare
+                Line : constant String := Ada.Text_IO.Get_Line (File);
+            begin
+                Result.Append (Line);
+            end;
         end loop;
 
         Ada.Text_IO.Close (File);
