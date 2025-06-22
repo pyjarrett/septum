@@ -13,11 +13,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+
 with Ada.Containers;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+
 with ANSI;
+
 with SP.Commands;
 with SP.Config;
 with SP.File_System;
@@ -25,6 +27,7 @@ with SP.Filters;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
+
 with Trendy_Terminal.Environments;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
@@ -32,7 +35,6 @@ with Trendy_Terminal.Lines.Line_Vectors;
 with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
-    package ASU renames Ada.Strings.Unbounded;
     use SP.Terminal;
 
     procedure Write_Prompt (Srch : in SP.Searches.Search) is
@@ -81,23 +83,34 @@ package body SP.Interactive is
         Put (Default_Prompt);
     end Write_Prompt;
 
-    function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
+    ----------------------
+    -- Apply_Formatting --
+    ----------------------
+
+    function Apply_Formatting
+       (V : SP.Strings.String_Vectors.Vector)
+        return SP.Strings.String_Vectors.Vector
+    is
         Result : SP.Strings.String_Vectors.Vector;
-        use all type ASU.Unbounded_String;
     begin
         for Index in 1 .. V.Length loop
             declare
-                US : constant ASU.Unbounded_String := ASU.To_Unbounded_String (V ( Positive (Index)));
-                S  : constant String := ASU.To_String (US);
+--                US : constant String := V ( Positive (Index));
+                S  : constant String := V ( Positive (Index));
                 use all type Ada.Containers.Count_Type;
             begin
                 if Positive (Index) = 1 then
-                    if SP.Commands.Is_Command (S) or else (SP.Commands.Is_Like_Command (S) and then V.Length > 1) then
+                    if
+                      SP.Commands.Is_Command (S) or else
+                      (SP.Commands.Is_Like_Command (S) and then V.Length > 1)
+                    then
                         Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
-                            Command : constant String := SP.Commands.Target_Command (S);
-                            Suffix  : constant String := SP.Strings.Matching_Suffix (To_String (Us), Command);
+                            Command : constant String :=
+                                SP.Commands.Target_Command (S);
+                            Suffix  : constant String :=
+                                SP.Strings.Matching_Suffix (S, Command);
                         begin
                             Result.Append (
                                 SP.Terminal.Colorize (S, ANSI.Yellow)
@@ -126,6 +139,10 @@ package body SP.Interactive is
         return Result;
     end Apply_Formatting;
 
+    ------------------
+    -- Format_Input --
+    ------------------
+
     function Format_Input (L : Trendy_Terminal.Lines.Line) return Trendy_Terminal.Lines.Line is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
         New_Line : constant String := SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words));
@@ -140,9 +157,7 @@ package body SP.Interactive is
         E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
         Cursor_Word : constant Positive := SP.Strings.Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
         Result      : Trendy_Terminal.Lines.Line_Vectors.Vector;
-        Completion  : ASU.Unbounded_String;
-        Suffix      : ASU.Unbounded_String;
---        use all type ASU.Unbounded_String;
+
         use SP.Strings.String_Vectors;
         use type Ada.Containers.Count_Type;
     begin
@@ -153,11 +168,17 @@ package body SP.Interactive is
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
             if SP.Commands.Is_Like_Command (E.Words(1)) then
-                Completion := Asu.To_Unbounded_String (SP.Commands.Target_Command (E.Words(1)));
-                Suffix := Asu.To_Unbounded_String     (SP.Strings.Matching_Suffix (E.Words (1), Asu.To_String (Completion)));
-                E.Words (1) := E.Words (1) & Asu.To_String (Suffix);
-                Result.Append (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
-                    Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
+                declare
+                    Completion  : constant String :=
+                        SP.Commands.Target_Command (E.Words (1));
+                    Suffix      : constant String :=
+                        SP.Strings.Matching_Suffix (E.Words (1), Completion);
+                begin
+                    E.Words (1) := E.Words (1) & Suffix;
+                    Result.Append
+                       (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
+                        Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (Suffix)));
+                end;
                 return Result;
             end if;
         else
