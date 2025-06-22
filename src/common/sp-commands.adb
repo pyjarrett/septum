@@ -16,6 +16,8 @@
 
 with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Directories;
+with Ada.Strings.Unbounded;
+
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;

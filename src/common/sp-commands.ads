@@ -14,8 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with SP.Searches;
 with SP.Strings;
 
@@ -26,7 +24,6 @@ package SP.Commands is
     pragma Elaborate_Body;
 
     use SP.Strings;
-    use type Ada.Strings.Unbounded.Unbounded_String;
 
     -- Checks to see if a command is understood.
     function Is_Command (S : String) return Boolean;
