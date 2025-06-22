@@ -181,13 +181,20 @@ package body SP.Interactive is
         return Result;
     end Complete_Input;
 
-    function Read_Command (Line_History : aliased in out Trendy_Terminal.Histories.History) return ASU.Unbounded_String is
-        Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
+    ------------------
+    -- Read_Command --
+    ------------------
+
+    function Read_Command
+      (Line_History : aliased in out Trendy_Terminal.Histories.History)
+       return String
+    is
+        Input : constant String :=
             Trendy_Terminal.IO.Line_Editors.Get_Line (
                 Format_Fn     => Format_Input'Access,
                 Completion_Fn => Complete_Input'Access,
                 Line_History  => Line_History'Unchecked_Access
-            ));
+            );
     begin
         -- Keep the input remaining on the line without clearing it.
         New_Line;
@@ -198,7 +205,6 @@ package body SP.Interactive is
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
     procedure Main is
-        Input        : ASU.Unbounded_String;
         Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
@@ -237,23 +243,27 @@ package body SP.Interactive is
 
         loop
             Write_Prompt (Srch);
-            Input := Read_Command (Line_History);
-            Command_Line := SP.Strings.Split_Command (ASU.To_String (Input));
+            declare
+                Input : constant String := Read_Command (Line_History);
+            begin
+                Command_Line := SP.Strings.Split_Command (Input);
 
-            if not Command_Line.Is_Empty then
-                Result := SP.Commands.Execute (Srch, Command_Line);
-                case Result is
-                    when SP.Commands.Command_Success => null;
-                        -- Add command to history
-                        Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
-                    when SP.Commands.Command_Failed =>
-                        Put_Line ("Command failed");
-                    when SP.Commands.Command_Unknown =>
-                        Put_Line ("Unknown command");
-                    when SP.Commands.Command_Exit_Requested =>
-                        return;
-                end case;
-            end if;
+                if not Command_Line.Is_Empty then
+                    Result := SP.Commands.Execute (Srch, Command_Line);
+                    case Result is
+                        when SP.Commands.Command_Success => null;
+                            -- Add command to history
+                            Trendy_Terminal.Histories.Add (Line_History, Input);
+                        when SP.Commands.Command_Failed =>
+                            Put_Line ("Command failed");
+                        when SP.Commands.Command_Unknown =>
+                            Put_Line ("Unknown command");
+                        when SP.Commands.Command_Exit_Requested =>
+                            return;
+                    end case;
+                end if;
+            end;
         end loop;
     end Main;
+
 end SP.Interactive;
