@@ -25,7 +25,7 @@ package body SP.Contexts is
              else Line + Context_Width);
     begin
         return C : Context_Match do
-            C.File_Name := Ada.Strings.Unbounded.To_Unbounded_String (File_Name);
+            C.File_Name := SP.Strings.String_Holders.To_Holder (File_Name);
             C.Internal_Matches.Insert (Line);
             C.Minimum := Minimum;
             C.Maximum := Maximum;
@@ -48,7 +48,8 @@ package body SP.Contexts is
         A_To_Right_Of_B : constant Boolean  := B.Maximum < A.Minimum;
         New_Min         : constant Positive := Positive'Max (A.Minimum, B.Minimum);
         New_Max         : constant Positive := Positive'Min (A.Maximum, B.Maximum);
-        use Ada.Strings.Unbounded;
+--        use Ada.Strings.Unbounded;
+        use type SP.Strings.String_Holders.Holder;
     begin
         return
             A.File_Name = B.File_Name and then not (A_To_Left_Of_B or else A_To_Right_Of_B)
@@ -64,9 +65,11 @@ package body SP.Contexts is
 
     function Contains (A, B : Context_Match) return Boolean is
         -- Does A fully contain B?
-        use type Ada.Strings.Unbounded.Unbounded_String;
+      use SP.Strings.String_Holders;
     begin
-        return A.File_Name = B.File_Name and then A.Minimum <= B.Minimum and then B.Maximum <= A.Maximum;
+      return A.File_Name = B.File_Name
+        and then A.Minimum <= B.Minimum
+        and then B.Maximum <= A.Maximum;
     end Contains;
 
     function Merge (A, B : Context_Match) return Context_Match is
@@ -81,21 +84,22 @@ package body SP.Contexts is
     end Merge;
 
     function Image (A : Context_Match) return String is
-        use Ada.Strings.Unbounded;
+      use Sp.Strings.String_Holders;
     begin
         return
-            To_String
-                (A.File_Name & ": " & A.Minimum'Image & " -> " & A.Maximum'Image & "  " &
-                 A.Internal_Matches.Length'Image & " matches");
+          A.File_Name.Element & ": " & A.Minimum'Image & " -> " & A.Maximum'Image & "  " &
+          A.Internal_Matches.Length'Image & " matches";
     end Image;
 
     overriding
     function "=" (A, B : Context_Match) return Boolean is
-        use Ada.Strings.Unbounded;
         use SP.Contexts.Line_Matches;
+        use Sp.Strings.String_Holders;
     begin
         return
-            A.File_Name = B.File_Name and then A.Minimum = B.Minimum and then B.Maximum = A.Maximum
+        A.File_Name = B.File_Name
+        and then A.Minimum = B.Minimum
+        and then B.Maximum = A.Maximum
             and then A.Internal_Matches = B.Internal_Matches;
     end "=";
 
@@ -103,8 +107,8 @@ package body SP.Contexts is
     begin
         return Files : SP.Strings.String_Sets.Set do
             for Context of V loop
-                if not Files.Contains (Context.File_Name) then
-                    Files.Insert (Context.File_Name);
+                if not Files.Contains (Context.File_Name.Element) then
+                    Files.Insert (Context.File_Name.Element);
                 end if;
             end loop;
         end return;

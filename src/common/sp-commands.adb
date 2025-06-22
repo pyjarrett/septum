@@ -14,8 +14,10 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Indefinite_Ordered_Maps;
 with Ada.Directories;
+with Ada.Strings.Unbounded;
+
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;
@@ -23,6 +25,8 @@ with SP.Terminal;
 
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
+
+    package ASU renames Ada.Strings.Unbounded;
 
     use Ada.Strings.Unbounded;
     use SP.Terminal;
@@ -36,7 +40,7 @@ package body SP.Commands is
     -- Executes a command.
 
     type Executable_Command is record
-        Simple_Help : Unbounded_String;
+        Simple_Help : String_Holders.Holder;
         -- A brief help description.
 
         Help : Help_Proc;
@@ -46,16 +50,17 @@ package body SP.Commands is
         -- Executes the command.
     end record;
 
-    package Command_Maps is new Ada.Containers.Ordered_Maps
-        (Key_Type => Unbounded_String, Element_Type => Executable_Command);
+    package Command_Maps is new Ada.Containers.Indefinite_Ordered_Maps
+        (Key_Type     => String,
+         Element_Type => Executable_Command);
 
     -- The command map is split between a the procedure to execute, and also a
     -- command to print help information.
     Command_Map : Command_Maps.Map;
 
-    function Is_Command (S : String) return Boolean is (Command_Map.Contains (To_Unbounded_String (S)));
+    function Is_Command (S : String) return Boolean is (Command_Map.Contains (S));
 
-    function Target_Command (Command_Name : Unbounded_String) return Unbounded_String
+    function Target_Command (Command_Name : String) return String
     is
         Best_Match      : Unbounded_String := Null_Unbounded_String;
         Best_Match_Size : Natural          := 0;
@@ -68,9 +73,9 @@ package body SP.Commands is
         end if;
 
         for Cursor in Command_Map.Iterate loop
-            Next_Match      := Command_Maps.Key (Cursor);
-            Next_Match_Size := Common_Prefix_Length (Next_Match, Command_Name);
-            if Next_Match_Size = Length(Command_Name) then
+            Next_Match      := Asu.To_Unbounded_String (Command_Maps.Key (Cursor));
+            Next_Match_Size := Common_Prefix_Length (To_String (Next_Match), Command_Name);
+            if Next_Match_Size = Command_Name'Length then
                 if Next_Match_Size = Best_Match_Size then
                     -- Two things with the same prefix, the prefix is ambiguous.
                     Best_Match := Null_Unbounded_String;
@@ -83,10 +88,11 @@ package body SP.Commands is
             end if;
         end loop;
 
-        return (if Ambiguous then Null_Unbounded_String else Best_Match);
+        return (if Ambiguous then "" else To_String (Best_Match));
     end Target_Command;
 
-    function Is_Like_Command (S : String) return Boolean is (Target_Command (To_Unbounded_String (S)) /= Null_Unbounded_String);
+    function Is_Like_Command (S : String) return Boolean
+     is (Target_Command (S) /= "");
 
     function Try_Parse (Str : String; Value : in out Positive) return Boolean is
     begin
@@ -97,10 +103,13 @@ package body SP.Commands is
             return False;
     end Try_Parse;
 
-    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
-        Command_Name : constant Unbounded_String :=
-            (if Command_Line.Is_Empty then To_Unbounded_String ("") else Command_Line.First_Element);
-        Best_Command : constant Unbounded_String := Target_Command (Command_Name);
+    function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result
+    is
+        Command_Name : constant String :=
+          (if Command_Line.Is_Empty
+           then ""
+           else Command_Line.First_Element);
+        Best_Command : constant String := Target_Command (Command_Name);
     begin
         if Command_Map.Contains (Best_Command) then
             declare
@@ -110,7 +119,7 @@ package body SP.Commands is
             begin
                 Parameters.Delete_First;
                 if Best_Command /= Command_Name then
-                    Put_Line ("Resolved to: " & To_String (Best_Command));
+                    Put_Line ("Resolved to: " & Best_Command);
                 end if;
                 New_Line;
                 return Command.Exec.all (Srch, Parameters);
@@ -121,7 +130,7 @@ package body SP.Commands is
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result is
         Commands : SP.Strings.String_Vectors.Vector;
-        function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
+--        function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
     begin
         if not Ada.Directories.Exists (File) then
             Put_Line ("No config to read at: " & Ada.Directories.Full_Name (File));
@@ -136,21 +145,21 @@ package body SP.Commands is
 
         for Command of Commands loop
             declare
-                Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (To_String (Command));
+                Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Command);
                 Command_Line : constant String_Vectors.Vector := Exploded.Words;
                 Result : Command_Result;
             begin
                 New_Line;
-                Put_Line (+" > " & Command);
+                Put_Line (" > " & Command);
                 Result := SP.Commands.Execute (Srch, Command_Line);
 
                 case Result is
                     when Command_Success => null;
                     when Command_Failed =>
-                        Put_Line (+"Command failed: " & Command);
+                        Put_Line ("Command failed: " & Command);
                         return Command_Failed;
                     when Command_Unknown =>
-                        Put_Line (+"Unable to execute: " & Command);
+                        Put_Line ("Unable to execute: " & Command);
                         return Command_Unknown;
                     when Command_Exit_Requested =>
                         return Command_Exit_Requested;
@@ -195,14 +204,14 @@ package body SP.Commands is
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
             Set_Col (30);
-            Put_Line (Element (Cursor).Simple_Help);
+            Put_Line (Element (Cursor).Simple_Help.Element);
         end loop;
     end Help_Help;
 
-    function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
-        Command : constant Unbounded_String :=
-            (if Command_Line.Is_Empty then Null_Unbounded_String else Command_Line.First_Element);
-        Target : constant Unbounded_String := Target_Command (Command);
+    function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result
+    is
+        Command : constant String := (if Command_Line.Is_Empty then "" else Command_Line.First_Element);
+        Target  : constant String := Target_Command (Command);
         use Command_Maps;
     begin
         pragma Unreferenced (Srch);
@@ -280,23 +289,23 @@ package body SP.Commands is
             declare
                 Result : Command_Result;
             begin
-                if SP.Searches.Is_Running_Script (Srch, ASU.To_String (File)) then
+                if SP.Searches.Is_Running_Script (Srch, File) then
                     Put_Line ("Script file being sourced is being sourced again.");
                     return Command_Failed;
                 end if;
 
-                SP.Searches.Push_Script (Srch, ASU.To_String (File));
-                Result := Run_Commands_From_File (Srch, ASU.To_String (File));
+                SP.Searches.Push_Script (Srch, File);
+                Result := Run_Commands_From_File (Srch, File);
                 if Result /= Command_Success then
-                    SP.Searches.Pop_Script (Srch, ASU.To_String (File));
+                    SP.Searches.Pop_Script (Srch, File);
                     return Result;
                 end if;
-                SP.Searches.Pop_Script (Srch, ASU.To_String (File));
+                SP.Searches.Pop_Script (Srch, File);
 
             exception
                 when others =>
                     Put_Line ("Unknown exception");
-                    SP.Searches.Pop_Script (Srch, ASU.To_String (File));
+                    SP.Searches.Pop_Script (Srch, File);
             end;
         end loop;
 
@@ -320,7 +329,7 @@ package body SP.Commands is
         for Input of Command_Line loop
             Put_Line (Input);
 
-            SP.Searches.Test (Srch, ASU.To_String (Input));
+            SP.Searches.Test (Srch, Input);
 
             New_Line;
         end loop;
@@ -343,7 +352,7 @@ package body SP.Commands is
         end if;
 
         for Directory of Command_Line loop
-            if not SP.Searches.Add_Directory (Srch, To_String (Directory)) then
+            if not SP.Searches.Add_Directory (Srch, Directory) then
                 Put_Line ("Directory load aborted.");
             end if;
         end loop;
@@ -364,7 +373,7 @@ package body SP.Commands is
             return Command_Failed;
         end if;
         for Directory of SP.Searches.List_Directories (Srch) loop
-            Put_Line (To_String (Directory));
+            Put_Line (Directory);
         end loop;
         return Command_Success;
     end List_Dirs_Exec;
@@ -401,7 +410,7 @@ package body SP.Commands is
         end if;
 
         for Extension of Command_Line loop
-            SP.Searches.Add_Extension (Srch, To_String (Extension));
+            SP.Searches.Add_Extension (Srch, Extension);
         end loop;
         return Command_Success;
     end Add_Extensions_Exec;
@@ -439,7 +448,7 @@ package body SP.Commands is
         end if;
 
         for Extension of Command_Line loop
-            SP.Searches.Remove_Extension (Srch, To_String (Extension));
+            SP.Searches.Remove_Extension (Srch, Extension);
         end loop;
         return Command_Success;
     end Remove_Extensions_Exec;
@@ -456,7 +465,7 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
         for Ext of Extensions loop
-            Put_Line (To_String (Ext));
+            Put_Line (Ext);
         end loop;
         return Command_Success;
     end List_Extensions_Exec;
@@ -471,7 +480,7 @@ package body SP.Commands is
     function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Text (Srch, To_String (Word));
+            SP.Searches.Find_Text (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -488,7 +497,7 @@ package body SP.Commands is
     function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Text (Srch, To_String (Word));
+            SP.Searches.Exclude_Text (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -505,7 +514,7 @@ package body SP.Commands is
     function Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Like (Srch, To_String (Word));
+            SP.Searches.Find_Like (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -522,7 +531,7 @@ package body SP.Commands is
     function Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Like (Srch, To_String (Word));
+            SP.Searches.Exclude_Like (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -539,7 +548,7 @@ package body SP.Commands is
     function Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Regex (Srch, To_String (Word));
+            SP.Searches.Find_Regex (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -556,7 +565,7 @@ package body SP.Commands is
     function Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Regex (Srch, To_String (Word));
+            SP.Searches.Exclude_Regex (Srch, Word);
         end loop;
 
         Search_Updated (Srch);
@@ -578,7 +587,7 @@ package body SP.Commands is
             return Command_Failed;
         end if;
         for Name of Filter_Names loop
-            Put_Line (To_String (Name));
+            Put_Line (Name);
         end loop;
         return Command_Success;
     end List_Filters_Exec;
@@ -594,7 +603,7 @@ package body SP.Commands is
     begin
         return Indices : SP.Searches.Positive_Vectors.Vector do
             for Index_String of Command_Line loop
-                if Try_Parse (ASU.To_String (Index_String), Index) then
+                if Try_Parse (Index_String, Index) then
                     Indices.Append (Index);
                 else
                     Put_Line (Index_String & " is not an index");
@@ -665,7 +674,7 @@ package body SP.Commands is
             use type Ada.Containers.Count_Type;
         begin
             for Index_String of Command_Line loop
-                if Try_Parse (ASU.To_String (Index_String), Index) then
+                if Try_Parse (Index_String, Index) then
                     if Natural (Index) > SP.Searches.Num_Filters (Srch) then
                         Put_Line ("Filter index out of range:" & Index'Image);
                     else
@@ -742,8 +751,8 @@ package body SP.Commands is
     begin
         case Command_Line.Length is
         when 2 =>
-            if Try_Parse (To_String (Command_Line.First_Element), First)
-                and then Try_Parse (To_String (Command_Line.Element (2)), Last)
+            if Try_Parse (Command_Line.First_Element, First)
+                and then Try_Parse (Command_Line.Element (2), Last)
                 and then First <= Last
             then
                 SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, First, Last);
@@ -752,7 +761,7 @@ package body SP.Commands is
                 return Command_Failed;
             end if;
         when 1 =>
-            if not Try_Parse (To_String(Command_Line.First_Element), Last) then
+            if not Try_Parse (Command_Line.First_Element, Last) then
                 SP.Terminal.Put_Line ("Bad number of results to give.");
                 return Command_Failed;
             end if;
@@ -818,7 +827,7 @@ package body SP.Commands is
                 Put_Line ("Removing context width restriction");
                 SP.Searches.Set_Context_Width (Srch, SP.Searches.No_Context_Width);
             when 1 =>
-                Context_Width := Natural'Value (To_String (Command_Line.First_Element));
+                Context_Width := Natural'Value (Command_Line.First_Element);
                 SP.Searches.Set_Context_Width (Srch, Context_Width);
                 Put_Line ("Context width set to " & Context_Width'Image);
             when others =>
@@ -829,7 +838,7 @@ package body SP.Commands is
         return Command_Success;
     exception
         when Constraint_Error =>
-            Put_Line ("Invalid context width: " & To_String (Command_Line.First_Element));
+            Put_Line ("Invalid context width: " & Command_Line.First_Element);
         return Command_Failed;
     end Set_Context_Width_Exec;
 
@@ -848,7 +857,7 @@ package body SP.Commands is
                 Put_Line ("Removing maximum result restriction");
                 SP.Searches.Set_Max_Results (Srch, SP.Searches.No_Max_Results);
             when 1 =>
-                Max_Results := Natural'Value (To_String (Command_Line.First_Element));
+                Max_Results := Natural'Value (Command_Line.First_Element);
                 if Max_Results = 0 then
                     Put_Line ("Must return at least 1 result.");
                     return Command_Failed;
@@ -863,7 +872,7 @@ package body SP.Commands is
         return Command_Success;
     exception
         when Constraint_Error =>
-            Put_Line ("Invalid number of maximum results: " & To_String (Command_Line.First_Element));
+            Put_Line ("Invalid number of maximum results: " & Command_Line.First_Element);
         return Command_Failed;
     end Set_Max_Results_Exec;
 
@@ -966,11 +975,16 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
-        Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
+    procedure Make_Command (Command     : String;
+                            Simple_Help : String;
+                            Help        : Help_Proc;
+                            Exec        : Exec_Proc)
+    with
+       Pre => Command'Length > 0
+              and then not Command_Map.Contains (Command)
     is
     begin
-        Command_Map.Insert (To_Unbounded_String (Command), (To_Unbounded_String (Simple_Help), Help, Exec));
+        Command_Map.Insert (Command, (String_Holders.To_Holder (Simple_Help), Help, Exec));
     end Make_Command;
 
 begin

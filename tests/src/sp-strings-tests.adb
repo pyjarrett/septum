@@ -1,15 +1,11 @@
 with Ada.Characters.Latin_1;
-with Ada.Strings.Unbounded;
+
 with Trendy_Test.Assertions.Integer_Assertions;
 
 package body SP.Strings.Tests is
 
-    package ASU renames Ada.Strings.Unbounded;
-
     use Trendy_Test.Assertions;
     use Trendy_Test.Assertions.Integer_Assertions;
-
-    function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
     procedure Test_String_Split (Op : in out Trendy_Test.Operation'Class) is
         E : Exploded_Line;
@@ -61,12 +57,12 @@ package body SP.Strings.Tests is
     begin
         Op.Register;
 
-        Trendy_TestI.Assert_EQ (Op, Common_Prefix_Length(+"", +"SP.Strings"), 0);
-        Assert_EQ (Op, Common_Prefix_Length(+"SP.Strings", +""), 0);
-        Assert_EQ (Op, Common_Prefix_Length(+"", +""), 0);
+        Trendy_TestI.Assert_EQ (Op, Common_Prefix_Length("", "SP.Strings"), 0);
+        Assert_EQ (Op, Common_Prefix_Length("SP.Strings", ""), 0);
+        Assert_EQ (Op, Common_Prefix_Length("", ""), 0);
 
-        Assert_EQ (Op, Common_Prefix_Length(+"SP.Searches", +"SP.Strings"), 4);
-        Assert_EQ (Op, Common_Prefix_Length(+"SP.Strings", +"SP.Strings"), ASU.Length (+"SP.Strings"));
+        Assert_EQ (Op, Common_Prefix_Length("SP.Searches", "SP.Strings"), 4);
+        Assert_EQ (Op, Common_Prefix_Length("SP.Strings", "SP.Strings"), String'("SP.Strings")'Length);
     end Test_Common_Prefix_Length;
 
     ---------------------------------------------------------------------------

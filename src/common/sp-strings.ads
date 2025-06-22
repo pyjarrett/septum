@@ -14,9 +14,9 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Containers.Ordered_Sets;
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
+with Ada.Containers.Indefinite_Ordered_Sets;
+with Ada.Containers.Indefinite_Vectors;
+with Ada.Containers.Indefinite_Holders;
 
 -- A lot of what happens in Septum is related to strings.  It reads them from
 -- file, uses them as input for commands, looks for them with filters, attempts
@@ -66,28 +66,33 @@ with Ada.Strings.Unbounded;
 package SP.Strings
     with Preelaborate
 is
-    package ASU renames Ada.Strings.Unbounded;
 
-    package String_Sets is new Ada.Containers.Ordered_Sets
-        (Element_Type => ASU.Unbounded_String, "<" => ASU."<",
-         "="          => ASU."=");
-    package String_Vectors is new Ada.Containers.Vectors
-        (Index_Type => Positive, Element_Type => ASU.Unbounded_String,
-         "="        => ASU."=");
+    package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets
+        (Element_Type => String,
+         "<"          => Standard."<",
+         "="          => Standard."=");
 
-    function Zip (Left, Right : String_Vectors.Vector) return ASU.Unbounded_String;
-    function Format_Array (S : String_Vectors.Vector) return ASU.Unbounded_String;
+    package String_Vectors is new Ada.Containers.Indefinite_Vectors
+        (Index_Type   => Positive,
+         Element_Type => String);
 
-    function Common_Prefix_Length (A, B : ASU.Unbounded_String) return Natural
+    package String_Holders is new Ada.Containers.Indefinite_Holders
+        (Element_Type => String);
+
+    function Zip (Left, Right : String_Vectors.Vector) return String;
+    function Format_Array (S : String_Vectors.Vector) return String;
+
+    function Common_Prefix_Length (A, B : String) return Natural
     with
-        Post => Common_Prefix_Length'Result <= Natural'Max (ASU.Length (A), ASU.Length (B));
+        Post => Common_Prefix_Length'Result <= Natural'Max (A'Length, B'Length);
 
-    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String;
+    function Matching_Suffix (Current, Desired : String) return String;
 
     -- Quoted strings must start and end with either a single or a double quote.
     function Is_Quoted (S : String) return Boolean;
 
-    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector;
+    function Split_Command (Input : String)
+                          return SP.Strings.String_Vectors.Vector;
 
     -- An exploded form of a line which allows the line to be recombined
     -- transparently to a user, by reapplying the appropriate amounts and types
@@ -110,10 +115,15 @@ is
     -- sequences in UTF-8.  Incurring technical debt here on purpose to try to get
     -- the command line formatter stood up more quickly.
     function Make (S : String) return Exploded_Line;
-    function Get_Word (E : Exploded_Line; Index : Positive) return String is (ASU.To_String (E.Words.Element (Index)));
+
+    function Get_Word (E : Exploded_Line; Index : Positive) return String
+    is (E.Words.Element (Index));
+
     function Num_Words (E : Exploded_Line) return Natural is (Natural (E.Words.Length));
 
-    function Get_Cursor_Word (E : SP.Strings.Exploded_Line; Cursor_Position : Positive) return Natural;
-    function Cursor_Position_At_End_Of_Word (E : SP.Strings.Exploded_Line; Word : Positive) return Positive;
+    function Get_Cursor_Word (E : SP.Strings.Exploded_Line;
+                             Cursor_Position : Positive) return Natural;
+    function Cursor_Position_At_End_Of_Word (E : SP.Strings.Exploded_Line;
+                                            Word : Positive) return Positive;
 
 end SP.Strings;

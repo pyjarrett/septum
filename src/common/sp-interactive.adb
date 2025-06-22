@@ -13,11 +13,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+
 with Ada.Containers;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+
 with ANSI;
+
 with SP.Commands;
 with SP.Config;
 with SP.File_System;
@@ -25,6 +27,7 @@ with SP.Filters;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
+
 with Trendy_Terminal.Environments;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
@@ -32,7 +35,6 @@ with Trendy_Terminal.Lines.Line_Vectors;
 with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
-    package ASU renames Ada.Strings.Unbounded;
     use SP.Terminal;
 
     procedure Write_Prompt (Srch : in SP.Searches.Search) is
@@ -81,44 +83,55 @@ package body SP.Interactive is
         Put (Default_Prompt);
     end Write_Prompt;
 
-    function Apply_Formatting (V : SP.Strings.String_Vectors.Vector) return SP.Strings.String_Vectors.Vector is
+    ----------------------
+    -- Apply_Formatting --
+    ----------------------
+
+    function Apply_Formatting
+       (V : SP.Strings.String_Vectors.Vector)
+        return SP.Strings.String_Vectors.Vector
+    is
         Result : SP.Strings.String_Vectors.Vector;
-        use all type ASU.Unbounded_String;
     begin
         for Index in 1 .. V.Length loop
             declare
-                US : constant ASU.Unbounded_String := V ( Positive (Index));
-                S  : constant String := ASU.To_String (US);
+--                US : constant String := V ( Positive (Index));
+                S  : constant String := V ( Positive (Index));
                 use all type Ada.Containers.Count_Type;
             begin
                 if Positive (Index) = 1 then
-                    if SP.Commands.Is_Command (S) or else (SP.Commands.Is_Like_Command (S) and then V.Length > 1) then
-                        Result.Append (SP.Terminal.Colorize(US, ANSI.Green));
+                    if
+                      SP.Commands.Is_Command (S) or else
+                      (SP.Commands.Is_Like_Command (S) and then V.Length > 1)
+                    then
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
-                            Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
-                            Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
+                            Command : constant String :=
+                                SP.Commands.Target_Command (S);
+                            Suffix  : constant String :=
+                                SP.Strings.Matching_Suffix (S, Command);
                         begin
                             Result.Append (
-                                SP.Terminal.Colorize (US, ANSI.Yellow)
+                                SP.Terminal.Colorize (S, ANSI.Yellow)
                                 & SP.Terminal.Colorize (Suffix, ANSI.Light_Cyan));
                         end;
                     else
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
                     end if;
                 elsif SP.Commands.Target_Command (V (1)) = "find-regex"
                     or else SP.Commands.Target_Command (V (1)) = "exclude-regex"
                 then
                     if SP.Filters.Is_Valid_Regex (S) then
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Green));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Green));
                     else
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Red));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Red));
                     end if;
                 else
                     if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
-                        Result.Append (SP.Terminal.Colorize (US, ANSI.Magenta));
+                        Result.Append (SP.Terminal.Colorize (S, ANSI.Magenta));
                     else
-                        Result.Append (US);
+                        Result.Append (S);
                     end if;
                 end if;
             end;
@@ -126,9 +139,13 @@ package body SP.Interactive is
         return Result;
     end Apply_Formatting;
 
+    ------------------
+    -- Format_Input --
+    ------------------
+
     function Format_Input (L : Trendy_Terminal.Lines.Line) return Trendy_Terminal.Lines.Line is
         Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
-        New_Line : constant String := ASU.To_String (SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words)));
+        New_Line : constant String := SP.Strings.Zip (Exploded.Spacers, Apply_Formatting (Exploded.Words));
     begin
         return Trendy_Terminal.Lines.Make (New_Line, New_Line'Length + 1);
     end Format_Input;
@@ -140,9 +157,7 @@ package body SP.Interactive is
         E           : SP.Strings.Exploded_Line := SP.Strings.Make (Trendy_Terminal.Lines.Current (L));
         Cursor_Word : constant Positive := SP.Strings.Get_Cursor_Word (E, Trendy_Terminal.Lines.Get_Cursor_Index (L));
         Result      : Trendy_Terminal.Lines.Line_Vectors.Vector;
-        Completion  : ASU.Unbounded_String;
-        Suffix      : ASU.Unbounded_String;
-        use all type ASU.Unbounded_String;
+
         use SP.Strings.String_Vectors;
         use type Ada.Containers.Count_Type;
     begin
@@ -152,23 +167,29 @@ package body SP.Interactive is
 
         -- Find the position of the cursor within line.
         if Cursor_Word = 1 then
-            if SP.Commands.Is_Like_Command (ASU.To_String (E.Words(1))) then
-                Completion := SP.Commands.Target_Command (E.Words(1));
-                Suffix := SP.Strings.Matching_Suffix (E.Words (1), Completion);
-                E.Words (1) := E.Words (1) & Suffix;
-                Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
-                    Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (ASU.To_String (Suffix))));
+            if SP.Commands.Is_Like_Command (E.Words(1)) then
+                declare
+                    Completion  : constant String :=
+                        SP.Commands.Target_Command (E.Words (1));
+                    Suffix      : constant String :=
+                        SP.Strings.Matching_Suffix (E.Words (1), Completion);
+                begin
+                    E.Words (1) := E.Words (1) & Suffix;
+                    Result.Append
+                       (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
+                        Trendy_Terminal.Lines.Get_Cursor_Index (L) + Trendy_Terminal.Lines.Num_Cursor_Positions (Suffix)));
+                end;
                 return Result;
             end if;
         else
             declare
-                Completions : SP.Strings.String_Vectors.Vector := SP.File_System.File_Completions (ASU.To_String (E.Words (Cursor_Word)));
+                Completions : SP.Strings.String_Vectors.Vector := SP.File_System.File_Completions (E.Words (Cursor_Word));
                 package String_Sorting is new SP.Strings.String_Vectors.Generic_Sorting;
             begin
                 String_Sorting.Sort (Completions);
                 for Completion of Completions loop
                     E.Words (Cursor_Word) := Completion;
-                    Result.Append (Trendy_Terminal.Lines.Make (ASU.To_String (SP.Strings.Zip (E.Spacers, E.Words)),
+                    Result.Append (Trendy_Terminal.Lines.Make (SP.Strings.Zip (E.Spacers, E.Words),
                         SP.Strings.Cursor_Position_At_End_Of_Word (E, Cursor_Word)));
                 end loop;
             end;
@@ -181,13 +202,20 @@ package body SP.Interactive is
         return Result;
     end Complete_Input;
 
-    function Read_Command (Line_History : aliased in out Trendy_Terminal.Histories.History) return ASU.Unbounded_String is
-        Input : constant ASU.Unbounded_String := ASU.To_Unbounded_String(
+    ------------------
+    -- Read_Command --
+    ------------------
+
+    function Read_Command
+      (Line_History : aliased in out Trendy_Terminal.Histories.History)
+       return String
+    is
+        Input : constant String :=
             Trendy_Terminal.IO.Line_Editors.Get_Line (
                 Format_Fn     => Format_Input'Access,
                 Completion_Fn => Complete_Input'Access,
                 Line_History  => Line_History'Unchecked_Access
-            ));
+            );
     begin
         -- Keep the input remaining on the line without clearing it.
         New_Line;
@@ -198,7 +226,6 @@ package body SP.Interactive is
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
     procedure Main is
-        Input        : ASU.Unbounded_String;
         Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
@@ -222,14 +249,14 @@ package body SP.Interactive is
         New_Line;
 
         for Config of Configs loop
-            Result := SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config));
+            Result := SP.Commands.Run_Commands_From_File (Srch, Config);
             case Result is
                 when SP.Commands.Command_Success => null;
                 when SP.Commands.Command_Failed =>
-                    Put_Line ("Failing running commands from: " & ASU.To_String(Config));
+                    Put_Line ("Failing running commands from: " & Config);
                     return;
                 when SP.Commands.Command_Unknown =>
-                    Put_Line ("Unknown command in: " & ASU.To_String(Config));
+                    Put_Line ("Unknown command in: " & Config);
                 when SP.Commands.Command_Exit_Requested =>
                     return;
             end case;
@@ -237,23 +264,27 @@ package body SP.Interactive is
 
         loop
             Write_Prompt (Srch);
-            Input := Read_Command (Line_History);
-            Command_Line := SP.Strings.Split_Command (Input);
+            declare
+                Input : constant String := Read_Command (Line_History);
+            begin
+                Command_Line := SP.Strings.Split_Command (Input);
 
-            if not Command_Line.Is_Empty then
-                Result := SP.Commands.Execute (Srch, Command_Line);
-                case Result is
-                    when SP.Commands.Command_Success => null;
-                        -- Add command to history
-                        Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
-                    when SP.Commands.Command_Failed =>
-                        Put_Line ("Command failed");
-                    when SP.Commands.Command_Unknown =>
-                        Put_Line ("Unknown command");
-                    when SP.Commands.Command_Exit_Requested =>
-                        return;
-                end case;
-            end if;
+                if not Command_Line.Is_Empty then
+                    Result := SP.Commands.Execute (Srch, Command_Line);
+                    case Result is
+                        when SP.Commands.Command_Success => null;
+                            -- Add command to history
+                            Trendy_Terminal.Histories.Add (Line_History, Input);
+                        when SP.Commands.Command_Failed =>
+                            Put_Line ("Command failed");
+                        when SP.Commands.Command_Unknown =>
+                            Put_Line ("Unknown command");
+                        when SP.Commands.Command_Exit_Requested =>
+                            return;
+                    end case;
+                end if;
+            end;
         end loop;
     end Main;
+
 end SP.Interactive;

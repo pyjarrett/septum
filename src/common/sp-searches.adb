@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Strings.Unbounded;
+
 with ANSI;
 with Atomic.Signed;
 
@@ -27,7 +27,7 @@ with SP.Terminal;
 with System.Multiprocessors.Dispatching_Domains;
 
 package body SP.Searches is
-    use Ada.Strings.Unbounded;
+
     use SP.Terminal;
 
     function Load_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
@@ -50,8 +50,8 @@ package body SP.Searches is
         -- timestamp.
         Srch.File_Cache.Clear;
         for Dir_Name of Srch.Directories loop
-            if not Load_Directory (Srch, To_String (Dir_Name)) then
-                Put_Line ("Did not finish loading directory: " & To_String (Dir_Name));
+            if not Load_Directory (Srch, Dir_Name) then
+                Put_Line ("Did not finish loading directory: " & Dir_Name);
                 return False;
             end if;
         end loop;
@@ -60,13 +60,12 @@ package body SP.Searches is
 
     function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
-        Unbounded_Name : constant Unbounded_String := To_Unbounded_String (Dir_Name);
-        Path_Exists    : constant Boolean          := Exists (Dir_Name);
-        Is_Directory   : constant Boolean          := Path_Exists and then Kind (Dir_Name) = Directory;
+        Path_Exists    : constant Boolean := Exists (Dir_Name);
+        Is_Directory   : constant Boolean := Path_Exists and then Kind (Dir_Name) = Directory;
     begin
         -- TODO: this should also ensure new directories aren't subdirectories of existing directories
-        if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
-            Srch.Directories.Insert (Unbounded_Name);
+        if Is_Directory and then not Srch.Directories.Contains (Dir_Name) then
+            Srch.Directories.Insert (Dir_Name);
             if Load_Directory (Srch, Dir_Name) then
                 SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
                 return True;
@@ -96,18 +95,16 @@ package body SP.Searches is
     end Clear_Directories;
 
     procedure Add_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
-        if not Srch.Extensions.Contains (Ext) then
-            Srch.Extensions.Insert (Ext);
+        if not Srch.Extensions.Contains (Extension) then
+            Srch.Extensions.Insert (Extension);
         end if;
     end Add_Extension;
 
     procedure Remove_Extension (Srch : in out Search; Extension : String) is
-        Ext : constant Unbounded_String := To_Unbounded_String (Extension);
     begin
-        if Srch.Extensions.Contains (Ext) then
-            Srch.Extensions.Delete (Ext);
+        if Srch.Extensions.Contains (Extension) then
+            Srch.Extensions.Delete (Extension);
         end if;
     end Remove_Extension;
 
@@ -235,7 +232,7 @@ package body SP.Searches is
     begin
         return V : String_Vectors.Vector do
             for F of Srch.Line_Filters loop
-                V.Append (To_Unbounded_String (F.Get.Action'Image & " : " & Image (F.Get)));
+                V.Append (F.Get.Action'Image & " : " & Image (F.Get));
             end loop;
         end return;
     end List_Filter_Names;
@@ -255,7 +252,9 @@ package body SP.Searches is
 
     procedure Matching_Contexts_In_File
         -- TODO: This code is a horrible mess and needs to be split up.
-        (Srch : in Search; File : in Unbounded_String; Concurrent_Results : in out Concurrent_Context_Results) is
+     (Srch : in Search;
+      File : in Sp.Cache.File_Name_String;
+      Concurrent_Results : in out Concurrent_Context_Results) is
         Excluded_Lines : SP.Contexts.Line_Matches.Set;
         First_Pass     : Boolean := True; -- The first filter pass has nothing to merge into.
         Lines          : SP.Contexts.Line_Matches.Set;
@@ -276,7 +275,7 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines,
+                            (File, Natural (Srch.File_Cache.Lines (File).Length), Lines,
                              Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
@@ -360,9 +359,9 @@ package body SP.Searches is
 
             for File of Srch.File_Cache.Files loop
                 declare
-                    Extension : constant String := Ada.Directories.Extension (To_String(File));
+                    Extension : constant String := Ada.Directories.Extension (File);
                 begin
-                    if Srch.Extensions.Contains (To_Unbounded_String(Extension)) then
+                    if Srch.Extensions.Contains (Extension) then
                         Result.Append (File);
                     end if;
                 end;
@@ -370,7 +369,13 @@ package body SP.Searches is
         end return;
     end Files_To_Search;
 
-    function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
+    -----------------------
+    -- Matching_Contexts --
+    -----------------------
+
+    function Matching_Contexts (Srch : in Search)
+                                return SP.Contexts.Context_Vectors.Vector
+    is
         package Atomic_Int is new Atomic.Signed (T => Integer);
 
         Files          : constant String_Vectors.Vector := Files_To_Search (Srch);
@@ -383,16 +388,21 @@ package body SP.Searches is
             entry Start;
         end Matching_Context_Search;
 
-        task body Matching_Context_Search is
+        task body Matching_Context_Search
+        is
+            use String_Holders;
+
             Next_Index : Natural;
-            Next_File  : Unbounded_String;
+            Next_File  : Holder;
         begin
             accept Start;
             loop
                 Next_Index := Natural (Atomic_Int.Fetch_Add (Next_Access.all, 1));
                 if Next_Index <= Natural (Files.Length) then
-                    Next_File := Files (Next_Index);
-                    Matching_Contexts_In_File (Srch, Next_File, Merged_Results);
+                    Next_File := To_Holder (Files (Next_Index));
+                    Matching_Contexts_In_File (Srch,
+                                               Next_File.Element,
+                                               Merged_Results);
                 else
                     exit;
                 end if;
@@ -427,7 +437,7 @@ package body SP.Searches is
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), ANSI.Light_Magenta));
+        Put_Line (SP.Terminal.Colorize (Context.File_Name.Element, ANSI.Light_Magenta));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
                 Put ("-> ");
@@ -449,10 +459,10 @@ package body SP.Searches is
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
                 Put_Line (SP.Terminal.Colorize (
-                    To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
+                    Srch.File_Cache.File_Line (Context.File_Name.Element, Line_Num),
                     ANSI.Green));
             else
-                Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+                Put_Line (Srch.File_Cache.File_Line (Context.File_Name.Element, Line_Num));
             end if;
         end loop;
         New_Line;
@@ -520,16 +530,16 @@ package body SP.Searches is
 
 
     function Is_Running_Script (Srch : Search; Script_Path : String) return Boolean
-        is (Srch.Script_Stack.Contains (ASU.To_Unbounded_String (Script_Path)));
+        is (Srch.Script_Stack.Contains (Script_Path));
 
     procedure Push_Script (Srch : in out Search; Script_Path : String) is
     begin
-        Srch.Script_Stack.Insert (ASU.To_Unbounded_String (Script_Path));
+        Srch.Script_Stack.Insert (Script_Path);
     end Push_Script;
 
     procedure Pop_Script (Srch : in out Search; Script_Path : String) is
     begin
-        Srch.Script_Stack.Delete (ASU.To_Unbounded_String (Script_Path));
+        Srch.Script_Stack.Delete (Script_Path);
     end Pop_Script;
 
     procedure Test (Srch : Search; Input : String) is

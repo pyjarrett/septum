@@ -13,34 +13,40 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
-with Ada.Strings.Fixed;
+
 with Ada.Characters.Latin_1;
+with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 package body SP.Strings is
+
+    package ASU renames Ada.Strings.Unbounded;
+
     function Zip (Left : SP.Strings.String_Vectors.Vector; Right : SP.Strings.String_Vectors.Vector)
-        return Ada.Strings.Unbounded.Unbounded_String
+        return String
     is
         use Ada.Strings.Unbounded;
         use SP.Strings.String_Vectors;
         L : Natural := 1;
         R : Natural := 1;
+        Result : Ada.Strings.Unbounded.Unbounded_String;
     begin
-        return Result : Ada.Strings.Unbounded.Unbounded_String do
-            while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
-                if L <= Natural (Length (Left)) then
-                    Append (Result, Left (L));
-                    L := L + 1;
-                end if;
+      while L <= Natural (Length (Left)) or else R <= Natural (Length (Right)) loop
+         if L <= Natural (Length (Left)) then
+            Append (Result, Left (L));
+            L := L + 1;
+         end if;
 
-                if R <= Natural (Length (Right)) then
-                    Append (Result, Right (R));
-                    R := R + 1;
-                end if;
-            end loop;
-        end return;
+         if R <= Natural (Length (Right)) then
+            Append (Result, Right (R));
+            R := R + 1;
+         end if;
+      end loop;
+
+      return To_String (Result);
     end Zip;
 
-    function Format_Array (S : SP.Strings.String_Vectors.Vector) return Ada.Strings.Unbounded.Unbounded_String is
+    function Format_Array (S : SP.Strings.String_Vectors.Vector) return String is
         use Ada.Strings.Unbounded;
         Result : Unbounded_String;
     begin
@@ -53,7 +59,7 @@ package body SP.Strings is
             Append (Result, To_Unbounded_String (" "));
         end loop;
         Append (Result, To_Unbounded_String ("]"));
-        return Result;
+        return To_String (Result);
     end Format_Array;
 
     -- TODO: This will eventually need to be rewritten to account for multi-byte
@@ -86,7 +92,7 @@ package body SP.Strings is
                 -- No more text follows the whitespace.
                 exit when After_Last = 0;
 
-                Result.Spacers.Append (To_Unbounded_String (S (First .. After_Last - 1)));
+                Result.Spacers.Append (S (First .. After_Last - 1));
                 exit when After_Last > S'Length;
             end;
 
@@ -162,9 +168,9 @@ package body SP.Strings is
 
                 pragma Assert (Length (Word) > 0);
                 if SP.Strings.Is_Quoted (ASU.To_String (Word)) and then Length (Word) > 1 then
-                    Result.Words.Append (Unbounded_Slice (Word, 2, Length (Word) - 1));
+                    Result.Words.Append (Slice (Word, 2, Length (Word) - 1));
                 else
-                    Result.Words.Append (Word);
+                    Result.Words.Append (To_String (Word));
                 end if;
             end;
         end loop;
@@ -172,25 +178,33 @@ package body SP.Strings is
         return Result;
     end Make;
 
-    function Common_Prefix_Length
-        (A : Ada.Strings.Unbounded.Unbounded_String; B : Ada.Strings.Unbounded.Unbounded_String) return Natural is
-        use Ada.Strings.Unbounded;
+    --------------------------
+    -- Common_Prefix_Length --
+    --------------------------
+
+    function Common_Prefix_Length (A : String; B : String) return Natural
+    is
         -- Finds the number of common starting characters between two strings.
     begin
         return Count : Natural := 0 do
-            while Count < Length (A) and then Count < Length (B)
-                and then Element (A, Count + 1) = Element (B, Count + 1) loop
+         while Count < A'Length and then Count < B'Length
+                and then A (Count + 1) = B (Count + 1) loop
                 Count := Count + 1;
             end loop;
         end return;
     end Common_Prefix_Length;
 
-    function Matching_Suffix (Current, Desired : ASU.Unbounded_String) return ASU.Unbounded_String is
-        Prefix_Length : constant Natural := SP.Strings.Common_Prefix_Length (Current, Desired);
-        Suffix        : constant ASU.Unbounded_String := ASU.Unbounded_Slice (Desired, Prefix_Length + 1, ASU.Length (Desired));
-    begin
-        return Suffix;
-    end Matching_Suffix;
+   ---------------------
+   -- Matching_Suffix --
+   ---------------------
+
+   function Matching_Suffix (Current, Desired : String) return String
+   is
+      Prefix_Length : constant Natural := Common_Prefix_Length (Current, Desired);
+      Suffix        : constant String  := Desired (Prefix_Length + Desired'First .. Desired'Last);
+   begin
+      return Suffix;
+   end Matching_Suffix;
 
     function Is_Quoted (S : String) return Boolean is
         use Ada.Characters.Latin_1;
@@ -200,14 +214,18 @@ package body SP.Strings is
             and then S (S'First) = S (S'Last);
     end Is_Quoted;
 
-    function Split_Command (Input : ASU.Unbounded_String) return SP.Strings.String_Vectors.Vector is
-        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (ASU.To_String (Input));
+    -------------------
+    -- Split_Command --
+    -------------------
 
+    function Split_Command (Input : String) return SP.Strings.String_Vectors.Vector
+    is
+        Exploded : constant SP.Strings.Exploded_Line := SP.Strings.Make (Input);
     begin
         return Result : SP.Strings.String_Vectors.Vector do
             for Word of Exploded.Words loop
-                if SP.Strings.Is_Quoted (ASU.To_String (Word)) then
-                    Result.Append (ASU.Unbounded_Slice (Word, 2, ASU.Length (Word) - 1));
+                if SP.Strings.Is_Quoted (Word) then
+                    Result.Append (Word (2 .. Word'Length - 1));
                 else
                     Result.Append (Word);
                 end if;
@@ -221,10 +239,10 @@ package body SP.Strings is
         Current_Cursor : Natural := 1;
     begin
         while Next <= Natural (E.Spacers.Length) loop
-            Current_Cursor := Current_Cursor + ASU.To_String (E.Spacers (Next))'Length;
+            Current_Cursor := Current_Cursor + String'(E.Spacers (Next))'Length;
 
             if Next <= Positive (E.Words.Length) then
-                Current_Cursor := Current_Cursor + ASU.To_String (E.Words (Next))'Length;
+                Current_Cursor := Current_Cursor + String'(E.Words (Next))'Length;
             end if;
             exit when Current_Cursor >= Cursor_Position;
             Next := Next + 1;
@@ -236,8 +254,8 @@ package body SP.Strings is
     begin
         return Cursor_Position : Positive := 1 do
             for I in 1 .. Word loop
-                Cursor_Position := Cursor_Position + ASU.Length (E.Spacers (I));
-                Cursor_Position := Cursor_Position + ASU.Length (E.Words (I));
+                Cursor_Position := Cursor_Position + String'(E.Spacers (I))'Length;
+                Cursor_Position := Cursor_Position + String'(E.Words (I))'Length;
             end loop;
         end return;
     end Cursor_Position_At_End_Of_Word;
