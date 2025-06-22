@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Strings.Unbounded;
+
 with ANSI;
 with Atomic.Signed;
 
@@ -28,9 +28,6 @@ with System.Multiprocessors.Dispatching_Domains;
 
 package body SP.Searches is
 
-    package ASU renames Ada.Strings.Unbounded;
-
-    use Ada.Strings.Unbounded;
     use SP.Terminal;
 
     function Load_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
@@ -372,7 +369,13 @@ package body SP.Searches is
         end return;
     end Files_To_Search;
 
-    function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
+    -----------------------
+    -- Matching_Contexts --
+    -----------------------
+
+    function Matching_Contexts (Srch : in Search)
+                                return SP.Contexts.Context_Vectors.Vector
+    is
         package Atomic_Int is new Atomic.Signed (T => Integer);
 
         Files          : constant String_Vectors.Vector := Files_To_Search (Srch);
@@ -385,16 +388,21 @@ package body SP.Searches is
             entry Start;
         end Matching_Context_Search;
 
-        task body Matching_Context_Search is
+        task body Matching_Context_Search
+        is
+            use String_Holders;
+
             Next_Index : Natural;
-            Next_File  : Unbounded_String;
+            Next_File  : Holder;
         begin
             accept Start;
             loop
                 Next_Index := Natural (Atomic_Int.Fetch_Add (Next_Access.all, 1));
                 if Next_Index <= Natural (Files.Length) then
-                    Next_File := Asu.To_Unbounded_String (Files (Next_Index));
-                    Matching_Contexts_In_File (Srch, Asu.To_String (Next_File), Merged_Results);
+                    Next_File := To_Holder (Files (Next_Index));
+                    Matching_Contexts_In_File (Srch,
+                                               Next_File.Element,
+                                               Merged_Results);
                 else
                     exit;
                 end if;
