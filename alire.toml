@@ -25,6 +25,8 @@ Development.Runtime_Checks = [
     "-gnatVa"        # All validity checks
 ]
 
+Release.Debug_Info = "Yes"
+Release.Contracts = "No"
 Release.Runtime_Checks = "None"
 
 "*".Compile_Checks = "Errors"

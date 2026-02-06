@@ -20,11 +20,25 @@ with Ada.Text_IO;
 
 with GNAT.Traceback.Symbolic;
 
+with SP.Commands;
 with SP.Config;
 with SP.Interactive;
+with SP.Searches;
+with Trendy_Terminal.Environments;
 
 procedure Septum is
     use Ada.Text_IO;
+
+    procedure Print_Usage is
+    begin
+        Put_Line ("Unrecognized command line arguments.");
+        New_Line;
+        Put_Line ("Usage: septum --version        print program version");
+        Put_Line ("       septum init             creates config directory with empty config");
+        Put_Line ("       septum run [file]       run a command file");
+        Put_Line ("       septum                  run interactive search mode");
+        Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+    end Print_Usage;
 begin
     -- Look for a single "--version" flag
     if Ada.Command_Line.Argument_Count = 1
@@ -42,13 +56,33 @@ begin
         return;
     end if;
 
+    if Ada.Command_Line.Argument_Count >= 2 and then
+        Ada.Command_Line.Argument (1) = "run"
+    then
+        if Ada.Command_Line.Argument_Count /= 2 then
+            Print_Usage;
+            return;
+        end if;
+
+        declare
+            Srch : SP.Searches.Search;
+            Result : SP.Commands.Command_Result;
+            Environment : Trendy_Terminal.Environments.Environment;
+            use type SP.Commands.Command_Result;
+        begin
+            pragma Unreferenced (Environment);
+            Result := SP.Commands.Run_Commands_From_File (Srch, Ada.Command_Line.Argument (2));
+         Ada.Command_Line.Set_Exit_Status
+           ((if Result = SP.Commands.Command_Success
+             then Ada.Command_Line.Success
+             else Ada.Command_Line.Failure));
+        end;
+        return;
+    end if;
+
     -- Don't recognize any other arguments.
     if Ada.Command_Line.Argument_Count /= 0 then
-        Put_Line ("Unrecognized command line arguments.");
-        New_Line;
-        Put_Line ("Usage: septum --version        print program version");
-        Put_Line ("       septum init             creates config directory with empty config");
-        Put_Line ("       septum                  run interactive search mode");
+        Print_Usage;
         return;
     end if;
 
