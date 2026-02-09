@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
 with SP.Config;
@@ -102,21 +103,38 @@ package body SP.Commands is
             (if Command_Line.Is_Empty then To_Unbounded_String ("") else Command_Line.First_Element);
         Best_Command : constant Unbounded_String := Target_Command (Command_Name);
     begin
-        if Command_Map.Contains (Best_Command) then
-            declare
-                It         : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
-                Command    : constant Executable_Command  := Command_Maps.Element (It);
-                Parameters : String_Vectors.Vector        := Command_Line;
-            begin
-                Parameters.Delete_First;
-                if Best_Command /= Command_Name then
-                    Put_Line ("Resolved to: " & To_String (Best_Command));
-                end if;
-                New_Line;
-                return Command.Exec.all (Srch, Parameters);
-            end;
-        end if;
-        return Command_Unknown;
+        return Result : Command_Result := Command_Unknown do
+            if Command_Map.Contains (Best_Command) then
+                declare
+                    It         : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
+                    Command    : constant Executable_Command  := Command_Maps.Element (It);
+                    Parameters : String_Vectors.Vector        := Command_Line;
+                begin
+                    Parameters.Delete_First;
+                    if Best_Command /= Command_Name then
+                        Put_Line ("Resolved to: " & To_String (Best_Command));
+                    end if;
+                    New_Line;
+
+                    declare
+                        Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+                        Finish : Ada.Calendar.Time;
+                        Delta_Time : Duration;
+                        use all type Ada.Calendar.Time;
+                    begin
+                        if SP.Searches.Get_Show_Timings (Srch) then
+                            --  Start the clock.
+                            Result := Command.Exec.all (Srch, Parameters);
+
+                            --  End the clock.
+                            Finish := Ada.Calendar.Clock;
+                            Delta_Time := Finish - Start;
+                            Put_Line (To_String (Best_Command) & ": " & Delta_Time'Image);
+                        end if;
+                    end;
+                end;
+            end if;
+        end return;
     end Execute;
 
     function Run_Commands_From_File (Srch : in out SP.Searches.Search; File : String) return Command_Result is

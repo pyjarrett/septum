@@ -370,6 +370,8 @@ package body SP.Searches is
         end return;
     end Files_To_Search;
 
+   function Get_Show_Timings (Srch : in Search) return Boolean is (Srch.Show_Timings);
+
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is
         package Atomic_Int is new Atomic.Signed (T => Integer);
 
