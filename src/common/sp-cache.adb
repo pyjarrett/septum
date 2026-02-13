@@ -67,14 +67,21 @@ package body SP.Cache is
             Contents.Clear;
         end Clear;
 
-        procedure Cache_File (File_Name : in Unbounded_String; Lines : in String_Vectors.Vector) is
+        procedure Cache_File (File_Name : in Unbounded_String; Lines : in out String_Vectors.Vector) is
+            procedure Swap_Lines (Key : Unbounded_String; Element : in out String_Vectors.Vector) is
+            begin
+               pragma Unreferenced (Key);
+               String_Vectors.Move (Element, Lines);
+            end Swap_Lines;
+
+            Position : File_Maps.Cursor;
+            Inserted : Boolean;
         begin
-            if Contents.Contains (File_Name) then
+            Contents.Insert (File_Name, String_Vectors.Empty_Vector, Position, Inserted);
+            if not Inserted then
                 SP.Terminal.Put_Line ("Replacing contents of " & To_String (File_Name));
-                Contents.Replace (File_Name, Lines);
-            else
-                Contents.Insert (File_Name, Lines);
             end if;
+            Contents.Update_Element (Position, Swap_Lines'Access);
         end Cache_File;
 
         function Num_Files return Natural is

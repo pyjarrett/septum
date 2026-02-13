@@ -243,7 +243,7 @@ package body SP.Searches is
     function Num_Filters (Srch : Search) return Natural is (Integer (Srch.Line_Filters.Length));
 
     function Matching_Contexts
-        (File_Name : String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)
+        (File_Name : ASU.Unbounded_String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)
          return SP.Contexts.Context_Vectors.Vector is
     begin
         return C : SP.Contexts.Context_Vectors.Vector do
@@ -276,7 +276,7 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (To_String (File), Natural (Srch.File_Cache.Lines (File).Length), Lines,
+                            (File, Natural (Srch.File_Cache.Lines (File).Length), Lines,
                              Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
@@ -454,7 +454,7 @@ package body SP.Searches is
                     To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
                     ANSI.Green));
             else
-                Put_Line (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+                Put_Line (Srch.File_Cache.File_Line (Context.File_Name, Line_Num));
             end if;
         end loop;
         New_Line;

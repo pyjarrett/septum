@@ -55,7 +55,7 @@ package SP.Cache is
         procedure Clear;
 
         -- Cache the contents of a file, replacing any existing contents.
-        procedure Cache_File (File_Name : Unbounded_String; Lines : String_Vectors.Vector);
+        procedure Cache_File (File_Name : Unbounded_String; Lines : in out String_Vectors.Vector);
 
         -- The total number of loaded files in the file cache.
         function Num_Files return Natural;

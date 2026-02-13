@@ -17,7 +17,7 @@
 package body SP.Contexts is
 
     function From
-        (File_Name : String; Line : Natural; Num_Lines : Natural; Context_Width : Natural) return Context_Match is
+        (File_Name : ASU.Unbounded_String; Line : Natural; Num_Lines : Natural; Context_Width : Natural) return Context_Match is
         Minimum : constant Positive :=
             (if Context_Width > Num_Lines or else Line - Context_Width < 1 then 1 else Line - Context_Width);
         Maximum : constant Positive :=
@@ -25,7 +25,7 @@ package body SP.Contexts is
              else Line + Context_Width);
     begin
         return C : Context_Match do
-            C.File_Name := Ada.Strings.Unbounded.To_Unbounded_String (File_Name);
+            C.File_Name := File_Name;
             C.Internal_Matches.Insert (Line);
             C.Minimum := Minimum;
             C.Maximum := Maximum;

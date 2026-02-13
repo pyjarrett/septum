@@ -24,6 +24,7 @@ package SP.Contexts
     with Preelaborate
 is
 
+    package ASU renames Ada.Strings.Unbounded;
     package Line_Matches is new Ada.Containers.Ordered_Sets (Element_Type => Positive);
 
     type Context_Match is record
@@ -34,7 +35,7 @@ is
     end record;
 
     function From
-        (File_Name : String; Line : Natural; Num_Lines : Natural; Context_Width : Natural) return Context_Match with
+        (File_Name : ASU.Unbounded_String; Line : Natural; Num_Lines : Natural; Context_Width : Natural) return Context_Match with
         Pre  => Line <= Num_Lines,
         Post => Is_Valid (From'Result);
 
