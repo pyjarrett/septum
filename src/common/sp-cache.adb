@@ -137,7 +137,11 @@ package body SP.Cache is
         File_Queue : String_Unbounded_Queue.Queue;
 
         package PI renames Progress_Indicators;
-        Progress     : aliased PI.Work_Trackers.Work_Tracker;
+        Progress       : aliased PI.Work_Trackers.Work_Tracker;
+
+        use all type System.Multiprocessors.CPU;
+        Num_CPUs       : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
+        File_CPU_Start : constant System.Multiprocessors.CPU := (if Num_CPUs > 1 then 2 else 1);
     begin
         declare
             -- A directory loading task builds a queue of files to parse for the
@@ -190,13 +194,12 @@ package body SP.Cache is
             end File_Loader_Task;
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
-            Num_CPUs : constant System.Multiprocessors.CPU := System.Multiprocessors.Number_Of_CPUs;
         begin
             SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
             SP.Terminal.New_Line;
 
             declare
-                File_Loader : array (1 .. Num_CPUs) of File_Loader_Task;
+                File_Loader : array (File_CPU_Start .. Num_CPUs) of File_Loader_Task;
             begin
                 for I in File_Loader'Range loop
                     begin
