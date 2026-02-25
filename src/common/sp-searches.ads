@@ -85,7 +85,8 @@ package SP.Searches is
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
     function Num_Filters (Srch : in Search) return Natural;
 
-   function Get_Show_Timings (Srch : in Search) return Boolean;
+    procedure Set_Show_Timings (Srch : in out Search; Enabled : Boolean);
+    function Get_Show_Timings (Srch : in Search) return Boolean;
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 
@@ -149,7 +150,7 @@ private
 
         Enable_Line_Colors : Boolean := False;
 
-        Show_Timings: Boolean := True;
+        Show_Timings: Boolean := False;
 
         -- The stack of currently executing scripts.
         -- Intuitively this is a stack, but a set should work just a well,

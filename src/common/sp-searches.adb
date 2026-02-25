@@ -370,6 +370,11 @@ package body SP.Searches is
         end return;
     end Files_To_Search;
 
+   procedure Set_Show_Timings (Srch : in out Search; Enabled : Boolean) is
+   begin
+      Srch.Show_Timings := Enabled;
+   end Set_Show_Timings;
+
    function Get_Show_Timings (Srch : in Search) return Boolean is (Srch.Show_Timings);
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector is

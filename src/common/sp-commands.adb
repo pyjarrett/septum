@@ -122,10 +122,10 @@ package body SP.Commands is
                         Delta_Time : Duration;
                         use all type Ada.Calendar.Time;
                     begin
-                        if SP.Searches.Get_Show_Timings (Srch) then
-                            --  Start the clock.
-                            Result := Command.Exec.all (Srch, Parameters);
+                        --  Start the clock.
+                        Result := Command.Exec.all (Srch, Parameters);
 
+                        if SP.Searches.Get_Show_Timings (Srch) then
                             --  End the clock.
                             Finish := Ada.Calendar.Clock;
                             Delta_Time := Finish - Start;
@@ -981,6 +981,38 @@ package body SP.Commands is
         return Command_Success;
     end Disable_Line_Colors_Exec;
 
+    ----------------------------------------------------------------------------
+
+    procedure Enable_Timing_Help is
+    begin
+        Put_Line ("Enables reporting of time it takes to run commands.");
+    end Enable_Timing_Help;
+
+    function Enable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Set_Show_Timings (Srch, True);
+        return Command_Success;
+    end Enable_Timing_Exec;
+
+    procedure Disable_Timing_Help is
+    begin
+        Put_Line ("Disables reporting of time it takes to run commands.");
+    end Disable_Timing_Help;
+
+    function Disable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Set_Show_Timings (Srch, False);
+        return Command_Success;
+    end Disable_Timing_Exec;
+
 
     ----------------------------------------------------------------------------
 
@@ -1068,6 +1100,13 @@ begin
     Make_Command
         ("disable-line-colors", "Disables colorizing lines with matches.", Disable_Line_Colors_Help'Access,
          Disable_Line_Colors_Exec'Access);
+
+    Make_Command
+        ("enable-timing", "Enables timing of command run time.", Enable_Timing_Help'Access,
+         Enable_Timing_Exec'Access);
+    Make_Command
+        ("disable-timing", "Disables timing of command run time.", Disable_Timing_Help'Access,
+         Disable_Timing_Exec'Access);
 
     -- Quit
 
