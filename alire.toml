@@ -38,7 +38,7 @@ Release.Runtime_Checks = "None"
 ]
 
 [[depends-on]]  # Added by alr
-dir_iterators = "~0.0.4"  # Added by alr
+dir_iterators = "~0.0.5"  # Added by alr
 [[depends-on]]  # Added by alr
 progress_indicators = "~0.0.1"  # Added by alr
 [[depends-on]]  # Added by alr
@@ -51,4 +51,4 @@ trendy_terminal = "~0.0.5"  # Added by alr
 # To be used for CI
 #trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 [[depends-on]]  # Added by alr
-atomic = "~0.5.0"  # Added by alr
+atomic = "~1.0.0"  # Added by alr
