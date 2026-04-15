@@ -705,6 +705,7 @@ package body SP.Commands is
             for I of Indices loop
                 SP.Searches.Drop_Filter (Srch, I);
             end loop;
+            Search_Updated (Srch);
             return Command_Success;
         end;
     end Drop_Exec;
