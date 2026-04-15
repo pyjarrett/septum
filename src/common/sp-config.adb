@@ -55,6 +55,7 @@ package body SP.Config is
             Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Config_File);
             Ada.Text_IO.Put_Line (File, "enable-line-numbers");
             Ada.Text_IO.Put_Line (File, "enable-line-colors");
+            Ada.Text_IO.Put_Line (File, "enable-auto-search");
             Ada.Text_IO.Put_Line (File, "set-max-results 200");
             declare
                 Current_Dir : constant String := Ada.Directories.Full_Name(Ada.Directories.Current_Directory);
