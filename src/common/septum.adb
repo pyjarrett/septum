@@ -33,16 +33,20 @@ procedure Septum is
     begin
         Put_Line ("Unrecognized command line arguments.");
         New_Line;
-        Put_Line ("Usage: septum --version        print program version");
-        Put_Line ("       septum init             creates config directory with empty config");
-        Put_Line ("       septum run [file]       run a command file");
+        Put_Line ("Usage:");
         Put_Line ("       septum                  run interactive search mode");
+        Put_Line ("       septum init             creates config directory with default config");
+        Put_Line ("       septum help             print this usage information");
+        Put_Line ("       septum run [file]       run a command file");
+        Put_Line ("       septum version          print program version");
         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
     end Print_Usage;
 begin
     -- Look for a single "--version" flag
     if Ada.Command_Line.Argument_Count = 1
-        and then Ada.Command_Line.Argument (1) = "--version"
+        --  Keep "--version" around for compatibility, but leave it undocumented.
+        and then (Ada.Command_Line.Argument (1) = "--version"
+            or else Ada.Command_Line.Argument (1) = "version")
     then
         Put_Line (SP.Version);
         return;
@@ -81,7 +85,9 @@ begin
     end if;
 
     -- Don't recognize any other arguments.
-    if Ada.Command_Line.Argument_Count /= 0 then
+    if Ada.Command_Line.Argument_Count /= 0
+            or else Ada.Command_Line.Argument (1) = "help"
+    then
         Print_Usage;
         return;
     end if;
