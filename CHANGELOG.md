@@ -12,6 +12,12 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [0.1.0]
+
+- 🔄 Set `enable-auto-search` by default in `septum init`.
+- 🛠️ `drop` with filter numbers now runs auto-search when enabled.
+- ✅ Added "help" command.
+
 ## [0.0.7]
 
 - ✅ Added useful startup commands to .septum/config when running `init`
