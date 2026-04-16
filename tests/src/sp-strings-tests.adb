@@ -11,6 +11,20 @@ package body SP.Strings.Tests is
 
     function "+" (S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
+    procedure Test_Empty_Split (Op : in out Trendy_Test.Operation'Class) is
+       E : constant Exploded_Line := Make("");
+    begin
+       Op.Register;
+       Assert_EQ (Op, Num_Words (E), 0);
+    end Test_Empty_Split;
+
+    procedure Test_All_Spaces_Split (Op : in out Trendy_Test.Operation'Class) is
+       E : constant Exploded_Line := Make("      ");
+    begin
+       Op.Register;
+       Assert_EQ (Op, Num_Words (E), 0);
+    end Test_All_Spaces_Split;
+
     procedure Test_String_Split (Op : in out Trendy_Test.Operation'Class) is
         E : Exploded_Line;
     begin
@@ -73,6 +87,8 @@ package body SP.Strings.Tests is
     -- Test Registry
     ---------------------------------------------------------------------------
     function All_Tests return Trendy_Test.Test_Group is [
+        Test_Empty_Split'Access,
+        Test_All_Spaces_Split'Access,
         Test_String_Split'Access,
         Test_Is_Quoted'Access,
         Test_Common_Prefix_Length'Access
