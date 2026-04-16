@@ -16,7 +16,6 @@
 with Ada.Containers;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
 with ANSI;
 with SP.Commands;
 with SP.Config;
@@ -25,7 +24,6 @@ with SP.Filters;
 with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
-with Trendy_Terminal.Environments;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
 with Trendy_Terminal.Lines.Line_Vectors;
@@ -202,16 +200,9 @@ package body SP.Interactive is
         Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
-        Environment  : Trendy_Terminal.Environments.Environment;
         Result       : SP.Commands.Command_Result;
         Line_History : aliased Trendy_Terminal.Histories.History;
     begin
-        if not Environment.Is_Available then
-            Ada.Text_IO.Put_Line ("[ERROR] No support either for UTF-8 or VT100.");
-            Ada.Text_IO.Put_Line ("[ERROR] Try another terminal.");
-            return;
-        end if;
-
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);

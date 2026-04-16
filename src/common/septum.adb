@@ -41,6 +41,13 @@ procedure Septum is
         Put_Line ("       septum version          print program version");
         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
     end Print_Usage;
+
+    procedure Print_Version is
+    begin
+        Put_Line ("septum v" & SP.Version);
+    end Print_Version;
+
+   Environment : Trendy_Terminal.Environments.Environment;
 begin
     -- Look for a single "--version" flag
     if Ada.Command_Line.Argument_Count = 1
@@ -48,7 +55,7 @@ begin
         and then (Ada.Command_Line.Argument (1) = "--version"
             or else Ada.Command_Line.Argument (1) = "version")
     then
-        Put_Line (SP.Version);
+        Print_Version;
         return;
     end if;
 
@@ -58,6 +65,13 @@ begin
     then
         SP.Config.Create_Local_Config;
         return;
+    end if;
+
+    if not Environment.Is_Available then
+       Print_Version;
+       Ada.Text_IO.Put_Line ("[ERROR] No support either for UTF-8 or VT100.");
+       Ada.Text_IO.Put_Line ("[ERROR] Try another terminal.");
+       return;
     end if;
 
     if Ada.Command_Line.Argument_Count >= 2 and then
@@ -71,10 +85,8 @@ begin
         declare
             Srch : SP.Searches.Search;
             Result : SP.Commands.Command_Result;
-            Environment : Trendy_Terminal.Environments.Environment;
             use type SP.Commands.Command_Result;
         begin
-            pragma Unreferenced (Environment);
             Result := SP.Commands.Run_Commands_From_File (Srch, Ada.Command_Line.Argument (2));
          Ada.Command_Line.Set_Exit_Status
            ((if Result = SP.Commands.Command_Success
