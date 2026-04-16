@@ -86,7 +86,6 @@ begin
 
     -- Don't recognize any other arguments.
     if Ada.Command_Line.Argument_Count /= 0
-            or else Ada.Command_Line.Argument (1) = "help"
     then
         Print_Usage;
         return;
