@@ -133,6 +133,10 @@ package body SP.Commands is
                         end if;
                     end;
                 end;
+            elsif Command_Name = ASU.Null_Unbounded_String or else ASU.Element (Command_Name, 1) = '#' then
+                -- Comments always succeed.
+                Result := SP.Commands.Command_Ignored;
+                return;
             end if;
         end return;
     end Execute;
@@ -164,6 +168,7 @@ package body SP.Commands is
 
                 case Result is
                     when Command_Success => null;
+                    when Command_Ignored => null;
                     when Command_Failed =>
                         Put_Line (+"Command failed: " & Command);
                         return Command_Failed;
@@ -207,6 +212,7 @@ package body SP.Commands is
         Put_Line ("Configurations are loaded from " & SP.Config.Config_Dir_Name & " directories,");
         Put_Line ("in the user's home directory and the current directory when Septum is started.");
         Put_Line ("Commands will be executed from the " & SP.Config.Config_File_Name & " files in these on startup.");
+        Put_Line ("Lines which start with # are ignored.");
         New_Line;
 
         -- Print commands.

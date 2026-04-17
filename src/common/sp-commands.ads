@@ -45,6 +45,7 @@ package SP.Commands is
 
     type Command_Result is (
         Command_Success,
+        Command_Ignored,
         Command_Failed,
         Command_Unknown,
         Command_Exit_Requested);

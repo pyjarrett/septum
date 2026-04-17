@@ -16,7 +16,8 @@ Types of changes:
 
 - 🔄 Set `enable-auto-search` by default in `septum init`.
 - 🛠️ `drop` with filter numbers now runs auto-search when enabled.
-- ✅ Added "help" command.
+- 🛠️ Fixed problem where `run` command doesn't verify the terminal environment is set up properly.
+- ✅ Added support for '#' comments and empty lines in scripts.
 
 ## [0.0.7]
 

@@ -216,6 +216,7 @@ package body SP.Interactive is
             Result := SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config));
             case Result is
                 when SP.Commands.Command_Success => null;
+                when SP.Commands.Command_Ignored => null;
                 when SP.Commands.Command_Failed =>
                     Put_Line ("Failing running commands from: " & ASU.To_String(Config));
                     return;
@@ -237,6 +238,8 @@ package body SP.Interactive is
                     when SP.Commands.Command_Success => null;
                         -- Add command to history
                         Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
+                    when SP.Commands.Command_Ignored =>
+                        null;
                     when SP.Commands.Command_Failed =>
                         Put_Line ("Command failed");
                     when SP.Commands.Command_Unknown =>
