@@ -10,6 +10,7 @@ Types of changes:
 - ⚠️ `Deprecated` for soon-to-be removed features.
 - ❌ `Removed` for now removed features.
 - 🛠️ `Fixed` for any bug fixes.
+-
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
 ## [0.1.0]
@@ -18,6 +19,7 @@ Types of changes:
 - 🛠️ `drop` with filter numbers now runs auto-search when enabled.
 - 🛠️ Fixed problem where `run` command doesn't verify the terminal environment is set up properly.
 - ✅ Added support for '#' comments and empty lines in scripts.
+- ⭐ Speed small loads by using a stop token.
 
 ## [0.0.7]
 

@@ -129,12 +129,22 @@ package body SP.Cache is
         A    : in out Async_File_Cache;
         Dir  : String) return Boolean
     is
-        package String_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
-            (Element_Type => Ada.Strings.Unbounded.Unbounded_String);
-        package String_Unbounded_Queue is new Ada.Containers.Unbounded_Synchronized_Queues
-            (Queue_Interfaces => String_Queue_Interface);
+        type Work_Element_Kind is (Path, Stop);
+        type Work_Element (Kind : Work_Element_Kind := Stop) is record
+            case Kind is
+               when Path =>
+                  Name : ASU.Unbounded_String;
+               when Stop =>
+                  null;
+            end case;
+         end record;
 
-        File_Queue : String_Unbounded_Queue.Queue;
+        package Work_Element_Queue_Interface is new Ada.Containers.Synchronized_Queue_Interfaces
+            (Element_Type => Work_Element);
+        package Work_Element_Queue is new Ada.Containers.Unbounded_Synchronized_Queues
+            (Queue_Interfaces => Work_Element_Queue_Interface);
+
+        File_Queue : Work_Element_Queue.Queue;
 
         package PI renames Progress_Indicators;
         Progress       : aliased PI.Work_Trackers.Work_Tracker;
@@ -155,10 +165,12 @@ package body SP.Cache is
                 for Dir_Entry of Dir_Walk loop
                     if Ada.Directories.Kind (Dir_Entry) = Ada.Directories.Ordinary_File then
                         File_Queue.Enqueue
-                            (Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Dir_Entry)));
+                            ((Kind => Path,
+                              Name => Ada.Strings.Unbounded.To_Unbounded_String (Ada.Directories.Full_Name (Dir_Entry))));
                         Progress.Start_Work (1);
                     end if;
                 end loop;
+                File_Queue.Enqueue ((Kind => Stop));
             end Dir_Loader_Task;
 
             task type File_Loader_Task is
@@ -166,7 +178,7 @@ package body SP.Cache is
             end File_Loader_Task;
 
             task body File_Loader_Task is
-                Elem : Ada.Strings.Unbounded.Unbounded_String;
+                Elem : Work_Element;
             begin
                 loop
                     -- Allowing queueing of many tasks, some of which might not be used, but will not prevent the
@@ -178,17 +190,16 @@ package body SP.Cache is
                     end select;
 
                     loop
-                        select
-                            File_Queue.Dequeue (Elem);
-                        or
-                            delay 1.0;
+                        File_Queue.Dequeue (Elem);
+                        if Elem.Kind = Stop then
+                            File_Queue.Enqueue (Elem);
                             exit;
-                        end select;
-
-                        if Is_Text (To_String (Elem)) then
-                            Cache_File (A, Elem);
+                        else
+                            if Is_Text (To_String (Elem.Name)) then
+                                Cache_File (A, Elem.Name);
+                            end if;
+                            Progress.Finish_Work (1);
                         end if;
-                        Progress.Finish_Work (1);
                     end loop;
                 end loop;
             end File_Loader_Task;
