@@ -58,6 +58,11 @@ package body SP.Searches is
         return True;
     end Reload_Working_Set;
 
+    procedure Unload_Working_Set (Srch : in out Search) is
+    begin
+      Srch.File_Cache.Clear;
+    end Unload_Working_Set;
+
     function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
         Unbounded_Name : constant Unbounded_String := To_Unbounded_String (Dir_Name);

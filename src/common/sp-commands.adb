@@ -259,7 +259,7 @@ package body SP.Commands is
     function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
-            Put_Line ("Refresh should have an empty command line.");
+            Put_Line ("Reload should have an empty command line.");
             return Command_Failed;
         end if;
         if not SP.Searches.Reload_Working_Set (Srch) then
@@ -267,6 +267,23 @@ package body SP.Commands is
         end if;
         return Command_Success;
     end Reload_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Unload_Help is
+    begin
+        Put_Line ("Unload help");
+    end Unload_Help;
+
+    function Unload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Unload should have an empty command line.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Unload_Working_Set (Srch);
+        return Command_Success;
+    end Unload_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -1036,6 +1053,7 @@ begin
 
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
+    Make_Command ("unload", "Unloads the file cache.", Unload_Help'Access, Unload_Exec'Access);
     Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
     Make_Command ("source", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
     Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
