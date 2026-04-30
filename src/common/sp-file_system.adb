@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Streams.Stream_IO;
 with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
@@ -73,12 +74,39 @@ package body SP.File_System is
         end return;
     end Contents;
 
+    function Should_Load (File_Name : String) return Boolean is
+        package SIO renames Ada.Streams.Stream_IO;
+        Stream_File : SIO.File_Type;
+    begin
+        return Result : Boolean := False do
+            SIO.Open (File => Stream_File, Mode => SIO.In_File, Name => File_Name);
+            declare
+                Max_Size : constant := 1024 * 4;
+                Count : constant SIO.Count := SIO.Size (Stream_File);
+                use all type Ada.Streams.Stream_Element;
+                use all type Ada.Streams.Stream_IO.Count;
+                Buffer : Ada.Streams.Stream_Element_Array (1 .. (if Count > Max_Size then Max_Size else Ada.Streams.Stream_Element_Offset (Count)));
+                Last  : Ada.Streams.Stream_Element_Offset := 0;
+            begin
+                begin
+                    SIO.Read(Stream_File, Buffer, Last);
+                exception
+                    when SIO.End_Error =>
+                        null;
+                end;
+                Result := not (for some Element of Buffer => Element = 0);
+            end;
+            SIO.Close(Stream_File);
+        end return;
+    end Should_Load;
+
     --  Reads all the lines from a file.
     function Read_Lines (File_Name : String; Result : out String_Vectors.Vector) return Boolean is
         File : Ada.Text_IO.File_Type;
         Line : Ada.Strings.Unbounded.Unbounded_String;
     begin
         String_Vectors.Clear (Result);
+
         Ada.Text_IO.Open (File => File, Mode => Ada.Text_IO.In_File, Name => File_Name);
         while not Ada.Text_IO.End_Of_File (File) loop
             Line := Ada.Strings.Unbounded.Text_IO.Get_Line (File);

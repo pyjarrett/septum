@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Containers.Synchronized_Queue_Interfaces;
 with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Directories;
@@ -28,36 +29,141 @@ with Dir_Iterators.Recursive;
 with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is
-    function Is_Text (File_Name : String) return Boolean is
-        -- This is probably better written to look at encoding (such as invalid sequences in UTF-8, etc.)
-        -- instead of being a hodgepodge of various formats I know that I care about right now.
-        -- TODO: Adding more file types I care about now, this needs to be fixed properly.
-        Extension : String renames Ada.Directories.Extension (File_Name);
+    --  Loading and then testing the file for utf-8 validity is slow with Ada
+    --  standard library, so use text extension and binary extension checks
+    --  to speed up the loading pass.
+    function Is_Text_Extension (File_Name : String) return Boolean is
+        Extension : constant String := Ada.Characters.Handling.To_Lower (Ada.Directories.Extension (File_Name));
     begin
         return Extension in
-            "ads"  |  -- Ada
-            "adb"  |
-            "c"    |  -- c
-            "h"    |
-            "cpp"  |  -- C++
-            "C"    |
-            "cc"   |
-            "hpp"  |
-            "hh"   |
-            "inl"  |
-            "lock" |
-            "toml" |
-            "cs"   |  -- C#
-            "hs"   |  -- Haskell
-            "py"   |  -- Python
-            "rs";     -- Rust
-    end Is_Text;
+            "ads"   |  -- Ada
+            "adb"   |
+            "c"     |  -- c
+            "h"     |
+            "cpp"   |  -- C++
+            "C"     |
+            "cc"    |
+            "cr"    |  -- Crystal
+            "cs"    |  -- C#
+            "css"   |
+            "d"     |  -- D language
+            "dart"  |
+            "fs"    |  -- F#
+            "fsx"   |  -- F# script
+            "glsl"  |
+            "go"    |
+            "hpp"   |  -- C++ header
+            "hh"    |  -- C++ header
+            "hxx"   |  -- C++ header
+            "hlsl"  |
+            "html"  |
+            "inl"   |  -- C++ include
+            "ini"   |
+            "ipp"   |  -- C++ include
+            "lean"  |
+            "ll"    |  -- LLVM
+            "m"     |  -- objective-c
+            "mm"    |  -- objective-c++
+            "java"  |
+            "json"  |
+            "jsonc" |
+            "json5" |
+            "lock"  |
+            "log"   |
+            "lua"   |
+            "natvis"|
+            "hs"    |  -- Haskell
+            "md"    |  -- Markdown
+            "odin"  |
+            "py"    |  -- Python
+            "rb"    |  -- Ruby
+            "rs"    |  -- Rust
+            "tcc"   |  -- C++
+            "tpp"   |  -- C++
+            "swift" |
+            "toml"  |
+            "txt"   |
+            "xml"   |
+            "yaml"  |
+            "yml";
+
+    end Is_Text_Extension;
+
+    --  Binary files like to be large, so use a deecent list to skip common ones.
+    function Is_Binary_Extension (File_Name : String) return Boolean is
+        Extension : constant String := Ada.Characters.Handling.To_Lower (Ada.Directories.Extension (File_Name));
+    begin
+        return Extension in
+            "a"            |
+            "ali"          |  -- Ada (GNAT) intermediate file
+            "avi"          |
+            "aux"          |
+            "bin"          |
+            "blend"        |
+            "bmp"          |
+            "class"        |
+            "db"           |
+            "dll"          |
+            "dmp"          |
+            "doc"          |
+            "docx"         |
+            "exe"          |
+            "fbx"          |
+            "fossil"       |
+            "gif"          |
+            "glb"          |  -- Binary GLTF
+            "gz"           |
+            "jar"          |
+            "jpg"          |
+            "jpeg"         |
+            "lib"          |
+            "mkv"          |
+            "mov"          |
+            "mp3"          |
+            "mp4"          |
+            "msi"          |  -- Installer
+            "o"            |  -- Binary object file
+            "obj"          |  -- Object files sometimes called ".obj"
+            "ogg"          |
+            "pak"          |
+            "pdb"          |
+            "pdf"          |
+            "pem"          |
+            "png"          |
+            "pyc"          |  -- Python
+            "pyo"          |
+            "rar"          |
+            "raw"          |
+            "so"           |  -- Shared objects
+            "sqlite"       |
+            "tar"          |
+            "tgz"          |
+            "tga"          |
+            "tiff"         |
+            "ttf"          |  -- Truetype font
+            "ucas"         |  -- Unreal engine
+            "uasset"       |
+            "umap"         |
+            "unitypackage" |  -- Unity package file
+            "unity"        |  -- Unity scene file
+            "vhd"          |  -- Virtual hard drive
+            "vsix"         |
+            "wav"          |
+            "zip";
+    end Is_Binary_Extension;
 
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : Ada.Strings.Unbounded.Unbounded_String) is
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
+        String_File_Name : constant String := To_String (File_Name);
     begin
-        if SP.File_System.Read_Lines (To_String (File_Name), Lines) then
-            File_Cache.Cache_File (File_Name, Lines);
+        if Is_Binary_Extension (String_File_Name) then
+            return;
+        end if;
+
+        if Is_Text_Extension (String_File_Name) or else File_System.Should_Load (String_File_Name) then
+            if SP.File_System.Read_Lines (To_String (File_Name), Lines) then
+                File_Cache.Cache_File (File_Name, Lines);
+            end if;
         end if;
     end Cache_File;
 
@@ -195,9 +301,7 @@ package body SP.Cache is
                             File_Queue.Enqueue (Elem);
                             exit;
                         else
-                            if Is_Text (To_String (Elem.Name)) then
-                                Cache_File (A, Elem.Name);
-                            end if;
+                            Cache_File (A, Elem.Name);
                             Progress.Finish_Work (1);
                         end if;
                     end loop;

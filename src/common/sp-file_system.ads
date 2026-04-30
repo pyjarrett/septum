@@ -40,6 +40,9 @@ package SP.File_System is
     -- The immediate, non-recursive, contents of the given directory.
     function Contents (Dir_Name : String) return Dir_Contents;
 
+    --  A very simple "is this likely UTF-8?" check.  Looks for null bytes.
+    function Should_Load (File_Name : String) return Boolean;
+
     -- Pulls the contents of a textual file, which might possibly fail due to
     -- the file not existing or being a directory instead of a file.
     function Read_Lines (File_Name : in String; Result : out String_Vectors.Vector) return Boolean;

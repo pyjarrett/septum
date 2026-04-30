@@ -13,6 +13,12 @@ Types of changes:
 -
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+## [0.1.1]
+
+- ✅ Added support for `unload` command to drop directories.
+- ✅ Added `list-file` command to list a number or all files.
+- ✅ Added loading of all "text-like" files, not just known extensions.
+
 ## [0.1.0]
 
 - 🔄 Set `enable-auto-search` by default in `septum init`.
