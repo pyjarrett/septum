@@ -86,6 +86,8 @@ package SP.Searches is
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
     function Num_Filters (Srch : in Search) return Natural;
 
+    function Files_To_Search (Srch : in Search) return String_Vectors.Vector;
+
     procedure Set_Show_Timings (Srch : in out Search; Enabled : Boolean);
     function Get_Show_Timings (Srch : in Search) return Boolean;
 

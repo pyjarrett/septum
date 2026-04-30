@@ -429,6 +429,45 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure List_Files_Help is
+    begin
+        Put_Line ("List the files of the search list.");
+        Put_Line ("Supports an optional 'full' argument, otherwise caps the number");
+        Put_Line ("of printed files is capped.");
+    end List_Files_Help;
+
+    function List_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        Full : Boolean := False;
+        Count : Natural := 0;
+        Max_Count : Positive := 100;
+        use all type Ada.Containers.Count_Type;
+    begin
+        if Command_Line.Length = 1 then
+            if Command_Line.Element (1) = "full" then
+                Full := True;
+            else
+                begin
+                   Max_Count := Positive'Value (To_String (Command_Line.Element (1)));
+                exception
+                   when others =>
+                       Put_Line ("Invalid parameter, expected 'full' or a positive number.");
+                       return Command_Failed;
+                end;
+            end if;
+        elsif Command_Line.Length /= 0 then
+            Put_Line ("Unsupported argument for list-files, 'full' is optional.");
+        end if;
+
+        for File of SP.Searches.Files_To_Search (Srch) loop
+            Count := Count + 1;
+            exit when Count > Max_Count and then not Full;
+            Put_Line (File);
+        end loop;
+        return Command_Success;
+    end List_Files_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Extensions_Help is
     begin
         Put_Line ("Adds extension to the search list.");
@@ -1089,6 +1128,9 @@ begin
         ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
     Make_Command
         ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
+
+    Make_Command
+        ("list-files", "List the files in the search list.", List_Files_Help'Access, List_Files_Exec'Access);
 
     Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
