@@ -169,7 +169,7 @@ package body SP.Searches is
     procedure Drop_Filter (Srch : in out Search; Index : Positive) is
         Filter_Being_Dropped : constant Filter_Ptr :=
             (if Natural (Index) > Natural (Srch.Line_Filters.Length)
-                then Pointers.Make_Null else Srch.Line_Filters.Element (Index));
+                then Pointers.Make_Null else Srch.Line_Filters.Constant_Reference (Index));
     begin
         if not Filter_Being_Dropped.Is_Valid then
             SP.Terminal.Put_Line ("No filter exists at that index to drop.");
@@ -192,7 +192,7 @@ package body SP.Searches is
         New_Filters : Filter_List.Vector := Filter_List.Empty_Vector;
     begin
         for Index of Indices loop
-            New_Filters.Append (Srch.Line_Filters.Element (Index));
+            New_Filters.Append (Srch.Line_Filters.Constant_Reference (Index));
         end loop;
         Srch.Line_Filters.Move (New_Filters);
         pragma Unreferenced (New_Filters);
