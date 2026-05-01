@@ -419,7 +419,7 @@ package body SP.Searches is
         Result           : SP.Contexts.Context_Vectors.Vector;
     begin
         declare
-            All_Searches : array (0 .. Num_Tasks - 1) of Matching_Context_Search;
+            All_Searches : array (1 .. Num_Tasks) of Matching_Context_Search;
         begin
             Work.Start_Work (Integer (Files.Length));
             Merged_Results.Wait_For (Natural (Files.Length));
