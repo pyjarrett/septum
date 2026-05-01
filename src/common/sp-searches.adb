@@ -268,10 +268,12 @@ package body SP.Searches is
         Next           : SP.Contexts.Context_Vectors.Vector;
         Merged         : SP.Contexts.Context_Vectors.Vector;
         Result         : SP.Contexts.Context_Vectors.Vector;
+        File_Lines     : String_Vectors.Vector;
     begin
         -- Process the file using the given filters.
         for F of Srch.Line_Filters loop
-            Lines := SP.Filters.Matching_Lines (F.Get, Srch.File_Cache.Lines (File));
+            File_Lines := Srch.File_Cache.Lines (File);
+            Lines := SP.Filters.Matching_Lines (F.Get, File_Lines);
 
             case F.Get.Action is
                 -- No context should contain an excluded line. This could be more granular by finding contexts smaller
@@ -281,7 +283,7 @@ package body SP.Searches is
                 when Keep =>
                     Next :=
                         Matching_Contexts
-                            (File, Natural (Srch.File_Cache.Lines (File).Length), Lines,
+                            (File, Natural (File_Lines.Length), Lines,
                              Srch.Context_Width);
 
                     -- First pass has nothing to merge onto.
@@ -413,7 +415,6 @@ package body SP.Searches is
         end Matching_Context_Search;
 
         package MP renames System.Multiprocessors;
-        use all type MP.CPU_Range;
         Progress_Tracker : SP.Progress.Update_Progress (Work'Access);
         Num_Tasks        : constant MP.CPU := MP.Number_Of_CPUs;
         Result           : SP.Contexts.Context_Vectors.Vector;
