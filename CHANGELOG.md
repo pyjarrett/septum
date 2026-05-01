@@ -10,8 +10,20 @@ Types of changes:
 - ⚠️ `Deprecated` for soon-to-be removed features.
 - ❌ `Removed` for now removed features.
 - 🛠️ `Fixed` for any bug fixes.
--
-- 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
+- 🚀 `Optimized` performance optimizations.
+- ⭐ `Upgraded` for improvements.
+- 💥 `Security` in case of vulnerabilities.
+
+## [0.2.0]
+
+- 🛠️ Fixed home config location on Windows to use `USERPROFILE`.
+- ⭐ Upgraded AnsiAda to 0.1.1.
+- ⭐ Upgraded progress_indicators to 0.0.2.
+- ⭐ Upgraded trendy_terminal to 0.0.6.
+- ✅ Added GNATformat options to build to enforce coding standards.
+- 🚀 Optimized search by fixing a bug which pinned all but one search task.
+- 🚀 Optimzied search by eliminating some data copies.
+- 🛠️ Fixed list-file edge case not causing the command to fail.
 
 ## [0.1.1]
 
@@ -26,7 +38,7 @@ Types of changes:
 - 🛠️ `drop` with filter numbers now runs auto-search when enabled.
 - 🛠️ Fixed problem where `run` command doesn't verify the terminal environment is set up properly.
 - ✅ Added support for '#' comments and empty lines in scripts.
-- ⭐ Speed small loads by using a stop token.
+- 🚀 Optimized small loads by using a stop token instead of a wait.
 
 ## [0.0.7]
 
