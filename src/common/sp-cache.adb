@@ -220,7 +220,7 @@ package body SP.Cache is
 
         function File_Line (File_Name : in Unbounded_String; Line : in Positive) return Unbounded_String is
         begin
-            return Contents.Element (File_Name).Element (Line);
+            return Contents.Constant_Reference (File_Name).Element (Line);
         end File_Line;
 
     end Async_File_Cache;

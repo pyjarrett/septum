@@ -18,6 +18,7 @@ Types of changes:
 - ✅ Added support for `unload` command to drop directories.
 - ✅ Added `list-file` command to list a number or all files.
 - ✅ Added loading of all "text-like" files, not just known extensions.
+- 🛠️ `Fixed` slow printing on large files.
 
 ## [0.1.0]
 
