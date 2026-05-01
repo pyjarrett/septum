@@ -193,15 +193,42 @@ package body SP.Interactive is
         return Input;
     end Read_Command;
 
+    procedure Run_Repl (Srch : in out SP.Searches.Search) is
+        Input        : ASU.Unbounded_String;
+        Command_Line : SP.Strings.String_Vectors.Vector;
+        Line_History : aliased Trendy_Terminal.Histories.History;
+        Result       : SP.Commands.Command_Result;
+    begin
+        loop
+            Write_Prompt (Srch);
+            Input := Read_Command (Line_History);
+            Command_Line := SP.Strings.Split_Command (Input);
+
+            if not Command_Line.Is_Empty then
+                Result := SP.Commands.Execute (Srch, Command_Line);
+                case Result is
+                    when SP.Commands.Command_Success => null;
+                        -- Add command to history
+                        Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
+                    when SP.Commands.Command_Ignored =>
+                        null;
+                    when SP.Commands.Command_Failed =>
+                        Put_Line ("Command failed");
+                    when SP.Commands.Command_Unknown =>
+                        Put_Line ("Unknown command");
+                    when SP.Commands.Command_Exit_Requested =>
+                        return;
+                end case;
+            end if;
+        end loop;
+    end Run_Repl;
+
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
     procedure Main is
-        Input        : ASU.Unbounded_String;
-        Command_Line : SP.Strings.String_Vectors.Vector;
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
         Result       : SP.Commands.Command_Result;
-        Line_History : aliased Trendy_Terminal.Histories.History;
     begin
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
@@ -227,27 +254,6 @@ package body SP.Interactive is
             end case;
         end loop;
 
-        loop
-            Write_Prompt (Srch);
-            Input := Read_Command (Line_History);
-            Command_Line := SP.Strings.Split_Command (Input);
-
-            if not Command_Line.Is_Empty then
-                Result := SP.Commands.Execute (Srch, Command_Line);
-                case Result is
-                    when SP.Commands.Command_Success => null;
-                        -- Add command to history
-                        Trendy_Terminal.Histories.Add (Line_History, ASU.To_String (Input));
-                    when SP.Commands.Command_Ignored =>
-                        null;
-                    when SP.Commands.Command_Failed =>
-                        Put_Line ("Command failed");
-                    when SP.Commands.Command_Unknown =>
-                        Put_Line ("Unknown command");
-                    when SP.Commands.Command_Exit_Requested =>
-                        return;
-                end case;
-            end if;
-        end loop;
+        Run_Repl (Srch);
     end Main;
 end SP.Interactive;
