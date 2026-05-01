@@ -37,10 +37,12 @@ Release.Runtime_Checks = "None"
     "-gnatyO"     # Overriding subprograms explicitly marked as such]
 ]
 
+[[depends-on]]
+ansiada = "^1.1.0"
 [[depends-on]]  # Added by alr
 dir_iterators = "~0.0.5"  # Added by alr
 [[depends-on]]  # Added by alr
-progress_indicators = "~0.0.1"  # Added by alr
+progress_indicators = "~0.0.2"  # Added by alr
 [[depends-on]]  # Added by alr
 trendy_terminal = "~0.0.5"  # Added by alr
 # Leaving this here to locally targeting trendy_terminal which is being

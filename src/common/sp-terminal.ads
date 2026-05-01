@@ -15,7 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
-with ANSI;
+with AnsiAda;
 
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
@@ -40,8 +40,8 @@ package SP.Terminal is
     procedure Beginning_Of_Line renames Trendy_Terminal.VT100.Beginning_Of_Line;
     procedure Clear_Line renames Trendy_Terminal.VT100.Clear_Line;
 
-    function Colorize (S : String; Color : ANSI.Colors) return String;
-    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
+    function Colorize (S : String; Color : AnsiAda.Colors) return String;
+    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : AnsiAda.Colors)
         return Ada.Strings.Unbounded.Unbounded_String;
 
     -- I'm not convinced that these aren't useful. I haven't figured out how best to deal with the really long and

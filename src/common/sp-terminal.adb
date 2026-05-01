@@ -19,21 +19,21 @@ with Trendy_Terminal.Maps;
 
 package body SP.Terminal is
 
-    function Colorize (S : String; Color : ANSI.Colors) return String is
+    function Colorize (S : String; Color : AnsiAda.Colors) return String is
     begin
-        return ANSI.Foreground (Color)
+        return AnsiAda.Foreground (Color)
             & S
-            & ANSI.Foreground (ANSI.Default);
+            & AnsiAda.Foreground (AnsiAda.Default);
     end Colorize;
 
-    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : ANSI.Colors)
+    function Colorize (US : Ada.Strings.Unbounded.Unbounded_String; Color : AnsiAda.Colors)
         return Ada.Strings.Unbounded.Unbounded_String
     is
         use all type Ada.Strings.Unbounded.Unbounded_String;
     begin
-        return ANSI.Foreground (Color)
+        return AnsiAda.Foreground (Color)
             & US
-            & ANSI.Foreground (ANSI.Default);
+            & AnsiAda.Foreground (AnsiAda.Default);
     end Colorize;
 
     protected body Cancellation_Gate is

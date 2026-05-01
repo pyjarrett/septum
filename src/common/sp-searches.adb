@@ -16,7 +16,7 @@
 
 with Ada.Directories;
 with Ada.Strings.Unbounded;
-with ANSI;
+with AnsiAda;
 with Atomic.Signed;
 
 with Progress_Indicators.Work_Trackers;
@@ -439,7 +439,7 @@ package body SP.Searches is
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), ANSI.Light_Magenta));
+        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), AnsiAda.Light_Magenta));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
                 Put ("-> ");
@@ -462,7 +462,7 @@ package body SP.Searches is
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
                 Put_Line (SP.Terminal.Colorize (
                     To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
-                    ANSI.Green));
+                    AnsiAda.Green));
             else
                 Put_Line (Srch.File_Cache.File_Line (Context.File_Name, Line_Num));
             end if;
@@ -553,10 +553,10 @@ package body SP.Searches is
             if F.Get.Matches_Line (Input) then
                 case F.Get.Action is
                     when SP.Filters.Keep =>
-                        Put (SP.Terminal.Colorize ("  MATCH  ", ANSI.Light_Green));
+                        Put (SP.Terminal.Colorize ("  MATCH  ", AnsiAda.Light_Green));
                         Keeps := Keeps + 1;
                     when SP.Filters.Exclude =>
-                        Put (SP.Terminal.Colorize (" EXCLUDE ", ANSI.Light_Red));
+                        Put (SP.Terminal.Colorize (" EXCLUDE ", AnsiAda.Light_Red));
                         Excludes := Excludes + 1;
                 end case;
             else
@@ -570,9 +570,9 @@ package body SP.Searches is
         -- Summary
         New_Line;
         if Excludes > 0 then
-            Put (SP.Terminal.Colorize ("EXCLUDED", ANSI.Light_Red));
+            Put (SP.Terminal.Colorize ("EXCLUDED", AnsiAda.Light_Red));
         elsif Keeps > 0 then
-            Put (SP.Terminal.Colorize ("MATCHED", ANSI.Light_Green));
+            Put (SP.Terminal.Colorize ("MATCHED", AnsiAda.Light_Green));
         else
             Put ("IGNORED");
         end if;
