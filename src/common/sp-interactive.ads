@@ -14,7 +14,11 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with SP.Searches;
+
 package SP.Interactive is
+
+    procedure Run_Repl (Srch : in out SP.Searches.Search);
 
     procedure Main;
     -- Main program entry point. This hides the details of what actually happens and keeps the exterior main function

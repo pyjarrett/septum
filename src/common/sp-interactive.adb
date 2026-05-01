@@ -21,7 +21,6 @@ with SP.Commands;
 with SP.Config;
 with SP.File_System;
 with SP.Filters;
-with SP.Searches;
 with SP.Strings;
 with SP.Terminal;
 with Trendy_Terminal.Histories;
