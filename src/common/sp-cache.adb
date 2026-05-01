@@ -60,6 +60,8 @@ package body SP.Cache is
             "inl"   |  -- C++ include
             "ini"   |
             "ipp"   |  -- C++ include
+            "kt"    |  -- Kotlin
+            "kts"   |  -- Kotlin script
             "lean"  |
             "ll"    |  -- LLVM
             "m"     |  -- objective-c
