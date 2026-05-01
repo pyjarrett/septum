@@ -456,6 +456,7 @@ package body SP.Commands is
             end if;
         elsif Command_Line.Length /= 0 then
             Put_Line ("Unsupported argument for list-files, 'full' is optional.");
+            return Command_Failed;
         end if;
 
         for File of SP.Searches.Files_To_Search (Srch) loop
