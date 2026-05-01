@@ -107,7 +107,7 @@ package body SP.Commands is
             if Command_Map.Contains (Best_Command) then
                 declare
                     It         : constant Command_Maps.Cursor := Command_Map.Find (Best_Command);
-                    Command    : constant Executable_Command  := Command_Maps.Element (It);
+                    Command    : constant Executable_Command  := Command_Map.Constant_Reference (It);
                     Parameters : String_Vectors.Vector        := Command_Line;
                 begin
                     Parameters.Delete_First;
@@ -238,7 +238,7 @@ package body SP.Commands is
                 if Command_Map.Contains (Target) then
                     declare
                         Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
-                        Command : constant Executable_Command  := Command_Maps.Element (Cursor);
+                        Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
                     begin
                         Command.Help.all;
                     end;
