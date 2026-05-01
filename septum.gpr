@@ -44,6 +44,11 @@ project Septum is
          );
    end Pretty_Printer;
 
+   package Format is
+      for Indentation ("Ada") use "4"; -- this project was originally written with 4
+      for Width ("Ada") use "120";     -- match original line length
+   end Format;
+
    package Install is
       for Artifacts (".") use ("share");
    end Install;
