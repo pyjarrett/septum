@@ -21,6 +21,8 @@ Types of changes:
 - ⭐ Upgraded progress_indicators to 0.0.2.
 - ⭐ Upgraded trendy_terminal to 0.0.6.
 - ✅ Added GNATformat options to build to enforce coding standards.
+- ✅ Added `run` command to match command line `run`.
+- ⚠️ Deprecated the `source` commmand.  Use `run` instead.
 - 🚀 Optimized search by fixing a bug which pinned all but one search task.
 - 🚀 Optimzied search by eliminating some data copies.
 - 🛠️ Fixed list-file edge case not causing the command to fail.

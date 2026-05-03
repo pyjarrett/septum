@@ -1095,7 +1095,8 @@ begin
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
     Make_Command ("unload", "Unloads the file cache.", Unload_Help'Access, Unload_Exec'Access);
     Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
-    Make_Command ("source", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
+    Make_Command ("source", "[DEPRECATED] Loads a configuration from file. Use 'run' instead.", Source_Help'Access, Source_Exec'Access);
+    Make_Command ("run", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
     Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
 
     -- Filters
