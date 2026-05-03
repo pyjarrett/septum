@@ -114,7 +114,9 @@ package body SP.Config is
             if Current_Dir_Config /= ASU.Null_Unbounded_String
                 and then FS.Is_File (ASU.To_String (Current_Dir_Config))
             then
-                V.Append (Current_Dir_Config);
+                if not V.Contains (Current_Dir_Config) then
+                    V.Append (Current_Dir_Config);
+                end if;
             end if;
         end return;
     end Config_Locations;
