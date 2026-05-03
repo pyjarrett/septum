@@ -371,6 +371,28 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Add_Files_Help is
+    begin
+        Put_Line ("Adds files to the search list.");
+    end Add_Files_Help;
+
+    function Add_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide files to add to the search path.");
+            return Command_Failed;
+        end if;
+
+        for File of Command_Line loop
+            if not SP.Searches.Add_File (Srch, To_String (File)) then
+                Put_Line ("File load failed.");
+            end if;
+        end loop;
+        return Command_Success;
+    end Add_Files_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Dirs_Help is
     begin
         Put_Line ("Adds a directory to the search list.");
@@ -1125,6 +1147,7 @@ begin
 
     -- Global configuration
 
+    Make_Command ("add-files", "Adds files to the search list.", Add_Files_Help'Access, Add_Files_Exec'Access);
     Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
     Make_Command
         ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);

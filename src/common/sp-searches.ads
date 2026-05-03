@@ -31,6 +31,7 @@ package SP.Searches is
     procedure Unload_Working_Set (Srch : in out Search);
     -- Dumps currently loaded search text and loads it again.
 
+    function Add_File (Srch : in out Search; File_Name : String) return Boolean;
     function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean;
 
     function List_Directories (Srch : in Search) return String_Vectors.Vector;
@@ -135,6 +136,9 @@ private
     type Search is limited record
         Directories : String_Sets.Set;
         -- A list of all directories to search.
+
+        Files : String_Sets.Set;
+        --  A list of additional files to search.
 
         File_Cache : SP.Cache.Async_File_Cache;
         -- Cached contents of files.

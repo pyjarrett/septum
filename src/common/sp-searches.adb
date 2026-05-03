@@ -55,6 +55,13 @@ package body SP.Searches is
                 return False;
             end if;
         end loop;
+
+        for File_Name of Srch.Files loop
+            if not SP.Cache.Add_File(Srch.File_Cache, To_String (File_Name)) then
+                Put_Line ("Could not load file: " & To_String (File_Name));
+                return False;
+            end if;
+        end loop;
         return True;
     end Reload_Working_Set;
 
@@ -62,6 +69,27 @@ package body SP.Searches is
     begin
       Srch.File_Cache.Clear;
     end Unload_Working_Set;
+
+    function Add_File (Srch : in out Search; File_Name : String) return Boolean is
+        use Ada.Directories;
+        Unbounded_Name : constant Unbounded_String := To_Unbounded_String (File_Name);
+        Path_Exists    : constant Boolean          := Exists (File_Name);
+        Is_File        : constant Boolean          := Path_Exists and then Kind (File_Name) = Ordinary_File;
+    begin
+        if Path_Exists and then Is_File and then not Srch.Files.Contains (Unbounded_Name) then
+            Srch.Files.Insert (Unbounded_Name);
+            if SP.Cache.Add_File (Srch.File_Cache, File_Name) then
+                SP.Terminal.Put_Line ("Added " & File_Name & " to search.");
+                return True;
+            else
+                SP.Terminal.Put_Line ("Unable to add " & File_Name & " to search.");
+                return False;
+            end if;
+        else
+            SP.Terminal.Put_Line ("Could not add " & File_Name & " to search.");
+            return False;
+        end if;
+    end Add_File;
 
     function Add_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;

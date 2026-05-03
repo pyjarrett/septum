@@ -155,15 +155,15 @@ package body SP.Cache is
     end Is_Binary_Extension;
 
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : Ada.Strings.Unbounded.Unbounded_String) is
-        Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
         String_File_Name : constant String := To_String (File_Name);
+        Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
     begin
         if Is_Binary_Extension (String_File_Name) then
             return;
         end if;
 
         if Is_Text_Extension (String_File_Name) or else File_System.Should_Load (String_File_Name) then
-            if SP.File_System.Read_Lines (To_String (File_Name), Lines) then
+            if SP.File_System.Read_Lines (String_File_Name, Lines) then
                 File_Cache.Cache_File (File_Name, Lines);
             end if;
         end if;
@@ -191,6 +191,8 @@ package body SP.Cache is
             end if;
             Contents.Update_Element (Position, Swap_Lines'Access);
         end Cache_File;
+
+        function Contains (File_Name : Unbounded_String) return Boolean is (Contents.Contains (File_Name));
 
         function Num_Files return Natural is
         begin
@@ -226,6 +228,19 @@ package body SP.Cache is
         end File_Line;
 
     end Async_File_Cache;
+
+    function Add_File (File_Cache : in out Async_File_Cache; File_Name : String) return Boolean is
+        S : constant ASU.Unbounded_String := ASU.To_Unbounded_String (File_Name);
+        use all type Ada.Directories.File_Kind;
+    begin
+        if not Ada.Directories.Exists (File_Name)
+            or else Ada.Directories.Kind (File_Name) /= Ada.Directories.Ordinary_File
+        then
+            return False;
+        end if;
+        Cache_File (File_Cache, S);
+        return File_Cache.Contains (S);
+    end Add_File;
 
     -- Adds all directories to the file cache.
     --

@@ -22,6 +22,7 @@ Types of changes:
 - ⭐ Upgraded trendy_terminal to 0.0.6.
 - ✅ Added GNATformat options to build to enforce coding standards.
 - ✅ Added `run` command to match command line `run`.
+- ✅ Added `add-files` command to add specific files to the search.
 - ⚠️ Deprecated the `source` commmand.  Use `run` instead.
 - 🚀 Optimized search by fixing a bug which pinned all but one search task.
 - 🚀 Optimzied search by eliminating some data copies.

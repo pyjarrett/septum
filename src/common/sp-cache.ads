@@ -57,6 +57,8 @@ package SP.Cache is
         -- Cache the contents of a file, replacing any existing contents.
         procedure Cache_File (File_Name : Unbounded_String; Lines : in out String_Vectors.Vector);
 
+        function Contains (File_Name : Unbounded_String) return Boolean;
+
         -- The total number of loaded files in the file cache.
         function Num_Files return Natural;
 
@@ -76,6 +78,8 @@ package SP.Cache is
 
         Contents : File_Maps.Map;
     end Async_File_Cache;
+
+    function Add_File (File_Cache : in out Async_File_Cache; File_Name : String) return Boolean;
 
     -- Adds a directory and all of its recursive subdirectories into the file cache.
     function Add_Directory_Recursively (A : in out Async_File_Cache; Dir : String) return Boolean;
