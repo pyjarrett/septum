@@ -51,7 +51,8 @@ trendy_terminal = "~0.0.5"  # Added by alr
 # For concurrent local development with other crates
 # trendy_terminal = { path='../trendy_terminal' }
 # progress_indicators = { path='../progress_indicators' }
-# To be used for CI
-#trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+# Fix for GitHub CI errors until the proper versions of deps are in Alire.
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+progress_indicators = { url = "https://github.com/pyjarrett/progress_indicators.git", branch="main" }
 [[depends-on]]  # Added by alr
 atomic = "~1.0.0"  # Added by alr
