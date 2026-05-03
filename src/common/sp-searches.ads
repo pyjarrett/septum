@@ -38,6 +38,7 @@ package SP.Searches is
     -- Lists top level search directories.
     procedure Clear_Directories (Srch : in out Search)
         with Post => List_Directories (Srch).Is_Empty;
+    procedure Clear_Files (Srch : in out Search);
 
     procedure Add_Extension (Srch : in out Search; Extension : String);
     procedure Remove_Extension (Srch : in out Search; Extension : String);

@@ -122,10 +122,20 @@ package body SP.Searches is
         end return;
     end List_Directories;
 
+    procedure Clear_Files (Srch : in out Search) is
+        Success : Boolean := False;
+    begin
+        Srch.Files.Clear;
+        Success := Reload_Working_Set (Srch);
+        pragma Unreferenced (Success);
+    end Clear_Files;
+
     procedure Clear_Directories (Srch : in out Search) is
+        Success : Boolean := False;
     begin
         Srch.Directories.Clear;
-        Srch.File_Cache.Clear;
+        Success := Reload_Working_Set (Srch);
+        pragma Unreferenced (Success);
     end Clear_Directories;
 
     procedure Add_Extension (Srch : in out Search; Extension : String) is

@@ -451,6 +451,23 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Clear_Files_Help is
+    begin
+        Put_Line ("Clears custom added search files.");
+    end Clear_Files_Help;
+
+    function Clear_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("No arguments are allowed for clearing files.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Clear_Files (Srch);
+        return Command_Success;
+    end Clear_Files_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure List_Files_Help is
     begin
         Put_Line ("List the files of the search list.");
@@ -1153,6 +1170,8 @@ begin
         ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
     Make_Command
         ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
+    Make_Command
+        ("clear-files", "Removes all custom added files from the search list.", Clear_Files_Help'Access, Clear_Files_Exec'Access);
 
     Make_Command
         ("list-files", "List the files in the search list.", List_Files_Help'Access, List_Files_Exec'Access);
