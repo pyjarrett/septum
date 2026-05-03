@@ -99,23 +99,27 @@ package body SP.Config is
         return ASU.Null_Unbounded_String;
     end Closest_Config;
 
-    function Config_Locations return String_Vectors.Vector is
-        Home_Dir_Config : constant ASU.Unbounded_String :=
-            ASU.To_Unbounded_String
-                (SP.Platform.Home_Dir & "/" & Config_Dir_Name & "/" & Config_File_Name);
+    function Config_Locations return String_Sets.Set is
+        Config_Dirs : constant SP.Strings.String_Sets.Set := SP.Platform.Config_Dirs;
         Current_Dir_Config : constant ASU.Unbounded_String := Closest_Config (Ada.Directories.Current_Directory);
     begin
-        return V : String_Vectors.Vector do
-            -- Look for the global user config.
-            if FS.Is_File (ASU.To_String (Home_Dir_Config)) then
-                V.Append (Home_Dir_Config);
-            end if;
+        return Result : String_Sets.Set do
+            -- Look for the global user configs.
+            for Dir of Config_Dirs loop
+                declare
+                    Config_Path : constant ASU.Unbounded_String := Dir & "/" & Config_Dir_Name & "/" & Config_File_Name;
+                begin
+                    if not Result.Contains (Config_Path) then
+                        Result.Insert (Config_Path);
+                    end if;
+                end;
+            end loop;
 
             if Current_Dir_Config /= ASU.Null_Unbounded_String
                 and then FS.Is_File (ASU.To_String (Current_Dir_Config))
             then
-                if not V.Contains (Current_Dir_Config) then
-                    V.Append (Current_Dir_Config);
+                if not Result.Contains (Current_Dir_Config) then
+                    Result.Insert (Current_Dir_Config);
                 end if;
             end if;
         end return;

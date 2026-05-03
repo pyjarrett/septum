@@ -1,19 +1,22 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
+with Ada.Strings.Unbounded;
+with SP.Strings;
 
 package body SP.Platform is
 
-    function Home_Dir return String is
+    function Config_Dirs return SP.Strings.String_Sets.Set is
+        package ASU renames Ada.Strings.Unbounded;
         package Env renames Ada.Environment_Variables;
-        User_Profile : constant String := "USERPROFILE";
     begin
-        if Env.Exists (User_Profile) then
-            return Ada.Directories.Full_Name (Env.Value (User_Profile));
-        else
-            -- TODO: Add a better fallback case here.
-            return "";
-        end if;
-    end Home_Dir;
+        return S : SP.String_Sets.Set do
+            if Env.Exists ("XDG_CONFIG_HOME") then
+                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME"))));
+            elsif Env.Exists ("HOME") then
+                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config/")));
+            end if;
+        end return;
+    end Config_Dirs;
 
     function Path_Separator return Character is ('/');
     function Path_Opposite_Separator return Character is ('\');

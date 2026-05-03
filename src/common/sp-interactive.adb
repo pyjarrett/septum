@@ -226,7 +226,7 @@ package body SP.Interactive is
     -- pushing and popping operations.
     procedure Main is
         Srch         : SP.Searches.Search;
-        Configs      : constant SP.Strings.String_Vectors.Vector := SP.Config.Config_Locations;
+        Configs      : constant SP.Strings.String_Sets.Set := SP.Config.Config_Locations;
         Result       : SP.Commands.Command_Result;
     begin
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);

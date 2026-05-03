@@ -32,7 +32,7 @@ package SP.Config is
 
     -- A list of all possible locations which might have a configuration which
     -- can be read on program startup.
-    function Config_Locations return String_Vectors.Vector;
+    function Config_Locations return String_Sets.Set;
 
     -- Creates a configuration in the given directory.
     procedure Create_Local_Config;
