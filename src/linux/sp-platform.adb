@@ -13,7 +13,7 @@ package body SP.Platform is
             if Env.Exists ("XDG_CONFIG_HOME") then
                 S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME"))));
             elsif Env.Exists ("HOME") then
-                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config/")));
+                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config")));
             end if;
         end return;
     end Config_Dirs;

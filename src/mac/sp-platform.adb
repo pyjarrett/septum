@@ -11,7 +11,8 @@ package body SP.Platform is
     begin
         return Result : SP.String_Sets.Set do
             if Env.Exists ("HOME") then
-                Result.Insert (ASU.To_Unbounded_String (Ada.Directories.Full_Name (Env.Value ("HOME"))));
+                Result.Insert (ASU.To_Unbounded_String (
+                    Ada.Directories.Full_Name (Env.Value ("HOME")) & "/Library/Application Support"));
             end if;
         end return;
     end Config_Dirs;
