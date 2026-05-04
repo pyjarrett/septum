@@ -877,12 +877,12 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Filters_Help is
+    procedure Clear_Line_Filters_Help is
     begin
         Put_Line ("Pops all filters.");
-    end Clear_Filters_Help;
+    end Clear_Line_Filters_Help;
 
-    function Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    function Clear_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
@@ -892,7 +892,7 @@ package body SP.Commands is
         pragma Unreferenced (Command_Line);
         SP.Searches.Clear_Filters (Srch);
         return Command_Success;
-    end Clear_Filters_Exec;
+    end Clear_Line_Filters_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -1219,7 +1219,7 @@ begin
     Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
     Make_Command ("drop", "Drops the filters at the given indices.", Drop_Help'Access, Drop_Exec'Access);
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
-    Make_Command ("clear-filters", "Pops all filters.", Clear_Filters_Help'Access, Clear_Filters_Exec'Access);
+    Make_Command ("clear-line-filters", "Pops all filters.", Clear_Line_Filters_Help'Access, Clear_Line_Filters_Exec'Access);
 
     -- Results
 
