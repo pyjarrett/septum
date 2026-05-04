@@ -31,7 +31,8 @@ Types of changes:
 - 🚀 Optimized search by fixing a bug which pinned all but one search task.
 - 🚀 Optimized search by eliminating some data copies.
 - 🛠️ Fixed list-file edge case not causing the command to fail.
-- 🔄 **BREAKING CHANGE!** moves top-level config check on Linux to XDG_CONFIG_HOME or $HOME/.config/.
+- 🔄 **BREAKING CHANGE!** Linux top-level configs checked using XDG conventions (default: ~/.config/septum/config)
+- 🔄 **BREAKING CHANGE!** Windows top-level configs now in %LOCALAPPDATA%/septum/config
 
 ## [0.1.1]
 
