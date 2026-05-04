@@ -30,7 +30,7 @@ package body SP.Config is
 
     procedure Create_Local_Config is
         Current_Dir : constant String := AD.Current_Directory;
-        Config_Dir  : constant String := Current_Dir & "/" & Config_Dir_Name;
+        Config_Dir  : constant String := Current_Dir & "/" & Local_Config_Dir_Name;
         Config_File : constant String := Config_Dir & "/" & Config_File_Name;
     begin
         if not AD.Exists (Config_Dir) then
@@ -72,9 +72,6 @@ package body SP.Config is
 
             Ada.Text_IO.Put_Line ("Configuration directory: " & Ada.Directories.Full_Name (Config_Dir));
             Ada.Text_IO.Put_Line ("Configuration file:      " & Ada.Directories.Full_Name (Config_File));
-            Ada.Text_IO.New_Line;
-            Ada.Text_IO.Put_Line (Config_Dir_Name & " is for Septum settings and configuration.");
-            Ada.Text_IO.Put_Line (Config_File_Name & " contains commands to run when starting in this directory.");
         exception
             when Ada.Text_IO.Name_Error | Ada.Text_IO.Use_Error =>
                 Ada.Text_IO.Put_Line ("Unable to create configuration file.");
@@ -91,7 +88,8 @@ package body SP.Config is
         Next_Trial : ASU.Unbounded_String;
     begin
         for Ancestor of Ancestors loop
-            Next_Trial := ASU.To_Unbounded_String (Ancestor & "/" & Config_Dir_Name & "/" & Config_File_Name);
+            --  Look for hidden ".septum/" directories in the path.
+            Next_Trial := ASU.To_Unbounded_String (Ancestor & "/" & Local_Config_Dir_Name & "/" & Config_File_Name);
             if FS.Is_File (ASU.To_String (Next_Trial)) then
                 return Next_Trial;
             end if;
@@ -100,20 +98,20 @@ package body SP.Config is
     end Closest_Config;
 
     function Config_Locations return String_Sets.Set is
-        Config_Dirs : constant SP.Strings.String_Sets.Set := SP.Platform.Config_Dirs;
+        Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Config_Dir;
         Current_Dir_Config : constant ASU.Unbounded_String := Closest_Config (Ada.Directories.Current_Directory);
     begin
         return Result : String_Sets.Set do
-            -- Look for the global user configs.
-            for Dir of Config_Dirs loop
+            --  Look for a global user config.
+            if not SP.Strings.String_Holders.Is_Empty (Config_Dir) then
                 declare
-                    Config_Path : constant ASU.Unbounded_String := Dir & "/" & Config_Dir_Name & "/" & Config_File_Name;
+                    Config_Path : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Config_Dir.Element & "/" & Global_Config_Dir_Name & "/" & Config_File_Name);
                 begin
                     if not Result.Contains (Config_Path) and then FS.Is_File (ASU.To_String (Config_Path)) then
                         Result.Insert (Config_Path);
                     end if;
                 end;
-            end loop;
+            end if;
 
             if Current_Dir_Config /= ASU.Null_Unbounded_String
                 and then FS.Is_File (ASU.To_String (Current_Dir_Config))

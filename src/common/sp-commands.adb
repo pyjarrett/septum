@@ -17,9 +17,11 @@
 with Ada.Calendar;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
+with AnsiAda;
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;
+with SP.Platform;
 with SP.Terminal;
 
 package body SP.Commands is
@@ -200,6 +202,7 @@ package body SP.Commands is
 
     procedure Help_Help is
         use Command_Maps;
+        Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Config_Dir;
     begin
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
@@ -209,8 +212,15 @@ package body SP.Commands is
         Put_Line ("containing elements with 'exclude' commands.");
         New_Line;
 
-        Put_Line ("Configurations are loaded from " & SP.Config.Config_Dir_Name & " directories,");
-        Put_Line ("in the user's home directory and the current directory when Septum is started.");
+        Put_Line ("Configurations are loaded from " &
+            SP.Terminal.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta));
+        Put_Line ("looking upward from the current directory when Septum is started.");
+
+        if not Global_Config_Dir.Is_Empty then
+            Put_Line ("A global config will be loaded from " &
+            SP.Terminal.Colorize (SP.File_System.Rewrite_Path (Global_Config_Dir.Element & "/" &
+                SP.Config.Global_Config_Dir_Name & "/" & SP.Config.Config_File_Name), AnsiAda.Magenta));
+        end if;
         Put_Line ("Commands will be executed from the " & SP.Config.Config_File_Name & " files in these on startup.");
         Put_Line ("Lines which start with # are ignored.");
         New_Line;

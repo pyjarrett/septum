@@ -27,7 +27,8 @@ with SP.Strings;
 package SP.Config is
     use SP.Strings;
 
-    Config_Dir_Name  : constant String := "septum";
+    Global_Config_Dir_Name : constant String := "septum";
+    Local_Config_Dir_Name : constant String := ".septum";
     Config_File_Name : constant String := "config";
 
     -- A list of all possible locations which might have a configuration which

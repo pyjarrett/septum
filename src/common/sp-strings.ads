@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Containers.Indefinite_Holders;
 with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
@@ -74,6 +75,7 @@ is
     package String_Vectors is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => ASU.Unbounded_String,
          "="        => ASU."=");
+    package String_Holders is new Ada.Containers.Indefinite_Holders (Element_Type => String);
 
     function Zip (Left, Right : String_Vectors.Vector) return ASU.Unbounded_String;
     function Format_Array (S : String_Vectors.Vector) return ASU.Unbounded_String;

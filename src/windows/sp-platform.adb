@@ -1,20 +1,18 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
-with Ada.Strings.Unbounded;
 
 package body SP.Platform is
 
-    function Config_Dirs return SP.Strings.String_Sets.Set is
+    function Config_Dir return SP.Strings.String_Holders.Holder is
         package Env renames Ada.Environment_Variables;
-        package ASU renames Ada.Strings.Unbounded;
         LocalAppData : constant String := "LOCALAPPDATA";
     begin
-        return S : SP.Strings.String_Sets.Set do
+        return S : SP.Strings.String_Holders.Holder := SP.Strings.String_Holders.Empty_Holder do
             if Env.Exists (LocalAppData) then
-                S.Insert (ASU.To_Unbounded_String (Ada.Directories.Full_Name (Env.Value (LocalAppData))));
+                S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value (LocalAppData)));
             end if;
         end return;
-    end Config_Dirs;
+    end Config_Dir;
 
     function Path_Separator return Character is ('\');
     function Path_Opposite_Separator return Character is ('/');
