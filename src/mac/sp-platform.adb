@@ -1,7 +1,6 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
-with SP.String_Sets;
 
 package body SP.Platform is
 

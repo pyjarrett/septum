@@ -1,7 +1,6 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
-with SP.Strings;
 
 package body SP.Platform is
 
@@ -9,11 +8,11 @@ package body SP.Platform is
         package ASU renames Ada.Strings.Unbounded;
         package Env renames Ada.Environment_Variables;
     begin
-        return S : SP.String_Sets.Set do
+        return S : SP.Strings.String_Sets.Set do
             if Env.Exists ("XDG_CONFIG_HOME") then
-                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME"))));
+                S.Insert (ASU.To_Unbounded_String (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME"))));
             elsif Env.Exists ("HOME") then
-                S.Insert (ASU.To_String (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config")));
+                S.Insert (ASU.To_Unbounded_String (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config")));
             end if;
         end return;
     end Config_Dirs;
