@@ -8,7 +8,7 @@ package body SP.Platform is
         package ASU renames Ada.Strings.Unbounded;
         package Env renames Ada.Environment_Variables;
     begin
-        return Result : SP.String_Sets.Set do
+        return Result : SP.Strings.String_Sets.Set do
             if Env.Exists ("HOME") then
                 Result.Insert (ASU.To_Unbounded_String (
                     Ada.Directories.Full_Name (Env.Value ("HOME")) & "/Library/Application Support"));

@@ -109,7 +109,7 @@ package body SP.Config is
                 declare
                     Config_Path : constant ASU.Unbounded_String := Dir & "/" & Config_Dir_Name & "/" & Config_File_Name;
                 begin
-                    if not Result.Contains (Config_Path) then
+                    if not Result.Contains (Config_Path) and then FS.Is_File (ASU.To_String (Config_Path)) then
                         Result.Insert (Config_Path);
                     end if;
                 end;
