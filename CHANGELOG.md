@@ -26,13 +26,14 @@ Types of changes:
 - ✅ Added `clear-files` command to remove custom added files to search.
 - ⚠️ Deprecated the `source` commmand.  Use `run` instead.
 - 🚀 Optimized search by fixing a bug which pinned all but one search task.
-- 🚀 Optimzied search by eliminating some data copies.
+- 🚀 Optimized search by eliminating some data copies.
 - 🛠️ Fixed list-file edge case not causing the command to fail.
+- 🔄 **BREAKING CHANGE!** moves top-level config check on Linux to XDG_CONFIG_HOME or $HOME/.config/.
 
 ## [0.1.1]
 
 - ✅ Added support for `unload` command to drop directories.
-- ✅ Added `list-file` command to list a number or all files.
+- ✅ Added `list-files` command to list a number or all files.
 - ✅ Added loading of all "text-like" files, not just known extensions.
 - 🛠️ `Fixed` slow printing on large files.
 
