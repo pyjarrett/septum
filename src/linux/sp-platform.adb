@@ -10,10 +10,10 @@ package body SP.Platform is
             if Env.Exists ("XDG_CONFIG_HOME") then
                 S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME")));
             elsif Env.Exists ("HOME") then
-                S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config")));
+                S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config"));
             end if;
         end return;
-    end Config_Dirs;
+    end Config_Dir;
 
     function Path_Separator return Character is ('/');
     function Path_Opposite_Separator return Character is ('\');
