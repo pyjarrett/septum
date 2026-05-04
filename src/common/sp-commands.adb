@@ -219,7 +219,7 @@ package body SP.Commands is
         for Cursor in Command_Map.Iterate loop
             Put ("    " & Key (Cursor));
             Set_Col (30);
-            Put_Line (Element (Cursor).Simple_Help);
+            Put_Line (Constant_Reference (Command_Map, Cursor).Simple_Help);
         end loop;
     end Help_Help;
 
@@ -482,11 +482,11 @@ package body SP.Commands is
         use all type Ada.Containers.Count_Type;
     begin
         if Command_Line.Length = 1 then
-            if Command_Line.Element (1) = "full" then
+            if Command_Line.Constant_Reference (1) = "full" then
                 Full := True;
             else
                 begin
-                   Max_Count := Positive'Value (To_String (Command_Line.Element (1)));
+                   Max_Count := Positive'Value (To_String (Command_Line.Constant_Reference (1)));
                 exception
                    when others =>
                        Put_Line ("Invalid parameter, expected 'full' or a positive number.");
@@ -922,7 +922,7 @@ package body SP.Commands is
         case Command_Line.Length is
         when 2 =>
             if Try_Parse (To_String (Command_Line.First_Element), First)
-                and then Try_Parse (To_String (Command_Line.Element (2)), Last)
+                and then Try_Parse (To_String (Command_Line.Constant_Reference (2)), Last)
                 and then First <= Last
             then
                 SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, First, Last);
