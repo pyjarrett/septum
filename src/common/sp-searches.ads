@@ -45,6 +45,9 @@ package SP.Searches is
     procedure Clear_Extensions (Srch : in out Search);
     function List_Extensions (Srch : in Search) return String_Vectors.Vector;
 
+    procedure Find_Path (Srch : in out Search; Path : String);
+    procedure Exclude_Path (Srch : in out Search; Path : String);
+
     procedure Find_Text (Srch : in out Search; Text : String);
 
     procedure Exclude_Text (Srch : in out Search; Text : String);
@@ -68,6 +71,7 @@ package SP.Searches is
             and then (for all I in 1 .. Num_Filters (Srch) => Indices.Contains (I));
 
     procedure Clear_Filters (Srch : in out Search);
+    procedure Clear_Path_Filters (Srch : in out Search);
 
     No_Context_Width : constant := Natural'Last;
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);
@@ -87,6 +91,8 @@ package SP.Searches is
 
     function List_Filter_Names (Srch : in Search) return String_Vectors.Vector;
     function Num_Filters (Srch : in Search) return Natural;
+
+    function Path_Filter_Names (Srch : Search) return String_Vectors.Vector;
 
     function Files_To_Search (Srch : in Search) return String_Vectors.Vector;
 
@@ -145,6 +151,8 @@ private
         -- Cached contents of files.
 
         Line_Filters : Filter_List.Vector;
+
+        Path_Filters : Filter_List.Vector;
 
         Extensions : String_Sets.Set;
 

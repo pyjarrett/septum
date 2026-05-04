@@ -168,6 +168,16 @@ package body SP.Searches is
         end return;
     end List_Extensions;
 
+    procedure Find_Path (Srch : in out Search; Path : String) is
+    begin
+        Srch.Path_Filters.Append (Filters.Find_Text (Path));
+    end Find_Path;
+
+    procedure Exclude_Path (Srch : in out Search; Path : String) is
+    begin
+        Srch.Path_Filters.Append (Filters.Exclude_Text (Path));
+    end Exclude_Path;
+
     procedure Find_Text (Srch : in out Search; Text : String) is
     begin
         Srch.Line_Filters.Append (Filters.Find_Text (Text));
@@ -241,6 +251,11 @@ package body SP.Searches is
         Srch.Line_Filters.Clear;
     end Clear_Filters;
 
+    procedure Clear_Path_Filters (Srch : in out Search) is
+    begin
+        Srch.Path_Filters.Clear;
+    end Clear_Path_Filters;
+
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural) is
     begin
         Srch.Context_Width := Context_Width;
@@ -284,6 +299,15 @@ package body SP.Searches is
     end List_Filter_Names;
 
     function Num_Filters (Srch : Search) return Natural is (Integer (Srch.Line_Filters.Length));
+
+    function Path_Filter_Names (Srch : Search) return String_Vectors.Vector is
+    begin
+        return V : String_Vectors.Vector do
+            for F of Srch.Path_Filters loop
+                V.Append (To_Unbounded_String (F.Get.Action'Image & " : " & Image (F.Get)));
+            end loop;
+        end return;
+    end Path_Filter_Names;
 
     function Matching_Contexts
         (File_Name : ASU.Unbounded_String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)
@@ -396,19 +420,33 @@ package body SP.Searches is
     end Matching_Contexts_In_File;
 
     function Files_To_Search (Srch : in Search) return String_Vectors.Vector is
+        Has_Path_Keep : constant Boolean := (for some F of Srch.Path_Filters => F.Get.Action = SP.Filters.Keep);
     begin
         return Result : String_Vectors.Vector do
-            if Srch.Extensions.Is_Empty then
-                Result := Srch.File_Cache.Files;
-                return;
-            end if;
-
             for File of Srch.File_Cache.Files loop
                 declare
-                    Extension : constant String := Ada.Directories.Extension (To_String(File));
+                    Path : constant String := To_String(File);
+                    Extension : constant String := Ada.Directories.Extension (Path);
+                    Accept_Extension : constant Boolean := Srch.Extensions.Is_Empty
+                        or else Srch.Extensions.Contains (To_Unbounded_String(Extension));
+                    Keep : Boolean := not Has_Path_Keep;
                 begin
-                    if Srch.Extensions.Contains (To_Unbounded_String(Extension)) then
-                        Result.Append (File);
+                    if Accept_Extension then
+                        for F of Srch.Path_Filters loop
+                            if F.Get.Matches_Line (Path) then
+                                case F.Get.Action is
+                                    when Filters.Keep =>
+                                        Keep := True;
+                                    when Filters.Exclude =>
+                                        Keep := False;
+                                        exit;
+                                end case;
+                            end if;
+                        end loop;
+
+                        if Keep then
+                            Result.Append (File);
+                        end if;
                     end if;
                 end;
             end loop;

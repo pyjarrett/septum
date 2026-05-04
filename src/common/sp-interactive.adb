@@ -34,7 +34,8 @@ package body SP.Interactive is
 
     procedure Write_Prompt (Srch : in SP.Searches.Search) is
         -- Writes the prompt and get ready to read user input.
-        Filter_Names   : constant Sp.Strings.String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
+        Filter_Names   : constant SP.Strings.String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
+        Path_Filters   : constant SP.Strings.String_Vectors.Vector := SP.Searches.Path_Filter_Names (Srch);
         Default_Prompt : constant String  := " > ";
         Extensions     : constant SP.Strings.String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
         Context_Width  : constant Natural := SP.Searches.Get_Context_Width (Srch);
@@ -54,6 +55,17 @@ package body SP.Interactive is
                 Put (" ");
             end loop;
         end if;
+        New_Line;
+        Put ("Path Filters: ");
+        if Integer (Path_Filters.Length) = 0 then
+            Put ("None");
+        end if;
+        New_Line;
+        for Filter of Path_Filters loop
+            Set_Col (6);
+            Put_Line (Filter);
+        end loop;
+
         New_Line;
         Put ("Distance:  " & (if Context_Width = SP.Searches.No_Context_Width then "Any" else Context_Width'Image));
         Set_Col (Second_Col);

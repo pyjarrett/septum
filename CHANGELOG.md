@@ -24,6 +24,9 @@ Types of changes:
 - ✅ Added `run` command to match command line `run`.
 - ✅ Added `add-files` command to add specific files to the search.
 - ✅ Added `clear-files` command to remove custom added files to search.
+- ✅ Added `find-path` command to only search paths with a term.
+- ✅ Added `exclude-path` command to exclude files with a term from the search.
+- ✅ Added `clear-path-filters` command to clear path filters.
 - ⚠️ Deprecated the `source` commmand.  Use `run` instead.
 - 🚀 Optimized search by fixing a bug which pinned all but one search task.
 - 🚀 Optimized search by eliminating some data copies.

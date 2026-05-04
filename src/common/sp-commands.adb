@@ -508,6 +508,40 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Find_Path_Help is
+    begin
+        Put_Line ("Provides path elements to search for.");
+    end Find_Path_Help;
+
+    function Find_Path_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Find_Path (Srch, To_String (Word));
+        end loop;
+
+        Search_Updated (Srch);
+        return Command_Success;
+    end Find_Path_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Exclude_Path_Help is
+    begin
+        Put_Line ("Provides path elements to exclude from the search.");
+    end Exclude_Path_Help;
+
+    function Exclude_Paths_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        for Word of Command_Line loop
+            SP.Searches.Exclude_Path (Srch, To_String (Word));
+        end loop;
+
+        Search_Updated (Srch);
+        return Command_Success;
+    end Exclude_Paths_Exec;
+
+    ----------------------------------------------------------------------------
+
     procedure Add_Extensions_Help is
     begin
         Put_Line ("Adds extension to the search list.");
@@ -840,10 +874,34 @@ package body SP.Commands is
 
     function Clear_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
+        end if;
+
         pragma Unreferenced (Command_Line);
         SP.Searches.Clear_Filters (Srch);
         return Command_Success;
     end Clear_Filters_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure Clear_Path_Filters_Help is
+    begin
+        Put_Line ("Removes all path filters.");
+    end Clear_Path_Filters_Help;
+
+    function Clear_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
+        end if;
+
+        pragma Unreferenced (Command_Line);
+        SP.Searches.Clear_Path_Filters (Srch);
+        return Command_Success;
+    end Clear_Path_Filters_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -1176,12 +1234,20 @@ begin
     Make_Command
         ("list-files", "List the files in the search list.", List_Files_Help'Access, List_Files_Exec'Access);
 
+    -- Path Filtering
+
+    Make_Command ("find-path", "Only look in paths containing this.", Find_Path_Help'Access, Find_Path_Exec'Access);
+    Make_Command ("exclude-path", "Exclude paths containing this from the search", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
+    Make_Command ("clear-path-filters", "Pops all filters.", Clear_Path_Filters_Help'Access, Clear_Path_Filters_Exec'Access);
+
     Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
         ("remove-exts", "Removes an extension filter from the search.", Remove_Extensions_Help'Access,
          Remove_Extensions_Exec'Access);
     Make_Command ("clear-exts", "Clears extension filters.", Clear_Extensions_Help'Access, Clear_Extensions_Exec'Access);
     Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
+
+    -- Settings
 
     Make_Command
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
