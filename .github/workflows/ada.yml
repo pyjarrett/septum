@@ -23,4 +23,5 @@ jobs:
          uses: alire-project/setup-alire@v4
        - name: Build
          run: |
+            alr index --update-all
             alr --no-tty build
