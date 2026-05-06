@@ -21,8 +21,9 @@ jobs:
          uses: actions/checkout@v6
        - name: alire-project/setup-alire@v4
          uses: alire-project/setup-alire@v4
+         with:
+             version: 2.1.0
        - name: Build
          working-directory: tests/
          run: |
             alr --no-tty build
-            alr run
