@@ -34,9 +34,9 @@ trendy_test = "~0.0.3"
 [[depends-on]] # Added by alr
 dir_iterators = "~0.0.5" # Added by alr
 [[depends-on]] # Added by alr
-progress_indicators = "~0.0.1" # Added by alr
+progress_indicators = "~0.0.2" # Added by alr
 [[depends-on]] # Added by alr
-trendy_terminal = "~0.0.5" # Added by alr
+trendy_terminal = "~0.0.6" # Added by alr
 
 [[pins]]
 septum = { path = ".." }
