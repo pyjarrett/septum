@@ -39,12 +39,10 @@ Release.Runtime_Checks = "None"
 
 [[depends-on]]
 ansiada = "^1.1.0"
-[[depends-on]]  # Added by alr
-dir_iterators = "~0.0.5"  # Added by alr
-[[depends-on]]  # Added by alr
-progress_indicators = "~0.0.2"  # Added by alr
-[[depends-on]]  # Added by alr
-trendy_terminal = "~0.0.6"  # Added by alr
+atomic = "~1.0.0"  # Added by alr
+dir_iterators = "~0.0.5"
+progress_indicators = "~0.0.2"
+trendy_terminal = "~0.0.6"
 # Leaving this here to locally targeting trendy_terminal which is being
 # developed in parallel with this project.
 [[pins]]  # Added by alr
@@ -54,5 +52,3 @@ trendy_terminal = "~0.0.6"  # Added by alr
 # Fix for GitHub CI errors until the proper versions of deps are in Alire.
 # trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 # progress_indicators = { url = "https://github.com/pyjarrett/progress_indicators.git", branch="main" }
-[[depends-on]]  # Added by alr
-atomic = "~1.0.0"  # Added by alr

@@ -2,9 +2,6 @@
 --  This section was automatically added by Alire
 with "atomic.gpr";
 with "config/septum_config.gpr";
-with "dir_iterators.gpr";
-with "progress_indicators.gpr";
-with "trendy_terminal.gpr";
 -- end auto-gpr-with --
 
 project Septum is
