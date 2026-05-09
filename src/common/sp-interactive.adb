@@ -86,6 +86,10 @@ package body SP.Interactive is
             Put_Line (Filter_Names.Element (Integer(Index)));
         end loop;
 
+        if SP.Searches.Num_Files (Srch) = 0 then
+            Put_Line ("No files loaded, use `add-dirs [DIRECTORY]... or add-files [FILE]... to load files for searching.");
+        end if;
+
         New_Line;
         Put (Default_Prompt);
     end Write_Prompt;
