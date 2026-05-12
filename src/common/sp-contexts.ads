@@ -34,6 +34,9 @@ is
         Maximum          : Positive;
     end record;
 
+    function Width (C : Context_Match) return Natural is (C.Maximum - C.Minimum) with
+        Pre => Is_Valid (C);
+
     function From
         (File_Name : ASU.Unbounded_String; Line : Natural; Num_Lines : Natural; Context_Width : Natural) return Context_Match with
         Pre  => Line <= Num_Lines,
@@ -59,8 +62,10 @@ is
         Pre => Is_Valid (A) and then Is_Valid (B);
 
     function Merge (A, B : Context_Match) return Context_Match with
-        Pre  => Is_Valid (A) and then Is_Valid (B),
-        Post => Is_Valid (Merge'Result);
+        Pre  => Is_Valid (A) and then Is_Valid (B) and then Overlap (A, B),
+        Post => Is_Valid (Merge'Result) 
+            and then Width (Merge'Result) <= Width (A)
+            and then Width (Merge'Result) <= Width (B);
 
     function Image (A : Context_Match) return String with
         Pre => Is_Valid (A);
