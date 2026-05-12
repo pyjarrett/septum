@@ -330,11 +330,10 @@ package body SP.Searches is
         Next           : SP.Contexts.Context_Vectors.Vector;
         Merged         : SP.Contexts.Context_Vectors.Vector;
         Result         : SP.Contexts.Context_Vectors.Vector;
-        File_Lines     : String_Vectors.Vector;
+        File_Lines     : constant SP.Cache.File_Maps.Constant_Reference_Type := Srch.File_Cache.Lines (File);
     begin
         -- Process the file using the given filters.
         for F of Srch.Line_Filters loop
-            File_Lines := Srch.File_Cache.Lines (File);
             Lines := SP.Filters.Matching_Lines (F.Get, File_Lines);
 
             case F.Get.Action is

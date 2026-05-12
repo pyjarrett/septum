@@ -208,9 +208,9 @@ package body SP.Cache is
             end return;
         end Num_Lines;
 
-        function Lines (File_Name : in Unbounded_String) return String_Vectors.Vector is
+        function Lines (File_Name : in Unbounded_String) return File_Maps.Constant_Reference_Type is
         begin
-            return Contents (File_Name);
+            return Contents.Constant_Reference (File_Name);
         end Lines;
 
         function Files return String_Vectors.Vector is

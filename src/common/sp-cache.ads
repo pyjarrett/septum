@@ -65,7 +65,7 @@ package SP.Cache is
         -- The total number of loaded lines in the file cache.
         function Num_Lines return Natural;
 
-        function Lines (File_Name : Unbounded_String) return String_Vectors.Vector;
+        function Lines (File_Name : Unbounded_String) return File_Maps.Constant_Reference_Type;
 
         function Files return String_Vectors.Vector;
 
