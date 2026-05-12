@@ -17,7 +17,6 @@
 with Ada.Calendar;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
-with Ada.Strings.Fixed;
 with AnsiAda;
 with SP.Config;
 with SP.Contexts;
@@ -228,8 +227,14 @@ package body SP.Commands is
 
         -- Print commands.
         for Cursor in Command_Map.Iterate loop
-            Put ("    " & Key (Cursor) & Ada.Strings.Fixed."*" (30, ' '));
-            Put_Line (Constant_Reference (Command_Map, Cursor).Simple_Help);
+            declare
+                Command_Padding : constant String (1 .. 26 - Length (Key (Cursor))) := (others => ' ');
+            begin
+               Put ("    ");
+               Put (Key (Cursor));
+               PUt (Command_Padding);
+               Put_Line (Constant_Reference (Command_Map, Cursor).Simple_Help);
+            end;
         end loop;
     end Help_Help;
 
