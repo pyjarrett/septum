@@ -391,31 +391,51 @@ package body SP.Searches is
                 end;
             end loop;
 
-            -- Merge down
-            for C of Matching_Contexts loop
-                declare
-                    Duplicate : Boolean := False;
-                    use type SP.Contexts.Context_Match;
-                begin
-                    for D of Matching_Contexts loop
-                        if C /= D and then SP.Contexts.Contains(D, C) then
-                            Duplicate := True;
-                            exit;
-                        end if;
-                    end loop;
-
-                    if not Duplicate then
-                        -- It's nice to have the lines which contain a match to be marked as such.
-                        for M of All_Matches_In_Contexts loop
-                            if SP.Contexts.Contains (C, M) and then not C.Internal_Matches.Contains (M) then
-                                C.Internal_Matches.Insert (M);
-                            end if;
+            -- There's likely duplicate and overlapping contexts at this point.
+            declare
+                Duplicate : array (1 .. Matching_Contexts.Length) of Boolean := [others => False];
+                use type Ada.Containers.Count_Type;
+            begin
+                for C in 1 .. Matching_Contexts.Length loop
+                    declare
+                        Left : constant SP.Contexts.Context_Vectors.Reference_Type := Matching_Contexts.Reference (Integer (C));
+                    begin
+                        for D in Integer (C) + 1 .. Integer (Matching_Contexts.Length) loop
+                            declare
+                                Right : constant SP.Contexts.Context_Vectors.Reference_Type := Matching_Contexts.Reference (Integer (D));
+                            begin
+                                -- Always favor showing the larger context.
+                                -- There's a sneaky case here where LEFT = RIGHT, where
+                                -- we want to keep only one.  This first `if` and the loop
+                                -- bounds catch this.
+                                if SP.Contexts.Contains(Right, Left) then
+                                    Duplicate (C) := True;
+                                elsif SP.Contexts.Contains (Left, Right) then
+                                    Duplicate (Ada.Containers.Count_Type (D)) := True;
+                                end if;
+                            end;
                         end loop;
-                        Result.Append (C);
-                    end if;
-                end;
-            end loop;
+                    end;
+                end loop;
+
+                for C in 1 .. Matching_Contexts.Length loop
+                    declare
+                        Left : constant SP.Contexts.Context_Vectors.Reference_Type := Matching_Contexts.Reference (Integer (C));
+                    begin
+                        if not Duplicate (C) then
+                            -- It's nice to have the lines which contain a match to be marked as such.
+                            for M of All_Matches_In_Contexts loop
+                                if SP.Contexts.Contains (Left, M) and then not Left.Internal_Matches.Contains (M) then
+                                    Left.Internal_Matches.Insert (M);
+                                end if;
+                            end loop;
+                            Result.Append (Left);
+                        end if;
+                    end;
+                end loop;
+            end;
         end;
+
         Concurrent_Results.Add_Result (Result);
     end Matching_Contexts_In_File;
 
