@@ -228,7 +228,7 @@ package body SP.Commands is
         -- Print commands.
         for Cursor in Command_Map.Iterate loop
             declare
-                Command_Padding : constant String (1 .. 26 - Length (Key (Cursor))) := (others => ' ');
+                Command_Padding : constant String (1 .. 26 - Length (Key (Cursor))) := [others => ' '];
             begin
                Put ("    ");
                Put (Key (Cursor));
