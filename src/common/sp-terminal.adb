@@ -19,8 +19,15 @@ with Trendy_Terminal.Maps;
 
 package body SP.Terminal is
 
+    function Is_Interactive return Boolean is (Environment.Is_Available);
+    function Has_Colors return Boolean is (Environment.Is_Available);
+
     function Colorize (S : String; Color : AnsiAda.Colors) return String is
     begin
+        if not Has_Colors then
+            return S;
+        end if;
+
         return AnsiAda.Foreground (Color)
             & S
             & AnsiAda.Foreground (AnsiAda.Default);
@@ -31,6 +38,10 @@ package body SP.Terminal is
     is
         use all type Ada.Strings.Unbounded.Unbounded_String;
     begin
+        if not Has_Colors then
+            return US;
+        end if;
+
         return AnsiAda.Foreground (Color)
             & US
             & AnsiAda.Foreground (AnsiAda.Default);

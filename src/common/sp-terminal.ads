@@ -17,6 +17,7 @@
 with Ada.Strings.Unbounded;
 with AnsiAda;
 
+with Trendy_Terminal.Environments;
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 
@@ -25,6 +26,9 @@ package SP.Terminal is
     -- capabilities if the terminal does not support them, such as if coloring text or line clearing is added.
     --
     -- This module also hides dependencies on unbounded IO.
+
+    --  If the program is not interactive, then don't show spinners, etc.
+    function Is_Interactive return Boolean;
 
     procedure Put (C : Character) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : String) renames Trendy_Terminal.IO.Put;
@@ -65,4 +69,8 @@ package SP.Terminal is
         entry Cancel;
         entry Stop;
     end;
+
+private
+    Environment : Trendy_Terminal.Environments.Environment;
+
 end SP.Terminal;
