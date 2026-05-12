@@ -232,7 +232,7 @@ package body SP.Commands is
             begin
                Put ("    ");
                Put (Key (Cursor));
-               PUt (Command_Padding);
+               Put (Command_Padding);
                Put_Line (Constant_Reference (Command_Map, Cursor).Simple_Help);
             end;
         end loop;
