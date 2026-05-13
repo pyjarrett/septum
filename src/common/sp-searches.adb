@@ -393,7 +393,6 @@ package body SP.Searches is
             -- There's likely duplicate and overlapping contexts at this point.
             declare
                 Duplicate : array (1 .. Matching_Contexts.Length) of Boolean := [others => False];
-                use type Ada.Containers.Count_Type;
             begin
                 for C in 1 .. Matching_Contexts.Length loop
                     declare
@@ -546,7 +545,7 @@ package body SP.Searches is
                 declare
                     Max_Line_Name_Width : constant := 6;
                     Line                : constant String := Line_Num'Image;
-                    Spaces              : constant String (1 .. Max_Line_Name_Width - Line'Length) := (others => ' ');
+                    Spaces              : constant String (1 .. Max_Line_Name_Width - Line'Length) := [others => ' '];
                 begin
                     if Spaces'Length > 0 then
                         Put (Spaces);
