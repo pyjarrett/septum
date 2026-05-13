@@ -14,6 +14,12 @@ Types of changes:
 - ⭐ `Upgraded` for improvements.
 - 💥 `Security` in case of vulnerabilities.
 
+## [0.2.1]
+
+- 🛠️ Fixed a bug where deduplication would remove all results.
+- 🛠️ Fixed an issue where printing help on some terminals might be slow.
+- 🚀 Optimized search by removing more data copies.
+
 ## [0.2.0]
 
 - 🛠️ Fixed home config location on Windows to use `USERPROFILE`.
