@@ -57,6 +57,17 @@ alr build --release
 
 4. Executable should be at `bin/septum(.exe)`
 
+# Testing
+
+Integration tests use [BBT](https://github.com/LionelDraghi/bbt).
+
+Run these like:
+
+```
+alr install bbt
+alr exec -- bbt --exec_dir . --recursive docs/tests --verbose --strict --tmp_dir bbt_out --output integration_test_results.md
+```
+
 # Contributing
 
 Septum aims to help every developers everywhere.  You're encouraged to recommend
