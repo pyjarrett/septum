@@ -20,7 +20,7 @@ package SP.Interactive is
 
     procedure Run_Repl (Srch : in out SP.Searches.Search);
 
-    procedure Main;
+    function Main return Boolean;
     -- Main program entry point. This hides the details of what actually happens and keeps the exterior main function
     -- simple.
 

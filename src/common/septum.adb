@@ -64,7 +64,9 @@ procedure Septum is
     Command : Commands := Help;
 begin
     if Ada.Command_Line.Argument_Count = 0 then
-        SP.Interactive.Main;
+        if not SP.Interactive.Main then
+            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+        end if;
         return;
     end if;
 

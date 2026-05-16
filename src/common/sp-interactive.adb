@@ -240,11 +240,16 @@ package body SP.Interactive is
 
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
-    procedure Main is
+    function Main return Boolean is
         Srch         : SP.Searches.Search;
         Configs      : constant SP.Strings.String_Sets.Set := SP.Config.Config_Locations;
         Result       : SP.Commands.Command_Result;
     begin
+        if not SP.Terminal.Is_Interactive then
+            Put_Line ("Unable to run REPL when terminal is not interactive.");
+            return False;
+        end if;
+
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
         Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
@@ -261,14 +266,15 @@ package body SP.Interactive is
                 when SP.Commands.Command_Ignored => null;
                 when SP.Commands.Command_Failed =>
                     Put_Line ("Failing running commands from: " & ASU.To_String(Config));
-                    return;
+                    return False;
                 when SP.Commands.Command_Unknown =>
                     Put_Line ("Unknown command in: " & ASU.To_String(Config));
                 when SP.Commands.Command_Exit_Requested =>
-                    return;
+                    return True;
             end case;
         end loop;
 
         Run_Repl (Srch);
+        return True;
     end Main;
 end SP.Interactive;

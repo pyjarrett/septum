@@ -17,6 +17,7 @@ Types of changes:
 ## [0.2.2]
 
 - ✅ Added support for `run` to execute multiple files in sequence.
+- ✅ Added an exit code error when trying to run interactively from a script.
 - ❌ Removed `--version` option.  Use `septum version` instead.
 
 
