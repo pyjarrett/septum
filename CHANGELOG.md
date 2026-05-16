@@ -14,6 +14,12 @@ Types of changes:
 - ⭐ `Upgraded` for improvements.
 - 💥 `Security` in case of vulnerabilities.
 
+## [0.2.2]
+
+- ✅ Added support for `run` to execute multiple files in sequence.
+- ❌ Removed `--version` option.  Use `septum version` instead.
+
+
 ## [0.2.1]
 
 - 🛠️ Fixed a bug where deduplication would remove all results.

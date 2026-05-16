@@ -28,17 +28,16 @@ with SP.Searches;
 procedure Septum is
     use Ada.Text_IO;
 
+    type Commands is (Init, Help, Version, Run);
+
     procedure Print_Usage is
     begin
-        Put_Line ("Unrecognized command line arguments.");
-        New_Line;
         Put_Line ("Usage:");
         Put_Line ("       septum                  run interactive search mode");
         Put_Line ("       septum init             creates config directory with default config");
         Put_Line ("       septum help             print this usage information");
-        Put_Line ("       septum run [file]       run a command file");
         Put_Line ("       septum version          print program version");
-        Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+        Put_Line ("       septum run [file]...    run command files");
     end Print_Usage;
 
     procedure Print_Version is
@@ -46,55 +45,81 @@ procedure Septum is
         Put_Line ("septum v" & SP.Version);
     end Print_Version;
 
-begin
-    -- Look for a single "--version" flag
-    if Ada.Command_Line.Argument_Count = 1
-        --  Keep "--version" around for compatibility, but leave it undocumented.
-        and then (Ada.Command_Line.Argument (1) = "--version"
-            or else Ada.Command_Line.Argument (1) = "version")
-    then
-        Print_Version;
-        return;
-    end if;
-
-    -- Create a local configuration file in the current directory.
-    if Ada.Command_Line.Argument_Count = 1
-        and then Ada.Command_Line.Argument (1) = "init"
-    then
-        SP.Config.Create_Local_Config;
-        return;
-    end if;
-
-    if Ada.Command_Line.Argument_Count >= 2 and then
-        Ada.Command_Line.Argument (1) = "run"
-    then
-        if Ada.Command_Line.Argument_Count /= 2 then
+    function Has_Num_Command_Arguments (N : Natural) return Boolean is
+    begin
+        if Ada.Command_Line.Argument_Count /= N + 1 then
+            New_Line;
+            Put_Line ("Incorrect number of arguments.");
+            New_Line;
             Print_Usage;
-            return;
+            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+            return False;
         end if;
 
-        declare
-            Srch : SP.Searches.Search;
-            Result : SP.Commands.Command_Result;
-            use type SP.Commands.Command_Result;
-        begin
-            Result := SP.Commands.Run_Commands_From_File (Srch, Ada.Command_Line.Argument (2));
-         Ada.Command_Line.Set_Exit_Status
-           ((if Result = SP.Commands.Command_Success
-             then Ada.Command_Line.Success
-             else Ada.Command_Line.Failure));
-        end;
+        return True;
+    end Has_Num_Command_Arguments;
+
+    --  Default to printing help, so that if the command is unrecognized, the
+    --  help gets printed.
+    Command : Commands := Help;
+begin
+    if Ada.Command_Line.Argument_Count = 0 then
+        SP.Interactive.Main;
         return;
     end if;
 
-    -- Don't recognize any other arguments.
-    if Ada.Command_Line.Argument_Count /= 0
-    then
-        Print_Usage;
-        return;
-    end if;
+    begin
+        Command := Commands'Value (Ada.Command_Line.Argument (1));
+    exception
+        when Constraint_Error =>
+            Put_Line ("Unrecognized command line arguments.");
+            New_Line;
+            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+    end;
 
-    SP.Interactive.Main;
+    case Command is
+        -- Create a local configuration file in the current directory.
+        when Init =>
+            if Has_Num_Command_Arguments (0) then
+                SP.Config.Create_Local_Config;
+            end if;
+
+        when Help =>
+            if Has_Num_Command_Arguments (0) then
+                Print_Usage;
+            end if;
+
+        when Version =>
+            if Has_Num_Command_Arguments (0) then
+                Print_Version;
+            end if;
+
+        when Run =>
+            if Ada.Command_Line.Argument_Count < 2 then
+                Ada.Text_IO.Put_Line ("Expected one or more source files to run.");
+                Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+                return;
+            end if;
+
+            declare
+                Srch : SP.Searches.Search;
+                Result : SP.Commands.Command_Result;
+                use type SP.Commands.Command_Result;
+            begin
+                for Arg in 2 .. Ada.Command_Line.Argument_Count loop
+                    Result := SP.Commands.Run_Commands_From_File (Srch, Ada.Command_Line.Argument (Arg));
+                Ada.Command_Line.Set_Exit_Status
+                ((if Result = SP.Commands.Command_Success
+                    then Ada.Command_Line.Success
+                    else Ada.Command_Line.Failure));
+                    if Result not in SP.Commands.Command_Success | SP.Commands.Command_Ignored then
+                        Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+                        exit;
+                    end if;
+                end loop;
+            end;
+    end case;
+
 exception
     when Err : others =>
         Put_Line (Ada.Exceptions.Exception_Information (Err));
