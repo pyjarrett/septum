@@ -1,6 +1,6 @@
 name = "septum"
 description = "An interactive context-based text search tool for large codebases."
-version = "0.2.1"
+version = "0.3.0"
 website = "https://github.com/pyjarrett/septum"
 
 authors = ["Paul Jarrett"]
@@ -22,7 +22,7 @@ Development.Contracts = "Yes"
 Development.Runtime_Checks = [
     "-gnato",        # Enable numeric overflow checking;
     "-fstack-check", # Stack overflow checking
-    "-gnatVa"        # All validity checks
+    "-gnatVa",       # All validity checks
 ]
 
 Release.Debug_Info = "Yes"
@@ -34,18 +34,18 @@ Release.Runtime_Checks = "None"
 "*".Style_Checks = [
     "-gnaty-d",   # Disable no DOS line terminators
     "-gnatyM200", # Maximum line length
-    "-gnatyO"     # Overriding subprograms explicitly marked as such]
+    "-gnatyO",    # Overriding subprograms explicitly marked as such]
 ]
 
 [[depends-on]]
 ansiada = "^1.1.0"
-atomic = "~1.0.0"  # Added by alr
+atomic = "~1.0.0"              # Added by alr
 dir_iterators = "~0.0.5"
 progress_indicators = "~0.0.2"
 trendy_terminal = "~0.0.7"
 # Leaving this here to locally targeting trendy_terminal which is being
 # developed in parallel with this project.
-[[pins]]  # Added by alr
+[[pins]] # Added by alr
 # For concurrent local development with other crates
 trendy_terminal = { path = '../trendy_terminal' }
 # progress_indicators = { path='../progress_indicators' }

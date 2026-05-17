@@ -14,12 +14,14 @@ Types of changes:
 - ⭐ `Upgraded` for improvements.
 - 💥 `Security` in case of vulnerabilities.
 
-## [0.2.2]
+## [0.3.0]
 
 - ✅ Added support for `run` to execute multiple files in sequence.
+- ✅ Added support for using `run` without a tty.
+- 🛠️ Fixed spinner to only show when running interactively.
 - ✅ Added an exit code error when trying to run interactively from a script.
 - ❌ Removed `--version` option.  Use `septum version` instead.
-
+- ✅ Added BBT integration tests.
 
 ## [0.2.1]
 
