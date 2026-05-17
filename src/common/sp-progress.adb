@@ -1,6 +1,5 @@
 with Ada.Calendar;
 with Ada.Strings.Fixed;
-with Ada.Text_IO;
 with Progress_Indicators.Spinners;
 with SP.Terminal;
 

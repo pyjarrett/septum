@@ -9,6 +9,10 @@
   - When I run `bin/septum help`
   - Then I get no error
 
+### Scenario : Running without a script produces an error
+  - When I run `bin/septum run`
+  - Then I get error
+
 ### Scenario : Run multiple noop programs
   - When I run `bin/septum run examples/enable_everything.septum examples/disable_everything.septum`
   - Then I get no error
