@@ -25,6 +25,7 @@ Types of changes:
 - ❌ Removed `list-filters`.  Use `list-line-filters` instead.
 - ✅ Added `list-line-filters`.
 - ✅ Added `list-path-filters`.
+- 💥 No longer looks upwards in directory ancestors for a config file.
 
 ## [0.2.1]
 
