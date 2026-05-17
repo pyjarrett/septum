@@ -48,18 +48,58 @@ contexts get deduplicated before presented to cut out more clutter.
 $ septum
 
 # Following commands are all interactive within septum
+# Omitting printed context results here for brevity.
 
 # Load something to search
 > add-dirs D:/dev/ada/septum
 
+# Turn on config flag to always immediately search after changing filters
+# You would need match-contexts or match-filters after each filter change
+# to do searching otherwise.
+enable-auto-search
+
+# See how much to search.
+> stats
+Files:  697
+Lines:  26342
+
 # Apply some filters
-> find-like Command_Failed
+> find-like Make
 
-# Perform the search
-> match-contexts
+Matching contexts:  184
+Matching files: 69
 
-# See which files matched
-> match-files
+# Exclude some directories we don't want in the results
+> exclude-path cache/dependencies
+
+Matching contexts:  97
+Matching files: 21
+
+# The search found a bunch of Make_Commands, but that's not
+# what I want.
+> exclude-like Make_Command
+
+Matching contexts:  45
+Matching files: 21
+
+# Exploded_Line also has a Make function, not related to what I want.
+> exclude-like Exploded_Line
+
+Matching contexts:  35
+Matching files: 18
+
+# I'm looking for the Make version, not the Make_Null version
+> exclude-like Mkae_Null
+
+# Oops, made a typo, remove just last filter.
+> pop
+
+> exclude-like Make_Null
+
+Matching contexts:  22
+Matching files: 16
+
+# OK, found what I needed
 
 # Exit the interactive session
 > exit
