@@ -22,6 +22,9 @@ Types of changes:
 - ✅ Added an exit code error when trying to run interactively from a script.
 - ❌ Removed `--version` option.  Use `septum version` instead.
 - ✅ Added BBT integration tests.
+- ❌ Removed `list-filters`.  Use `list-line-filters` instead.
+- ✅ Added `list-line-filters`.
+- ✅ Added `list-path-filters`.
 
 ## [0.2.1]
 

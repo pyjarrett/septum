@@ -734,12 +734,12 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Filters is
+    procedure List_Line_Filters_Help is
     begin
-        Put_Line ("Lists the currently bound filters.");
-    end List_Filters;
+        Put_Line ("Lists the currently bound line filters.");
+    end List_Line_Filters_Help;
 
-    function List_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    function List_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
     begin
         if not Command_Line.Is_Empty then
@@ -750,7 +750,28 @@ package body SP.Commands is
             Put_Line (To_String (Name));
         end loop;
         return Command_Success;
-    end List_Filters_Exec;
+    end List_Line_Filters_Exec;
+
+    ----------------------------------------------------------------------------
+
+    procedure List_Path_Filters_Help is
+    begin
+        Put_Line ("Lists the currently bound path filters.");
+    end List_Path_Filters_Help;
+
+    function List_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        Filter_Names : constant String_Vectors.Vector := SP.Searches.Path_Filter_Names (Srch);
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
+        end if;
+        for Name of Filter_Names loop
+            Put_Line (To_String (Name));
+        end loop;
+        return Command_Success;
+    end List_Path_Filters_Exec;
+
     ----------------------------------------------------------------------------
 
     procedure Reorder_Help is
@@ -1219,12 +1240,12 @@ begin
     Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Exclude_Like_Help'Access, Exclude_Like_Exec'Access);
     Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
     Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
-    Make_Command ("list-filters", "Lists all applied filters.", List_Filters'Access, List_Filters_Exec'Access);
 
     Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
     Make_Command ("drop", "Drops the filters at the given indices.", Drop_Help'Access, Drop_Exec'Access);
     Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
     Make_Command ("clear-line-filters", "Pops all filters.", Clear_Line_Filters_Help'Access, Clear_Line_Filters_Exec'Access);
+    Make_Command ("list-line-filters", "Lists all applied line filters.", List_Line_Filters_Help'Access, List_Line_Filters_Exec'Access);
 
     -- Results
 
@@ -1254,6 +1275,7 @@ begin
     Make_Command ("find-path", "Only look in paths containing this.", Find_Path_Help'Access, Find_Path_Exec'Access);
     Make_Command ("exclude-path", "Exclude paths containing this from the search", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
     Make_Command ("clear-path-filters", "Pops all filters.", Clear_Path_Filters_Help'Access, Clear_Path_Filters_Exec'Access);
+    Make_Command ("list-path-filters", "Lists all applied path filters.", List_Path_Filters_Help'Access, List_Path_Filters_Exec'Access);
 
     Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
     Make_Command
