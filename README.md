@@ -54,7 +54,7 @@ $ septum
 > add-dirs D:/dev/ada/septum
 
 # Turn on config flag to always immediately search after changing filters
-# You would need match-contexts or match-filters after each filter change
+# You would need match-contexts or match-files after each filter change
 # to do searching otherwise.
 enable-auto-search
 
