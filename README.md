@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/pyjarrett/septum/actions/workflows/ada.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
 [![Test Status](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
 
-Context-based code search tool
+Context-based code search tool, written in Ada
 
 # Use Case
 
@@ -42,7 +42,7 @@ have names which change based on context. Septum allows exclusion of these conte
 # Start interactive search
 $ septum
 
-# Follow commands are all interactive within septum
+# Following commands are all interactive within septum
 
 # Load something to search
 > add-dirs D:/dev/ada/septum
@@ -86,6 +86,15 @@ Septum is designed to be a standalone application for the lone developer on
 their own hardware, searching closed source software. This means the program
 should use a minimum number of dependencies to simplify security auditing and
 perform no network operations.
+
+# Performance
+
+Septum keeps the search directories in memory and parallelizes searches across
+all available cores.  Anecdotally this equates to ~100 MB per 1 million lines of
+code, and ~6 millions lines of code searched per second on an Mac M1 Air with
+8 cores (4 performance and 4 efficiency cores).  This makes it reasonable to
+use on a developer machine for codebases with dozens of millions of lines
+of code.
 
 # Building and Installing
 
