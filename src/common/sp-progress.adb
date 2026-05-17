@@ -46,13 +46,12 @@ package body SP.Progress is
 
             SP.Terminal.Hide_Cursor;
             loop
-                Update;
                 select
                     accept Stop;
                     SP.Terminal.Show_Cursor;
                     exit;
                 or
-                    delay 0.01;
+                    delay 0.2;
                 end select;
 
                 Update;
