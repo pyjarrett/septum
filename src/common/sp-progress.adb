@@ -1,5 +1,6 @@
 with Ada.Calendar;
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
 with Progress_Indicators.Spinners;
 with SP.Terminal;
 
@@ -41,20 +42,25 @@ package body SP.Progress is
             end;
         end Update;
     begin
-        Start_Time := Ada.Calendar.Clock;
+        if SP.Terminal.Is_Interactive then
+            Start_Time := Ada.Calendar.Clock;
 
-        SP.Terminal.Hide_Cursor;
-        loop
-            select
-                accept Stop;
-                SP.Terminal.Show_Cursor;
-                exit;
-            or
-                delay 0.2;
-            end select;
+            SP.Terminal.Hide_Cursor;
+            loop
+                Update;
+                select
+                    accept Stop;
+                    SP.Terminal.Show_Cursor;
+                    exit;
+                or
+                    delay 0.01;
+                end select;
 
-            Update;
-        end loop;
+                Update;
+            end loop;
+        else
+            accept Stop;
+        end if;
     end Update_Progress;
 
 end SP.Progress;
