@@ -22,6 +22,20 @@ package body SP.Terminal is
     function Is_Interactive return Boolean is (Environment.Is_Available);
     function Has_Colors return Boolean is (Environment.Is_Available);
 
+    procedure Hide_Cursor is
+    begin
+        if SP.Terminal.Is_Interactive then
+            Trendy_Terminal.VT100.Hide_Cursor;
+        end if;
+    end Hide_Cursor;
+
+    procedure Show_Cursor is
+    begin
+        if SP.Terminal.Is_Interactive then
+            Trendy_Terminal.VT100.Show_Cursor;
+        end if;
+    end Show_Cursor;
+
     function Colorize (S : String; Color : AnsiAda.Colors) return String is
     begin
         if not Has_Colors then

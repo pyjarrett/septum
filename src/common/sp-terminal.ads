@@ -30,6 +30,9 @@ package SP.Terminal is
     --  If the program is not interactive, then don't show spinners, etc.
     function Is_Interactive return Boolean;
 
+    procedure Hide_Cursor;
+    procedure Show_Cursor;
+
     procedure Put (C : Character) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : String) renames Trendy_Terminal.IO.Put;
     procedure Put (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put;
