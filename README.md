@@ -6,6 +6,8 @@
 
 Context-based code search tool, written in Ada
 
+[![asciicast](https://asciinema.org/a/459292.svg)](https://asciinema.org/a/459292)
+
 # Use Case
 
 Finding what you need in large codebases is hard.  Sometimes terms have multiple
@@ -35,6 +37,9 @@ to express in other tools. Sometimes terms appear multiple times in a project an
 have names which change based on context. Septum allows exclusion of these contexts.
 
 ![Exclude match](docs/images/excluded_match.png)
+
+Filters get applied in turn with contexts being removed at every step.  Similar
+contexts get deduplicated before presented to cut out more clutter.
 
 # Example session
 
@@ -87,6 +92,13 @@ their own hardware, searching closed source software. This means the program
 should use a minimum number of dependencies to simplify security auditing and
 perform no network operations.
 
+Usually Septum is used interactively, but it also can be used in scripts and
+pipelines using the `run` command.
+
+```
+septum run complicated_search.septum > results.txt
+```
+
 # Performance
 
 Septum keeps the search directories in memory and parallelizes searches across
@@ -96,7 +108,11 @@ code, and ~6 millions lines of code searched per second on an Mac M1 Air with
 use on a developer machine for codebases with dozens of millions of lines
 of code.
 
-# Building and Installing
+# Installing
+
+Self-contained binaries are available on the [releases page](https://github.com/pyjarrett/septum/releases).
+
+# Building
 
 1. This project requires a recent release of the [Alire](https://github.com/alire-project/alire/releases) tool to build.
 2. Install a toolchain.
