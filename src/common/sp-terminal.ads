@@ -30,6 +30,8 @@ package SP.Terminal is
     --  If the program is not interactive, then don't show spinners, etc.
     function Is_Interactive return Boolean;
 
+    procedure Use_Scripting;
+
     -- Some output is only for UI purposes.  Some is data which should always
     -- be shown.  Other output is important error messaging.
     --

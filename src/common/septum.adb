@@ -24,6 +24,7 @@ with SP.Commands;
 with SP.Config;
 with SP.Interactive;
 with SP.Searches;
+with SP.Terminal;
 
 procedure Septum is
     use Ada.Text_IO;
@@ -97,6 +98,7 @@ begin
             end if;
 
         when Run =>
+            SP.Terminal.Use_Scripting;
             if Ada.Command_Line.Argument_Count < 2 then
                 Ada.Text_IO.Put_Line ("Expected one or more source files to run.");
                 Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);

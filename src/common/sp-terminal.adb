@@ -22,6 +22,11 @@ package body SP.Terminal is
     function Is_Interactive return Boolean is (Environment.Is_Available);
     function Has_Colors return Boolean is (Environment.Is_Available);
 
+    procedure Use_Scripting is
+    begin
+        Environment.Shutdown;
+    end Use_Scripting;
+
     procedure Hide_Cursor is
     begin
         if SP.Terminal.Is_Interactive then
