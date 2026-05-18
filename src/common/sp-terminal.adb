@@ -36,6 +36,34 @@ package body SP.Terminal is
         end if;
     end Show_Cursor;
 
+    function Should_Show (Form : Mode) return Boolean is (
+        case Form is
+            when UI => Is_Interactive,
+            when Data => not Is_Interactive,
+            when Error => True
+    );
+
+    procedure Put_Line (Form : Mode; Str : String) is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.Put_Line (Str);
+        end if;
+    end Put_Line;
+
+    procedure Put_Line (Form : Mode; Str : Ada.Strings.Unbounded.Unbounded_String) is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.Put_Line (Str);
+        end if;
+    end Put_Line;
+
+    procedure New_Line (Form : Mode) is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.New_Line;
+        end if;
+    end New_Line;
+
     function Colorize (S : String; Color : AnsiAda.Colors) return String is
     begin
         if not Has_Colors then

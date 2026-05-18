@@ -30,6 +30,14 @@ package SP.Terminal is
     --  If the program is not interactive, then don't show spinners, etc.
     function Is_Interactive return Boolean;
 
+    -- Some output is only for UI purposes.  Some is data which should always
+    -- be shown.  Other output is important error messaging.
+    --
+    -- The semantics here are a bit different than the typical, Verbose, Info, Error
+    -- Warning, etc. you'd see in a logging system.  This is WHY we want to
+    -- print the thing.
+    type Mode is (UI, Data, Error);
+
     procedure Hide_Cursor;
     procedure Show_Cursor;
 
@@ -39,6 +47,11 @@ package SP.Terminal is
 
     procedure Put_Line (Str : String) renames Trendy_Terminal.IO.Put_Line;
     procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put_Line;
+
+    -- New form input which is mode aware.
+    procedure Put_Line (Form : Mode; Str : String);
+    procedure Put_Line (Form : Mode; Str : Ada.Strings.Unbounded.Unbounded_String);
+    procedure New_Line (Form : Mode);
 
     procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.IO.New_Line;
 

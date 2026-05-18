@@ -4,24 +4,37 @@
   - When I run `bin/septum run examples/single_result.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\single_result.septum
+{
+    "matching_contexts": 1,
+    "matching_files": 1,
+    "results": [
+        {
+            "file": "LICENSE",
+            "range": [ 1,  10 ],
+            "matches": [
+                 3
+            ],
+            "lines": [
+                "",
+                "                                 Apache License",
+                "                           Version 2.0, January 2004",
+                "                        http://www.apache.org/licenses/",
+                "",
+                "   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+                "",
+                "   1. Definitions.",
+                "",
+                "      \"License\" shall mean the terms and conditions for use, reproduction,"
+            ]
+        }
+    ]
+}
+```
 
- > clear-dirs
-
-
- > clear-files
-
-
- > add-files LICENSE
-
-Added LICENSE to search.
-
- > find-like Version 2.0, January 2004
-
-
- > match-c
-Resolved to: match-contexts
-
+### Scenario : Single result without JSON
+  - When I run `bin/septum run examples/single_result_no_json.septum`
+  - Then I get
+```
 
 LICENSE
         1

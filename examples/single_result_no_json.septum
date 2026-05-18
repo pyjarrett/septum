@@ -1,0 +1,6 @@
+clear-dirs
+clear-files
+add-files LICENSE
+find-like Version 2.0, January 2004
+disable-json-output
+match-c

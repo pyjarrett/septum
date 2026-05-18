@@ -80,10 +80,10 @@ package body SP.Searches is
         if Path_Exists and then Is_File and then not Srch.Files.Contains (Unbounded_Name) then
             Srch.Files.Insert (Unbounded_Name);
             if SP.Cache.Add_File (Srch.File_Cache, File_Name) then
-                SP.Terminal.Put_Line ("Added " & File_Name & " to search.");
+                SP.Terminal.Put_Line (SP.Terminal.UI, "Added " & File_Name & " to search.");
                 return True;
             else
-                SP.Terminal.Put_Line ("Unable to add " & File_Name & " to search.");
+                SP.Terminal.Put_Line (SP.Terminal.UI, "Unable to add " & File_Name & " to search.");
                 return False;
             end if;
         else
@@ -540,7 +540,7 @@ package body SP.Searches is
 
     function Should_Output_JSON (Srch : Search) return Boolean is
     begin
-        return SP.Terminal.Is_Interactive and then Srch.Enable_JSON_Output;
+        return not SP.Terminal.Is_Interactive and then Srch.Enable_JSON_Output;
     end Should_Output_JSON;
 
     procedure Print_JSON_String (S : String) is
@@ -568,7 +568,7 @@ package body SP.Searches is
         Put_Line (" ],");
         Put ("            ""matches"": [");
         if Context.Internal_Matches.Length /= 0 then
-            New_Line;
+            New_Line (Data);
         end if;
 
         Items_Left := Context.Internal_Matches.Length;
@@ -640,8 +640,6 @@ package body SP.Searches is
         First    : Natural;
         Last     : Natural
     ) is
---        Max_Results : constant Natural := Srch.Max_Results;
---        Num_Results_Printed : Natural := 0;
         use all type Ada.Containers.Count_Type;
         Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin

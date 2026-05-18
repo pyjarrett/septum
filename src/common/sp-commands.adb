@@ -114,9 +114,9 @@ package body SP.Commands is
                 begin
                     Parameters.Delete_First;
                     if Best_Command /= Command_Name then
-                        Put_Line ("Resolved to: " & To_String (Best_Command));
+                        Put_Line (UI, "Resolved to: " & To_String (Best_Command));
                     end if;
-                    New_Line;
+                    New_Line (UI);
 
                     declare
                         Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
@@ -131,7 +131,7 @@ package body SP.Commands is
                             --  End the clock.
                             Finish := Ada.Calendar.Clock;
                             Delta_Time := Finish - Start;
-                            Put_Line (To_String (Best_Command) & ": " & Delta_Time'Image);
+                            Put_Line (Data, To_String (Best_Command) & ": " & Delta_Time'Image);
                         end if;
                     end;
                 end;
@@ -152,7 +152,7 @@ package body SP.Commands is
             return Command_Failed;
         end if;
 
-        Put_Line ("Loading commands from: " & Ada.Directories.Full_Name (File));
+        Put_Line (UI, "Loading commands from: " & Ada.Directories.Full_Name (File));
 
         if not SP.File_System.Read_Lines (Ada.Directories.Full_Name (File), Commands) then
             Put_Line ("Unable to load configuration file from: " & Ada.Directories.Full_Name (File));
@@ -164,8 +164,8 @@ package body SP.Commands is
                 Command_Line : constant String_Vectors.Vector := Exploded.Words;
                 Result : Command_Result;
             begin
-                New_Line;
-                Put_Line (+" > " & Command);
+                Terminal.New_Line (UI);
+                Terminal.Put_Line (UI, +" > " & Command);
                 Result := SP.Commands.Execute (Srch, Command_Line);
 
                 case Result is
@@ -378,7 +378,7 @@ package body SP.Commands is
 
             SP.Searches.Test (Srch, ASU.To_String (Input));
 
-            New_Line;
+            New_Line (Data);
         end loop;
 
         return Command_Success;
@@ -995,12 +995,12 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
 
-        SP.Terminal.New_Line;
+        SP.Terminal.New_Line (SP.Terminal.Data);
         for File of Files loop
             SP.Terminal.Put_Line (File);
         end loop;
-        New_Line;
-        Put_Line ("Matching files:" & Files.Length'Image);
+        SP.Terminal.New_Line (SP.Terminal.Data);
+        SP.Terminal.Put_Line (SP.Terminal.Data, "Matching files:" & Files.Length'Image);
 
         return Command_Success;
     end Matching_Files_Exec;

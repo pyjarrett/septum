@@ -177,7 +177,7 @@ private
         Script_Stack : String_Sets.Set;
 
         -- When not interactive should the program emit JSON?
-        Enable_JSON_Output : Boolean := False;
+        Enable_JSON_Output : Boolean := True;
     end record;
 
 end SP.Searches;

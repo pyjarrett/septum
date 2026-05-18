@@ -1,0 +1,4 @@
+clear-dirs
+clear-files
+add-dirs examples/
+help
