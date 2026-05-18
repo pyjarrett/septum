@@ -1210,6 +1210,37 @@ package body SP.Commands is
         return Command_Success;
     end Disable_Timing_Exec;
 
+    ----------------------------------------------------------------------------
+
+    procedure Enable_JSON_Output_Help is
+    begin
+        Put_Line ("Enables reporting of time it takes to run commands.");
+    end Enable_JSON_Output_Help;
+
+    function Enable_JSON_Output_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Set_Json_Output (Srch, True);
+        return Command_Success;
+    end Enable_JSON_Output_Exec;
+
+    procedure Disable_JSON_Output_Help is
+    begin
+        Put_Line ("Disables reporting of time it takes to run commands.");
+    end Disable_JSON_Output_Help;
+
+    function Disable_JSON_Output_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Command line should be empty.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Set_Json_Output (Srch, False);
+        return Command_Success;
+    end Disable_JSON_Output_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -1321,6 +1352,14 @@ begin
     Make_Command
         ("disable-timing", "Disables timing of command run time.", Disable_Timing_Help'Access,
          Disable_Timing_Exec'Access);
+
+    Make_Command
+        ("enable-json-output", "Changes output from interactive to JSON.", Enable_JSON_Output_Help'Access,
+         Enable_JSON_Output_Exec'Access);
+    Make_Command
+        ("disable-json-output", "Changes output to more natural human readable output.", Disable_JSON_Output_Help'Access,
+         Disable_JSON_Output_Exec'Access);
+
 
     -- Quit
 

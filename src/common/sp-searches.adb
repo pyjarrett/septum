@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Ada.Directories;
 with Ada.Strings.Unbounded;
 with AnsiAda;
@@ -532,6 +533,74 @@ package body SP.Searches is
         return Result;
     end Matching_Contexts;
 
+    procedure Set_Json_Output (Srch : in out Search; Enabled : Boolean) is
+    begin
+        Srch.Enable_JSON_Output := Enabled;
+    end Set_Json_Output;
+
+    function Should_Output_JSON (Srch : Search) return Boolean is
+    begin
+        return SP.Terminal.Is_Interactive and then Srch.Enable_JSON_Output;
+    end Should_Output_JSON;
+
+    procedure Print_JSON_String (S : String) is
+    begin
+        Put ('"');
+        for C of S loop
+            if C in '\' | ''' | '"' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.VT then
+                Put ('\');
+            end if;
+            Put (C);
+        end loop;
+        Put ('"');
+    end Print_JSON_String;
+
+    procedure Print_Context_As_JSON (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
+        Items_Left : Ada.Containers.Count_Type := 0;
+        use all type Ada.Containers.Count_Type;
+    begin
+        Put_Line ("        {");
+        Put ("            ""file"": ");
+        Print_JSON_String (To_String (Context.File_Name));
+        Put_Line (",");
+        Put ("            ""range"": [");
+        Put (Context.Minimum'Image & ", " & Context.Maximum'Image);
+        Put_Line (" ],");
+        Put ("            ""matches"": [");
+        if Context.Internal_Matches.Length /= 0 then
+            New_Line;
+        end if;
+
+        Items_Left := Context.Internal_Matches.Length;
+        for Match of Context.Internal_Matches loop
+            Put ("                ");
+            Put (Match'Image);
+            Items_Left := Items_Left - 1;
+            if Items_Left /= 0 then
+                Put (",");
+            end if;
+            New_Line;
+        end loop;
+        Put_Line ("            ],");
+
+        Items_Left := Ada.Containers.Count_Type (Context.Maximum - Context.Minimum + 1);
+        Put ("            ""lines"": [");
+        if Items_Left > 0 then
+            New_Line;
+        end if;
+        for Line_Num in Context.Minimum .. Context.Maximum loop
+            Put ("                ");
+            Print_JSON_String (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+            Items_Left := Items_Left - 1;
+            if Items_Left /= 0 then
+                Put (",");
+            end if;
+            New_Line;
+        end loop;
+        Put_Line ("            ]");
+        Put ("        }");
+    end Print_Context_As_JSON;
+
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
         Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), AnsiAda.Light_Magenta));
@@ -573,18 +642,44 @@ package body SP.Searches is
     ) is
 --        Max_Results : constant Natural := Srch.Max_Results;
 --        Num_Results_Printed : Natural := 0;
+        use all type Ada.Containers.Count_Type;
+        Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin
-        if Natural (Contexts.Length) > Last - First + 1 and then First = 1 and then Last = No_Limit then
-            Put_Line ("Found" & Contexts.Length'Image & " results.");
-        else
-            for Index in First .. Natural'Min (Last, Natural (Contexts.Length)) loop
+        if Should_Output_JSON (Srch) then
+            Put_Line ("{");
+            Put ("    ""matching_contexts"":" & Contexts.Length'Image);
+            Put_Line (",");
+            Put ("    ""matching_files"":" & SP.Contexts.Files_In (Contexts).Length'Image);
+            Put_Line (",");
+            Put ("    ""results"": [");
+            if Contexts.Length /= 0 then
                 New_Line;
-                Print_Context (Srch, Contexts (Index));
+            end if;
+
+            for Index in First .. Bounded_Last loop
+                Print_Context_As_JSON (Srch, Contexts (Index));
+                if Index /= Bounded_Last then
+                    Put_Line (",");
+                else
+                    New_Line;
+                end if;
             end loop;
-            New_Line;
+
+            Put_Line ("    ]");
+            Put_Line ("}");
+        else
+            if Natural (Contexts.Length) > Last - First + 1 and then First = 1 and then Last = No_Limit then
+                Put_Line ("Found" & Contexts.Length'Image & " results.");
+            else
+                for Index in First .. Natural'Min (Last, Natural (Contexts.Length)) loop
+                    New_Line;
+                    Print_Context (Srch, Contexts (Index));
+                end loop;
+                New_Line;
+            end if;
+            Put_Line ("Matching contexts: " & Contexts.Length'Image);
+            Put_Line ("Matching files:" & SP.Contexts.Files_In (Contexts).Length'Image);
         end if;
-        Put_Line ("Matching contexts: " & Contexts.Length'Image);
-        Put_Line ("Matching files:" & SP.Contexts.Files_In (Contexts).Length'Image);
     end Print_Contexts;
 
     procedure Print_Contexts_With_Cancellation(

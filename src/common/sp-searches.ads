@@ -101,6 +101,9 @@ package SP.Searches is
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 
+    procedure Set_Json_Output (Srch : in out Search; Enabled : Boolean);
+    function Should_Output_JSON (Srch : Search) return Boolean;
+
     No_Limit : constant := Natural'Last;
     procedure Print_Contexts (
         Srch     : in Search;
@@ -172,6 +175,9 @@ private
         -- Intuitively this is a stack, but a set should work just a well,
         -- since the focus is the membership test.
         Script_Stack : String_Sets.Set;
+
+        -- When not interactive should the program emit JSON?
+        Enable_JSON_Output : Boolean := False;
     end record;
 
 end SP.Searches;
