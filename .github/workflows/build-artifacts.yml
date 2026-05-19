@@ -1,0 +1,54 @@
+name: Build Platform Artifacts
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Runs daily at 03:00 UTC
+  workflow_dispatch: # Allows manual override
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: septum-linux-x86_64
+            binary_path: septum/bin/septum
+          - os: macos-latest
+            artifact_name: septum-macos-x86_64
+            binary_path: septum/bin/septum
+          - os: windows-latest
+            artifact_name: septum-windows-x86_64
+            binary_path: septum/bin/septum.exe
+
+    steps:
+      - name: Checkout Septum
+        uses: actions/checkout@v6
+        with:
+          path: septum
+
+      - name: Setup Alire
+        uses: alire-project/setup-alire@v4
+        with:
+          version: 2.1.0
+
+      - name: Build project
+        working-directory: septum
+        run: alr build --release
+
+      - name: Prepare Artifact Folder
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp ${{ matrix.binary_path }} dist/
+          cp septum/LICENSE dist/ || true
+          cp septum/README.md dist/ || true
+
+      - name: Upload Platform Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/*
+          retention-days: 1

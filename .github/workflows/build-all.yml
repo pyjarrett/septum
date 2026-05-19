@@ -1,4 +1,4 @@
-name: Build Platform Artifacts
+name: Build All
 
 on:
   push:
@@ -16,16 +16,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: septum-linux-x86_64
-            binary_path: septum/bin/septum
-          - os: macos-latest
-            artifact_name: septum-macos-x86_64
-            binary_path: septum/bin/septum
-          - os: windows-latest
-            artifact_name: septum-windows-x86_64
-            binary_path: septum/bin/septum.exe
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - name: Checkout Septum
@@ -41,18 +32,3 @@ jobs:
       - name: Build project
         working-directory: septum
         run: alr build --release
-
-      - name: Prepare Artifact Folder
-        shell: bash
-        run: |
-          mkdir -p dist
-          cp ${{ matrix.binary_path }} dist/
-          cp septum/LICENSE dist/ || true
-          cp septum/README.md dist/ || true
-
-      - name: Upload Platform Artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: dist/*
-          retention-days: 1
