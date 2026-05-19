@@ -1,9 +1,9 @@
 # Septum
 
 [![Alire](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/septum.json)](https://alire.ada.dev/crates/septum.html)
-[![Build Status](https://github.com/pyjarrett/septum/actions/workflows/build-all.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
-[![Test Status](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
-[![Latest Artifacts](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml/badge.svg)](https://github.com/pyjarrett/septum/actions)
+[![Build Status](https://github.com/pyjarrett/septum/actions/workflows/build-all.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/build-all.yml)
+[![Test Status](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml)
+[![Latest Artifacts](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml)
 
 Context-based code search tool, written in Ada
 
