@@ -34,6 +34,6 @@ jobs:
         run: alr build --release
 
       - name: Unit Tests
-        working-directory: tests/
+        working-directory: septum/tests/
         run: |
           alr --no-tty build
