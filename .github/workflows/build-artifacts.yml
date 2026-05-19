@@ -2,7 +2,8 @@ name: Latest Artifacts
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Runs daily at 03:00 UTC
+    - cron: '30 23 * * *'
+      timezone: "America/New_York"
   workflow_dispatch: # Allows manual override
 
 jobs:

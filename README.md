@@ -2,8 +2,12 @@
 
 [![Alire](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/septum.json)](https://alire.ada.dev/crates/septum.html)
 [![Build Status](https://github.com/pyjarrett/septum/actions/workflows/build-all.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/build-all.yml)
-[![Test Status](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/unit-tests.yml)
 [![Latest Artifacts](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml/badge.svg)](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml)
+
+[![image](https://img.shields.io/badge/-inside-blue?logo=ada&logoColor=white&labelColor=grey&logoSize=auto&style=flat-square)](https://ada-lang.io/)
+[![Awarded](https://img.shields.io/badge/Ada_Crate_of_the_Year-2021-blue?style=flat-square)](https://www.adacore.com/blog/ada-spark-crate-of-the-year-2021-winners-announced)
+
+---
 
 Context-based code search tool, written in Ada
 
