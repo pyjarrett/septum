@@ -47,8 +47,8 @@ trendy_terminal = "~0.0.7"
 # developed in parallel with this project.
 [[pins]] # Added by alr
 # For concurrent local development with other crates
-trendy_terminal = { path = '../trendy_terminal' }
+# trendy_terminal = { path = '../trendy_terminal' }
 # progress_indicators = { path='../progress_indicators' }
 # Fix for GitHub CI errors until the proper versions of deps are in Alire.
-# trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_terminal.git", branch="main" }
 # progress_indicators = { url = "https://github.com/pyjarrett/progress_indicators.git", branch="main" }
