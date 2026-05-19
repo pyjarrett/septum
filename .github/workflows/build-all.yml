@@ -3,10 +3,6 @@ name: Build
 on:
   push:
     branches: [ main, gh-actions ]
-    paths:
-      - 'src/**'
-      - 'alire.toml'
-      - 'septum.gpr'
   workflow_dispatch:
 
 jobs:
