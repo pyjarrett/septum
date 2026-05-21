@@ -28,30 +28,42 @@ package body SP.Config is
     use type ASU.Unbounded_String;
 
     procedure Create_Local_Config is
+        package SH renames SP.Strings.String_Holders;
         Current_Dir : constant String := AD.Current_Directory;
-        Config_Dir  : constant String := Current_Dir & "/" & Local_Config_Dir_Name;
-        Config_File : constant String := Config_Dir & "/" & Config_File_Name;
+        Config_Dir  : SH.Holder := SH.To_Holder (Current_Dir & "/" & Local_Config_Dir_Name);
+        Config_File : SH.Holder := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
     begin
-        if not AD.Exists (Config_Dir) then
+        if not SP.Platform.Is_Path_Ok_For_Config (Current_Dir) then
+            Ada.Text_IO.Put_Line ("In home directory, trying to create a user global config instead.");
+            Config_Dir := SH.To_Holder (SP.Platform.Global_Config_Dir.Constant_Reference
+                & "/" & Global_Config_Dir_Name);
+            Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
+        end if;
+
+        Ada.Text_IO.Put_Line ("Creating config at: " & Config_File.Constant_Reference);
+
+        if not AD.Exists (Config_Dir.Constant_Reference) then
             begin
-                AD.Create_Directory (Config_Dir);
+                AD.Create_Directory (Config_Dir.Constant_Reference);
             exception
                 when AD.Name_Error | AD.Use_Error =>
+                    Ada.Text_IO.Put_Line ("Unable to create config directory: "
+                        & Config_Dir.Constant_Reference);
                     return;
             end;
         end if;
 
-        if SP.File_System.Is_File (Config_File)
-            or else SP.File_System.Is_Dir (Config_File) then
-                Ada.Text_IO.Put_Line ("Unable to create config file, something already exists there: " &
-                    Config_File);
+        if SP.File_System.Is_File (Config_File.Constant_Reference)
+            or else SP.File_System.Is_Dir (Config_File.Constant_Reference)
+        then
+                Ada.Text_IO.Put_Line ("Config already exists.");
                 return;
         end if;
 
         declare
             File : Ada.Text_IO.File_Type;
         begin
-            Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Config_File);
+            Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Config_File.Constant_Reference);
             Ada.Text_IO.Put_Line (File, "enable-line-numbers");
             Ada.Text_IO.Put_Line (File, "enable-line-colors");
             Ada.Text_IO.Put_Line (File, "enable-auto-search");
@@ -69,22 +81,23 @@ package body SP.Config is
             -- warning: "File" modified by call, but value might not be referenced
             pragma Unreferenced (File);
 
-            Ada.Text_IO.Put_Line ("Configuration directory: " & Ada.Directories.Full_Name (Config_Dir));
-            Ada.Text_IO.Put_Line ("Configuration file:      " & Ada.Directories.Full_Name (Config_File));
+            Ada.Text_IO.Put_Line ("Configuration directory: " & Ada.Directories.Full_Name (Config_Dir.Constant_Reference));
+            Ada.Text_IO.Put_Line ("Configuration file:      " & Ada.Directories.Full_Name (Config_File.Constant_Reference));
         exception
             when Ada.Text_IO.Name_Error | Ada.Text_IO.Use_Error =>
-                Ada.Text_IO.Put_Line ("Unable to create configuration file.");
+                Ada.Text_IO.Put_Line ("Unable to create configuration file at " & Config_File.Constant_Reference);
         end;
     end Create_Local_Config;
 
     function Config_Locations return String_Sets.Set is
-        Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Config_Dir;
+        package SH renames SP.Strings.String_Holders;
+        Config_Dir : constant SH.Holder := SP.Platform.Global_Config_Dir;
         Current_Dir_Config : constant ASU.Unbounded_String := ASU.To_Unbounded_String (
             Ada.Directories.Current_Directory & "/" & Local_Config_Dir_Name & "/" & Config_File_Name);
     begin
         return Result : String_Sets.Set do
             --  Look for a global user config.
-            if not SP.Strings.String_Holders.Is_Empty (Config_Dir) then
+            if not Config_Dir.Is_Empty then
                 declare
                     Config_Path : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Config_Dir.Element & "/" & Global_Config_Dir_Name & "/" & Config_File_Name);
                 begin

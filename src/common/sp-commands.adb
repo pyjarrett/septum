@@ -202,7 +202,7 @@ package body SP.Commands is
 
     procedure Help_Help is
         use Command_Maps;
-        Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Config_Dir;
+        Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
     begin
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
