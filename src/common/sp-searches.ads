@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 with Ada.Containers.Vectors;
+with Interfaces;
 
 with SP.Cache;
 with SP.Contexts;
@@ -119,6 +120,7 @@ package SP.Searches is
 
     function Num_Files (Srch : in Search) return Natural;
     function Num_Lines (Srch : in Search) return Natural;
+    function Num_Characters (Srch : in Search) return Interfaces.Unsigned_64;
 
     protected type Concurrent_Context_Results is
         entry Get_Results(Out_Results : out SP.Contexts.Context_Vectors.Vector);

@@ -26,6 +26,7 @@ Types of changes:
 - ✅ Added `list-line-filters`.
 - ✅ Added `list-path-filters`.
 - 💥 No longer looks upwards in directory ancestors for a config file.
+- ✅ Added a maximum file size to load of 100 MiB.
 
 ## [0.2.1]
 

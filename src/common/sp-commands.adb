@@ -313,8 +313,9 @@ package body SP.Commands is
             Put_Line ("Stats should have an empty command line.");
             return Command_Failed;
         end if;
-        Put_Line ("Files: " & SP.Searches.Num_Files (Srch)'Image);
-        Put_Line ("Lines: " & SP.Searches.Num_Lines (Srch)'Image);
+        Put_Line ("Files:      " & SP.Searches.Num_Files (Srch)'Image);
+        Put_Line ("Lines:      " & SP.Searches.Num_Lines (Srch)'Image);
+        Put_Line ("Characters: " & SP.Searches.Num_Characters (Srch)'Image);
         return Command_Success;
     end Stats_Exec;
 

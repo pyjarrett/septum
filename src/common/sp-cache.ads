@@ -14,9 +14,10 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with SP.Strings;
 with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
+with Interfaces;
+with SP.Strings;
 
 -- Super simple text file caching.
 --
@@ -71,12 +72,16 @@ package SP.Cache is
 
         function File_Line (File_Name : Unbounded_String; Line : Positive) return Unbounded_String;
 
+        function Num_Characters return Interfaces.Unsigned_64;
     private
 
         -- A list of all top level directories which need to be searched.
         Top_Level_Directories : SP.Strings.String_Sets.Set;
 
         Contents : File_Maps.Map;
+
+        Characters : Interfaces.Unsigned_64 := 0;
+
     end Async_File_Cache;
 
     function Add_File (File_Cache : in out Async_File_Cache; File_Name : String) return Boolean;

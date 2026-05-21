@@ -700,6 +700,11 @@ package body SP.Searches is
         return Srch.File_Cache.Num_Lines;
     end Num_Lines;
 
+    function Num_Characters (Srch : in Search) return Interfaces.Unsigned_64 is
+    begin
+        return Srch.File_Cache.Num_Characters;
+    end Num_Characters;
+
     protected body Concurrent_Context_Results is
         entry Get_Results (Out_Results : out SP.Contexts.Context_Vectors.Vector) when Pending_Results = 0 is
         begin

@@ -29,6 +29,10 @@ with Dir_Iterators.Recursive;
 with Progress_Indicators.Work_Trackers;
 
 package body SP.Cache is
+    --  Try to protect from excessive memory usage by limiting the maximum file
+    --  size to load.
+    Maximum_File_Size : constant := 100 * 1_024 * 1_024;
+
     --  Loading and then testing the file for utf-8 validity is slow with Ada
     --  standard library, so use text extension and binary extension checks
     --  to speed up the loading pass.
@@ -157,13 +161,16 @@ package body SP.Cache is
     procedure Cache_File (File_Cache : in out Async_File_Cache; File_Name : Ada.Strings.Unbounded.Unbounded_String) is
         String_File_Name : constant String := To_String (File_Name);
         Lines : String_Vectors.Vector := String_Vectors.Empty_Vector;
+        use all type Ada.Directories.File_Size;
     begin
         if Is_Binary_Extension (String_File_Name) then
             return;
         end if;
 
         if Is_Text_Extension (String_File_Name) or else File_System.Should_Load (String_File_Name) then
-            if SP.File_System.Read_Lines (String_File_Name, Lines) then
+            if Ada.Directories.Size (String_File_Name) <= Maximum_File_Size
+                and then SP.File_System.Read_Lines (String_File_Name, Lines)
+            then
                 File_Cache.Cache_File (File_Name, Lines);
             end if;
         end if;
@@ -173,6 +180,7 @@ package body SP.Cache is
         procedure Clear is
         begin
             Contents.Clear;
+            Characters := 0;
         end Clear;
 
         procedure Cache_File (File_Name : in Unbounded_String; Lines : in out String_Vectors.Vector) is
@@ -184,7 +192,12 @@ package body SP.Cache is
 
             Position : File_Maps.Cursor;
             Inserted : Boolean;
+            use all type Interfaces.Unsigned_64;
         begin
+            for Line of Lines loop
+                Characters := Characters + Interfaces.Unsigned_64 (ASU.Length (Line));
+            end loop;
+
             Contents.Insert (File_Name, String_Vectors.Empty_Vector, Position, Inserted);
             if not Inserted then
                 SP.Terminal.Put_Line ("Replacing contents of " & To_String (File_Name));
@@ -226,6 +239,8 @@ package body SP.Cache is
         begin
             return Contents.Constant_Reference (File_Name).Element (Line);
         end File_Line;
+
+        function Num_Characters return Interfaces.Unsigned_64 is (Characters);
 
     end Async_File_Cache;
 
