@@ -27,26 +27,14 @@ package body SP.Terminal is
         Environment.Shutdown;
     end Use_Scripting;
 
-    procedure Hide_Cursor is
-    begin
-        if SP.Terminal.Is_Interactive then
-            Trendy_Terminal.VT100.Hide_Cursor;
-        end if;
-    end Hide_Cursor;
-
-    procedure Show_Cursor is
-    begin
-        if SP.Terminal.Is_Interactive then
-            Trendy_Terminal.VT100.Show_Cursor;
-        end if;
-    end Show_Cursor;
-
     function Should_Show (Form : Mode) return Boolean is (
         case Form is
             when UI => Is_Interactive,
             when Data => not Is_Interactive,
             when Error => True
     );
+
+    -- New style output.
 
     procedure Put_Line (Form : Mode; Str : String) is
     begin
@@ -68,6 +56,8 @@ package body SP.Terminal is
             Trendy_Terminal.IO.New_Line;
         end if;
     end New_Line;
+
+    -- Formatting functions
 
     function Colorize (S : String; Color : AnsiAda.Colors) return String is
     begin
@@ -93,6 +83,26 @@ package body SP.Terminal is
             & US
             & AnsiAda.Foreground (AnsiAda.Default);
     end Colorize;
+
+    -- User interface controls
+
+    procedure Show_Cursor is
+    begin
+        if SP.Terminal.Is_Interactive then
+            Trendy_Terminal.VT100.Show_Cursor;
+        end if;
+    end Show_Cursor;
+
+    procedure Hide_Cursor is
+    begin
+        if SP.Terminal.Is_Interactive then
+            Trendy_Terminal.VT100.Hide_Cursor;
+        end if;
+    end Hide_Cursor;
+
+    -- Old-style printing
+
+    -- Cancellation
 
     protected body Cancellation_Gate is
         entry Closed when Finished is

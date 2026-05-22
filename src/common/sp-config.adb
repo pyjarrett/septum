@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with SP.File_System;
 with SP.Platform;
+with SP.Terminal;
 
 package body SP.Config is
     package AD renames Ada.Directories;
@@ -34,7 +35,7 @@ package body SP.Config is
         Config_File : SH.Holder := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
     begin
         if not SP.Platform.Is_Path_Ok_For_Config (Current_Dir) then
-            Ada.Text_IO.Put_Line ("In home directory, trying to create a user global config instead.");
+            Terminal.Put_Line (Terminal.UI, "In home directory, trying to create a user global config instead.");
             Config_Dir := SH.To_Holder (SP.Platform.Global_Config_Dir.Constant_Reference
                 & "/" & Global_Config_Dir_Name);
             Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
