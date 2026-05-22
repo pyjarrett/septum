@@ -102,14 +102,14 @@ package body SP.Searches is
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
             if Load_Directory (Srch, Dir_Name) then
-                SP.Terminal.Put_Line ("Added " & Dir_Name & " to search path.");
+                Terminal.Put_Line (Terminal.UI, "Added " & Dir_Name & " to search path.");
                 return True;
             else
-                Put_Line ("Directory load cancelled.");
+                Terminal.Put_Line (Terminal.UI, "Directory load cancelled.");
                 return False;
             end if;
         else
-            SP.Terminal.Put_Line ("Could not add " & Dir_Name & " to search path.");
+            SP.Terminal.Put_Line (Terminal.Error, "Could not add " & Dir_Name & " to search path.");
             return True;
         end if;
     end Add_Directory;
@@ -533,16 +533,6 @@ package body SP.Searches is
         return Result;
     end Matching_Contexts;
 
-    procedure Set_Json_Output (Srch : in out Search; Enabled : Boolean) is
-    begin
-        Srch.Enable_JSON_Output := Enabled;
-    end Set_Json_Output;
-
-    function Should_Output_JSON (Srch : Search) return Boolean is
-    begin
-        return not SP.Terminal.Is_Interactive and then Srch.Enable_JSON_Output;
-    end Should_Output_JSON;
-
     procedure Print_JSON_String (S : String) is
     begin
         Put ('"');
@@ -643,7 +633,7 @@ package body SP.Searches is
         use all type Ada.Containers.Count_Type;
         Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin
-        if Should_Output_JSON (Srch) then
+        if SP.Terminal.Is_Pipeline then
             Put_Line ("{");
             Put ("    ""matching_contexts"":" & Contexts.Length'Image);
             Put_Line (",");
@@ -742,22 +732,22 @@ package body SP.Searches is
         Excludes : Natural := 0;
     begin
         for F of Srch.Line_Filters loop
-            Put ('[');
+            Put (Terminal.UI, '[');
             if F.Get.Matches_Line (Input) then
                 case F.Get.Action is
                     when SP.Filters.Keep =>
-                        Put (SP.Terminal.Colorize ("  MATCH  ", AnsiAda.Light_Green));
+                        Put (Terminal.UI, SP.Terminal.Colorize ("  MATCH  ", AnsiAda.Light_Green));
                         Keeps := Keeps + 1;
                     when SP.Filters.Exclude =>
-                        Put (SP.Terminal.Colorize (" EXCLUDE ", AnsiAda.Light_Red));
+                        Put (Terminal.UI, SP.Terminal.Colorize (" EXCLUDE ", AnsiAda.Light_Red));
                         Excludes := Excludes + 1;
                 end case;
             else
-                Put ("         ");
+                Put (Terminal.UI, "         ");
             end if;
-            Put ("]    ");
-            Put (F.Get.Image);
-            New_Line;
+            Put (Terminal.UI, "]    ");
+            Put (Terminal.UI, F.Get.Image);
+            New_Line (Terminal.UI);
         end loop;
 
         -- Summary

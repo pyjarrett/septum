@@ -18,7 +18,7 @@
   - Then I get no error
 
 ### Scenario : Comment & empty lines
-  - When I run `bin/septum run examples/commented_and_empty_lines.septum`
+  - When I run `bin/septum run --script examples/commented_and_empty_lines.septum`
   - Then I get no error
 
 ### Scenario : Interactive only allowed in tty

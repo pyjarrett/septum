@@ -1,7 +1,7 @@
 ## Feature : Running searches
 
 ### Scenario : Single result
-  - When I run `bin/septum run examples/single_result.septum`
+  - When I run `bin/septum run --tool examples/single_result.septum`
   - Then I get
 ```
 {
@@ -32,9 +32,27 @@
 ```
 
 ### Scenario : Single result without JSON
-  - When I run `bin/septum run examples/single_result_no_json.septum`
+  - When I run `bin/septum run --script examples/single_result_no_json.septum`
   - Then I get
 ```
+Loading commands from: D:\dev\ada\septum\examples\single_result_no_json.septum
+
+ > clear-dirs
+
+
+ > clear-files
+
+
+ > add-files LICENSE
+
+Added LICENSE to search.
+
+ > find-like Version 2.0, January 2004
+
+
+ > match-c
+Resolved to: match-contexts
+
 
 LICENSE
         1

@@ -19,22 +19,45 @@ with Trendy_Terminal.Maps;
 
 package body SP.Terminal is
 
-    function Is_Interactive return Boolean is (Environment.Is_Available);
+    function Is_Interactive return Boolean is (SP.Current_User = SP.Human and then Environment.Is_Available);
+    function Is_Pipeline return Boolean is (SP.Current_User = SP.Tool);
+
     function Has_Colors return Boolean is (Environment.Is_Available);
 
-    procedure Use_Scripting is
+    procedure Stop_Interactivity is
     begin
         Environment.Shutdown;
-    end Use_Scripting;
+    end Stop_Interactivity;
 
     function Should_Show (Form : Mode) return Boolean is (
         case Form is
-            when UI => Is_Interactive,
-            when Data => not Is_Interactive,
+            when UI => SP.Current_User /= SP.Tool,
+            when Data => True,
             when Error => True
     );
 
     -- New style output.
+
+    procedure Put (Form : Mode; C : Character) is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.Put (C);
+        end if;
+    end Put;
+
+    procedure Put (Form : Mode; Str : String)  is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.Put (Str);
+        end if;
+    end Put;
+
+    procedure Put (Form : Mode; Str : Ada.Strings.Unbounded.Unbounded_String) is
+    begin
+        if Should_Show (Form) then
+            Trendy_Terminal.IO.Put (Str);
+        end if;
+    end Put;
 
     procedure Put_Line (Form : Mode; Str : String) is
     begin

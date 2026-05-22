@@ -342,8 +342,8 @@ package body SP.Cache is
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
         begin
-            SP.Terminal.Put_Line ("Loading with" & Num_CPUs'Image & " tasks.");
-            SP.Terminal.New_Line;
+            SP.Terminal.Put_Line (Terminal.UI, "Loading with" & Num_CPUs'Image & " tasks.");
+            SP.Terminal.New_Line (Terminal.UI);
 
             declare
                 File_Loader : array (File_CPU_Start .. Num_CPUs) of File_Loader_Task;
@@ -359,7 +359,7 @@ package body SP.Cache is
             end;
 
             Progress_Tracker.Stop;
-            SP.Terminal.New_Line;
+            SP.Terminal.New_Line (Terminal.UI);
 
             return True;
         end;

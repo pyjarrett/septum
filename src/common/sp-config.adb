@@ -41,7 +41,7 @@ package body SP.Config is
             Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
         end if;
 
-        Ada.Text_IO.Put_Line ("Creating config at: " & Config_File.Constant_Reference);
+        Terminal.Put_Line (Terminal.UI, "Creating config at: " & Config_File.Constant_Reference);
 
         if not AD.Exists (Config_Dir.Constant_Reference) then
             begin

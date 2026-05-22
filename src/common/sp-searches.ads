@@ -102,9 +102,6 @@ package SP.Searches is
 
     function Matching_Contexts (Srch : in Search) return SP.Contexts.Context_Vectors.Vector;
 
-    procedure Set_Json_Output (Srch : in out Search; Enabled : Boolean);
-    function Should_Output_JSON (Srch : Search) return Boolean;
-
     No_Limit : constant := Natural'Last;
     procedure Print_Contexts (
         Srch     : in Search;

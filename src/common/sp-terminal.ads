@@ -22,6 +22,7 @@ with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 
 package SP.Terminal is
+
     -- Functions for operations to the terminal. This hides the usage of Ada.Text_IO and may silently ignore
     -- capabilities if the terminal does not support them, such as if coloring text or line clearing is added.
     --
@@ -29,8 +30,12 @@ package SP.Terminal is
 
     --  If the program is not interactive, then don't show spinners, etc.
     function Is_Interactive return Boolean;
+    procedure Stop_Interactivity;
 
-    procedure Use_Scripting;
+    -- Is the programming running as a tool for another program?
+    --
+    -- Pipelines don't output any user interface elements.
+    function Is_Pipeline return Boolean;
 
     -- Some output is only for UI purposes.  Some is data which should always
     -- be shown.  Other output is important error messaging.
@@ -41,6 +46,9 @@ package SP.Terminal is
     type Mode is (UI, Data, Error);
 
     -- New style output which is mode aware.
+    procedure Put (Form : Mode; C : Character);
+    procedure Put (Form : Mode; Str : String);
+    procedure Put (Form : Mode; Str : Ada.Strings.Unbounded.Unbounded_String);
 
     procedure Put_Line (Form : Mode; Str : String);
     procedure Put_Line (Form : Mode; Str : Ada.Strings.Unbounded.Unbounded_String);

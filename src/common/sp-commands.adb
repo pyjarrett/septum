@@ -131,7 +131,7 @@ package body SP.Commands is
                             --  End the clock.
                             Finish := Ada.Calendar.Clock;
                             Delta_Time := Finish - Start;
-                            Put_Line (Data, To_String (Best_Command) & ": " & Delta_Time'Image);
+                            Put_Line (UI, To_String (Best_Command) & ": " & Delta_Time'Image);
                         end if;
                     end;
                 end;
@@ -310,12 +310,12 @@ package body SP.Commands is
     function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
-            Put_Line ("Stats should have an empty command line.");
+            Put_Line (Terminal.Error, "Stats should have an empty command line.");
             return Command_Failed;
         end if;
-        Put_Line ("Files:      " & SP.Searches.Num_Files (Srch)'Image);
-        Put_Line ("Lines:      " & SP.Searches.Num_Lines (Srch)'Image);
-        Put_Line ("Characters: " & SP.Searches.Num_Characters (Srch)'Image);
+        Put_Line (Terminal.UI, "Files:      " & SP.Searches.Num_Files (Srch)'Image);
+        Put_Line (Terminal.UI, "Lines:      " & SP.Searches.Num_Lines (Srch)'Image);
+        Put_Line (Terminal.UI, "Characters: " & SP.Searches.Num_Characters (Srch)'Image);
         return Command_Success;
     end Stats_Exec;
 
@@ -1061,25 +1061,25 @@ package body SP.Commands is
     begin
         case Natural (Command_Line.Length) is
             when 0 =>
-                Put_Line ("Removing maximum result restriction");
+                Put_Line (Terminal.UI, "Removing maximum result restriction");
                 SP.Searches.Set_Max_Results (Srch, SP.Searches.No_Max_Results);
             when 1 =>
                 Max_Results := Natural'Value (To_String (Command_Line.First_Element));
                 if Max_Results = 0 then
-                    Put_Line ("Must return at least 1 result.");
+                    Put_Line (Terminal.Error, "Must return at least 1 result.");
                     return Command_Failed;
                 end if;
                 SP.Searches.Set_Max_Results (Srch, Max_Results);
-                Put_Line ("Maximum results set to " & Max_Results'Image);
+                Put_Line (Terminal.UI, "Maximum results set to " & Max_Results'Image);
             when others =>
                 Put_Line
-                    ("Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
+                    (Terminal.Error, "Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
                 return Command_Failed;
         end case;
         return Command_Success;
     exception
         when Constraint_Error =>
-            Put_Line ("Invalid number of maximum results: " & To_String (Command_Line.First_Element));
+            Put_Line (Terminal.Error, "Invalid number of maximum results: " & To_String (Command_Line.First_Element));
         return Command_Failed;
     end Set_Max_Results_Exec;
 
@@ -1213,38 +1213,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_JSON_Output_Help is
-    begin
-        Put_Line ("Enables reporting of time it takes to run commands.");
-    end Enable_JSON_Output_Help;
-
-    function Enable_JSON_Output_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
-    begin
-        if not Command_Line.Is_Empty then
-            Put_Line ("Command line should be empty.");
-            return Command_Failed;
-        end if;
-        SP.Searches.Set_Json_Output (Srch, True);
-        return Command_Success;
-    end Enable_JSON_Output_Exec;
-
-    procedure Disable_JSON_Output_Help is
-    begin
-        Put_Line ("Disables reporting of time it takes to run commands.");
-    end Disable_JSON_Output_Help;
-
-    function Disable_JSON_Output_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
-    begin
-        if not Command_Line.Is_Empty then
-            Put_Line ("Command line should be empty.");
-            return Command_Failed;
-        end if;
-        SP.Searches.Set_Json_Output (Srch, False);
-        return Command_Success;
-    end Disable_JSON_Output_Exec;
-
-    ----------------------------------------------------------------------------
-
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -1353,14 +1321,6 @@ begin
     Make_Command
         ("disable-timing", "Disables timing of command run time.", Disable_Timing_Help'Access,
          Disable_Timing_Exec'Access);
-
-    Make_Command
-        ("enable-json-output", "Changes output from interactive to JSON.", Enable_JSON_Output_Help'Access,
-         Enable_JSON_Output_Exec'Access);
-    Make_Command
-        ("disable-json-output", "Changes output to more natural human readable output.", Disable_JSON_Output_Help'Access,
-         Disable_JSON_Output_Exec'Access);
-
 
     -- Quit
 
