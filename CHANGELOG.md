@@ -13,20 +13,33 @@ Types of changes:
 - 🚀 `Optimized` performance optimizations.
 - ⭐ `Upgraded` for improvements.
 - 💥 `Security` in case of vulnerabilities.
+- 🧪 `Experimental` for things which are available, but not fully cooked yet.
 
 ## [0.3.0]
 
-- ✅ Added support for `run` to execute multiple files in sequence.
-- ✅ Added support for using `run` without a tty.
-- 🛠️ Fixed spinner to only show when running interactively.
-- ✅ Added an exit code error when trying to run interactively from a script.
-- ❌ Removed `--version` option.  Use `septum version` instead.
-- ✅ Added BBT integration tests.
-- ❌ Removed `list-filters`.  Use `list-line-filters` instead.
+### Interactive
+
 - ✅ Added `list-line-filters`.
 - ✅ Added `list-path-filters`.
-- 💥 No longer looks upwards in directory ancestors for a config file.
+- ❌ Removed `--version` option.  Use `septum version` instead.
+- ❌ Removed `list-filters`.  Use `list-line-filters` instead.
 - ✅ Added a maximum file size to load of 100 MiB.
+
+### `septum run` subcommand
+
+- ✅ Added support for using `run` without a tty.
+- 🛠️ Fixed spinner to only show when running interactively.
+- 🧪 Experimental `--script` and `--tool` for scripted and tool behavior with `septum run` subcommand.
+- ✅ Added support for `run` to execute multiple files in sequence.
+
+### Configs
+
+- 💥 No longer looks upwards in directory ancestors for a config file.
+- 🔄 `Changed` for `septum init` to create a global config when running from `$HOME`.
+
+### Testing
+
+- ✅ Added BBT integration tests.
 
 ## [0.2.1]
 
