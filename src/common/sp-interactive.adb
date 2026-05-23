@@ -21,7 +21,6 @@ with SP.Commands;
 with SP.Config;
 with SP.File_System;
 with SP.Filters;
-with SP.Strings;
 with SP.Terminal;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
@@ -238,12 +237,30 @@ package body SP.Interactive is
         end loop;
     end Run_Repl;
 
+    function Run_Configs (Srch : in out SP.Searches.Search; Configs : SP.Strings.String_Sets.Set) return Config_Result is
+    begin
+        for Config of Configs loop
+            case SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config)) is
+                when SP.Commands.Command_Success => null;
+                when SP.Commands.Command_Ignored => null;
+                when SP.Commands.Command_Failed =>
+                    Put_Line ("Failing running commands from: " & ASU.To_String(Config));
+                    return Failed;
+                when SP.Commands.Command_Unknown =>
+                    Put_Line ("Unknown command in: " & ASU.To_String(Config));
+                    return Failed;
+                when SP.Commands.Command_Exit_Requested =>
+                    return Exit_Requested;
+            end case;
+        end loop;
+
+        return Ok;
+    end Run_Configs;
+
     -- The interactive loop through which the user starts a search context and then interatively refines it by
     -- pushing and popping operations.
     function Main return Boolean is
-        Srch         : SP.Searches.Search;
-        Configs      : constant SP.Strings.String_Sets.Set := SP.Config.Config_Locations;
-        Result       : SP.Commands.Command_Result;
+        Srch : SP.Searches.Search;
     begin
         if not SP.Terminal.Is_Interactive then
             Put_Line ("Unable to run REPL when terminal is not interactive.");
@@ -259,21 +276,9 @@ package body SP.Interactive is
         Put_Line ("septum v" & SP.Version);
         New_Line;
 
-        for Config of Configs loop
-            Result := SP.Commands.Run_Commands_From_File (Srch, ASU.To_String(Config));
-            case Result is
-                when SP.Commands.Command_Success => null;
-                when SP.Commands.Command_Ignored => null;
-                when SP.Commands.Command_Failed =>
-                    Put_Line ("Failing running commands from: " & ASU.To_String(Config));
-                    return False;
-                when SP.Commands.Command_Unknown =>
-                    Put_Line ("Unknown command in: " & ASU.To_String(Config));
-                when SP.Commands.Command_Exit_Requested =>
-                    return True;
-            end case;
-        end loop;
-
+        if Run_Configs (Srch, SP.Config.Config_Locations) = Failed then
+            return False;
+        end if;
         Run_Repl (Srch);
         return True;
     end Main;

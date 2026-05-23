@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Copyright 2021, The Septum Developers (see AUTHORS file)
+-- Copyright 2026, The Septum Developers (see AUTHORS file)
 
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,21 +14,24 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with SP.Searches;
-with SP.Strings;
+package SP.Command_Line is
 
-package SP.Interactive is
+    type Command_Line_Parser is private;
 
-    procedure Run_Repl (Srch : in out SP.Searches.Search);
+    function Has_More_Arguments (CL : Command_Line_Parser) return Boolean;
 
-    type Config_Result is (Ok, Failed, Exit_Requested);
-    function Run_Configs (
-        Srch : in out SP.Searches.Search;
-        Configs : SP.Strings.String_Sets.Set) return Config_Result;
+    procedure Skip_Argument (CL : in out Command_Line_Parser);
 
+    function Next_Argument (CL : in out Command_Line_Parser) return String;
 
-    function Main return Boolean;
-    -- Main program entry point. This hides the details of what actually happens and keeps the exterior main function
-    -- simple.
+    function Try_Match (CL : in out Command_Line_Parser; S : String) return Boolean;
 
-end SP.Interactive;
+    function Is_Flag (CL : Command_Line_Parser) return Boolean;
+
+private
+
+    type Command_Line_Parser is record
+        Next_Index : Natural := 1;
+    end record;
+
+end SP.Command_Line;

@@ -1,7 +1,7 @@
 ## Feature : Running searches
 
 ### Scenario : Single result
-  - When I run `bin/septum run --tool examples/single_result.septum`
+  - When I run `bin/septum run --no-config --tool examples/single_result.septum`
   - Then I get
 ```
 {
@@ -32,7 +32,7 @@
 ```
 
 ### Scenario : Single result without JSON
-  - When I run `bin/septum run --script examples/single_result_no_json.septum`
+  - When I run `bin/septum run --no-config --script examples/single_result_no_json.septum`
   - Then I get
 ```
 Loading commands from: D:\dev\ada\septum\examples\single_result_no_json.septum
