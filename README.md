@@ -9,7 +9,7 @@
 
 ---
 
-Context-based code search tool, written in Ada
+Interactive, context-aware code search for million-line codebases - fully local, built in Ada.
 
 [![asciicast](https://asciinema.org/a/459292.svg)](https://asciinema.org/a/459292)
 
