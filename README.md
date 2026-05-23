@@ -156,6 +156,7 @@ of code.
 # Installing
 
 Self-contained binaries are available on the [releases page](https://github.com/pyjarrett/septum/releases).
+[Nightly binaries are available](https://github.com/pyjarrett/septum/actions/workflows/build-artifacts.yml) if you prefer a bleeding edge release.
 
 # Building
 
