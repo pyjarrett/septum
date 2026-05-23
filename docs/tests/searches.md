@@ -1,9 +1,10 @@
 ## Feature : Running searches
 
-### Scenario : Single result
+### Scenario : Tool call with single result
   - When I run `bin/septum run --no-config --tool examples/single_result.septum`
   - Then I get
 ```
+[
 {
     "matching_contexts": 1,
     "matching_files": 1,
@@ -29,6 +30,7 @@
         }
     ]
 }
+]
 ```
 
 ### Scenario : Single result without JSON
@@ -69,4 +71,63 @@ LICENSE
 
 Matching contexts:  1
 Matching files: 1
+```
+
+### Scenario : Tool call with multiple searches
+  - When I run `bin/septum run --no-config --tool examples/single_result_multiple_searches.septum`
+  - Then I get
+
+```
+[
+{
+    "matching_contexts": 1,
+    "matching_files": 1,
+    "results": [
+        {
+            "file": "LICENSE",
+            "range": [ 1,  10 ],
+            "matches": [
+                 3
+            ],
+            "lines": [
+                "",
+                "                                 Apache License",
+                "                           Version 2.0, January 2004",
+                "                        http://www.apache.org/licenses/",
+                "",
+                "   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+                "",
+                "   1. Definitions.",
+                "",
+                "      \"License\" shall mean the terms and conditions for use, reproduction,"
+            ]
+        }
+    ]
+},
+{
+    "matching_contexts": 1,
+    "matching_files": 1,
+    "results": [
+        {
+            "file": "LICENSE",
+            "range": [ 1,  10 ],
+            "matches": [
+                 3
+            ],
+            "lines": [
+                "",
+                "                                 Apache License",
+                "                           Version 2.0, January 2004",
+                "                        http://www.apache.org/licenses/",
+                "",
+                "   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+                "",
+                "   1. Definitions.",
+                "",
+                "      \"License\" shall mean the terms and conditions for use, reproduction,"
+            ]
+        }
+    ]
+}
+]
 ```

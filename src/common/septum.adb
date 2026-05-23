@@ -129,6 +129,10 @@ procedure Septum is
             return;
         end if;
 
+        if SP.Terminal.Is_Pipeline then
+            SP.Terminal.Put_Line ("[");
+        end if;
+
         while SP.Command_Line.Has_More_Arguments (Parse) loop
             Result := SP.Commands.Run_Commands_From_File (Srch, SP.Command_Line.Next_Argument (Parse));
             if Result not in SP.Commands.Command_Success | SP.Commands.Command_Ignored then
@@ -136,6 +140,11 @@ procedure Septum is
                 exit;
             end if;
         end loop;
+
+        if SP.Terminal.Is_Pipeline then
+            SP.Terminal.New_Line;
+            SP.Terminal.Put_Line ("]");
+        end if;
     end Execute_Run;
 
     --  Default to printing help, so that if the command is unrecognized, the

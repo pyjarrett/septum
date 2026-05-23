@@ -624,6 +624,10 @@ package body SP.Searches is
         New_Line;
     end Print_Context;
 
+    -- Need to track if any pipeline results have been returned so commas can be
+    -- added for each.
+    Has_Pipeline_Result : Boolean := False;
+
     procedure Print_Contexts (
         Srch     : in Search;
         Contexts : SP.Contexts.Context_Vectors.Vector;
@@ -634,6 +638,12 @@ package body SP.Searches is
         Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin
         if SP.Terminal.Is_Pipeline then
+            if Has_Pipeline_Result then
+                Put_Line (",");
+            else
+                Has_Pipeline_Result := True;
+            end if;
+
             Put_Line ("{");
             Put ("    ""matching_contexts"":" & Contexts.Length'Image);
             Put_Line (",");
@@ -654,7 +664,7 @@ package body SP.Searches is
             end loop;
 
             Put_Line ("    ]");
-            Put_Line ("}");
+            Put ("}");
         else
             if Natural (Contexts.Length) > Last - First + 1 and then First = 1 and then Last = No_Limit then
                 Put_Line ("Found" & Contexts.Length'Image & " results.");
