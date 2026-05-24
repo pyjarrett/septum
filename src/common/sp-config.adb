@@ -31,13 +31,17 @@ package body SP.Config is
     procedure Create_Local_Config is
         package SH renames SP.Strings.String_Holders;
         Current_Dir : constant String := AD.Current_Directory;
-        Config_Dir  : SH.Holder := SH.To_Holder (Current_Dir & "/" & Local_Config_Dir_Name);
-        Config_File : SH.Holder := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
+        Is_Global   : constant Boolean := not SP.Platform.Is_Path_Ok_For_Config (Current_Dir);
+        Config_Dir  : SH.Holder;
+        Config_File : SH.Holder;
     begin
-        if not SP.Platform.Is_Path_Ok_For_Config (Current_Dir) then
+        if Is_Global then
             Terminal.Put_Line (Terminal.UI, "In home directory, trying to create a user global config instead.");
             Config_Dir := SH.To_Holder (SP.Platform.Global_Config_Dir.Constant_Reference
                 & "/" & Global_Config_Dir_Name);
+            Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
+        else
+            Config_Dir := SH.To_Holder (Current_Dir & "/" & Local_Config_Dir_Name);
             Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
         end if;
 
@@ -69,13 +73,15 @@ package body SP.Config is
             Ada.Text_IO.Put_Line (File, "enable-line-colors");
             Ada.Text_IO.Put_Line (File, "enable-auto-search");
             Ada.Text_IO.Put_Line (File, "set-max-results 200");
-            declare
-                Current_Dir : constant String := Ada.Directories.Full_Name(Ada.Directories.Current_Directory);
-            begin
-                Ada.Text_IO.Put_Line (File, "add-dirs " & Current_Dir);
-            exception
-                when Ada.Directories.Use_Error => null;
-            end;
+            if not Is_Global then
+                declare
+                    Current_Dir : constant String := Ada.Directories.Full_Name(Ada.Directories.Current_Directory);
+                begin
+                    Ada.Text_IO.Put_Line (File, "add-dirs " & Current_Dir);
+                exception
+                    when Ada.Directories.Use_Error => null;
+                end;
+            end if;
             Ada.Text_IO.Close (File);
 
             -- Compiler bug?
