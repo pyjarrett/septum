@@ -942,16 +942,16 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Matching_Contexts_Help is
+    procedure Match_Contexts_Help is
     begin
         Put_Line ("Lists the Contexts currently matching all filters.");
         New_Line;
         Put_Line ("match-contexts        Prints up to max-results results");
         Put_Line ("match-contexts N      Prints the first N results");
         Put_Line ("match-contexts M N    Prints the M ... N results");
-    end Matching_Contexts_Help;
+    end Match_Contexts_Help;
 
-    function Matching_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    function Match_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         First    : Positive := 1;
         Last     : Positive := Positive'Last;
@@ -981,30 +981,60 @@ package body SP.Commands is
             return Command_Failed;
         end case;
         return Command_Success;
-    end Matching_Contexts_Exec;
+    end Match_Contexts_Exec;
 
     ----------------------------------------------------------------------------
 
-    procedure Matching_Files_Help is
+    procedure Match_Files_Help is
     begin
         Put_Line ("Lists files currently matching all filters.");
-    end Matching_Files_Help;
+    end Match_Files_Help;
 
-    function Matching_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    function Match_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         Files : constant String_Sets.Set := SP.Contexts.Files_In (Contexts);
+        Needs_Comma : Boolean := False;
     begin
-        pragma Unreferenced (Command_Line);
+        if not Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
+        end if;
 
-        SP.Output.New_Line (SP.Output.Data);
-        for File of Files loop
-            SP.Output.Put_Line (File);
-        end loop;
-        SP.Output.New_Line (SP.Output.Data);
-        SP.Output.Put_Line (SP.Output.Data, "Matching files:" & Files.Length'Image);
+        if SP.Output.Is_Pipeline then
+            Start_Pipeline_Result;
+            Put_Line ("{");
+                Put ("    ");
+                Put_JSON_Key_Value ("command", "match-files");
+                Put_Line (",");
+                Put ("    ""results"": [");
+                for File of Files loop
+                    if Needs_Comma then
+                        Put_Line (",");
+                    else
+                        New_Line;
+                    end if;
+                    Put ("        ");
+                    Put (File);
+                    Needs_Comma := True;
+                end loop;
+
+                if Needs_Comma then
+                    New_Line;
+                    Put ("    ");
+                end if;
+                Put_Line ("]");
+            Put ("}");
+        else
+            SP.Output.New_Line (SP.Output.Data);
+            for File of Files loop
+                SP.Output.Put_Line (File);
+            end loop;
+            SP.Output.New_Line (SP.Output.Data);
+            SP.Output.Put_Line (SP.Output.Data, "Matching files:" & Files.Length'Image);
+        end if;
 
         return Command_Success;
-    end Matching_Files_Exec;
+    end Match_Files_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -1250,11 +1280,11 @@ begin
     -- Results
 
     Make_Command
-        ("match-contexts", "Lists contexts matching the current filter.", Matching_Contexts_Help'Access,
-         Matching_Contexts_Exec'Access);
+        ("match-contexts", "Lists contexts matching the current filter.", Match_Contexts_Help'Access,
+         Match_Contexts_Exec'Access);
     Make_Command
-        ("match-files", "Lists files matching the current filter.", Matching_Files_Help'Access,
-         Matching_Files_Exec'Access);
+        ("match-files", "Lists files matching the current filter.", Match_Files_Help'Access,
+         Match_Files_Exec'Access);
 
     -- Global configuration
 

@@ -128,7 +128,32 @@ package body SP.Output is
 
     -- JSON
 
-    procedure Print_JSON_String (S : String) is
+    -- Need to track if any pipeline results have been returned so commas can be
+    -- added for each.
+    Has_Pipeline_Result : Boolean := False;
+
+    procedure Start_Pipeline_Result is
+    begin
+        if Has_Pipeline_Result then
+            Put_Line (",");
+        else
+            Has_Pipeline_Result := True;
+        end if;
+    end Start_Pipeline_Result;
+
+    procedure Put_JSON_Key_Value (Key : String; Value : String) is
+    begin
+        Put_JSON_String (Key);
+        Put (": ");
+        Put_JSON_String (Value);
+    end Put_JSON_Key_Value;
+
+    procedure Put_JSON_Key_Value (Key : String; Value : Ada.Strings.Unbounded.Unbounded_String) is
+    begin
+        Put_JSON_Key_Value (Key, Ada.Strings.Unbounded.To_String (Value));
+    end Put_JSON_Key_Value;
+
+    procedure Put_JSON_String (S : String) is
     begin
         Put ('"');
         for C of S loop
@@ -138,7 +163,7 @@ package body SP.Output is
             Put (C);
         end loop;
         Put ('"');
-    end Print_JSON_String;
+    end Put_JSON_String;
 
     -- Cancellation
 

@@ -538,7 +538,7 @@ package body SP.Searches is
     begin
         Put_Line ("        {");
         Put ("            ""file"": ");
-        Print_JSON_String (To_String (Context.File_Name));
+        Put_JSON_String (To_String (Context.File_Name));
         Put_Line (",");
         Put ("            ""range"": [");
         Put (Context.Minimum'Image & ", " & Context.Maximum'Image);
@@ -567,7 +567,7 @@ package body SP.Searches is
         end if;
         for Line_Num in Context.Minimum .. Context.Maximum loop
             Put ("                ");
-            Print_JSON_String (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
+            Put_JSON_String (To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)));
             Items_Left := Items_Left - 1;
             if Items_Left /= 0 then
                 Put (",");
@@ -611,10 +611,6 @@ package body SP.Searches is
         New_Line;
     end Print_Context;
 
-    -- Need to track if any pipeline results have been returned so commas can be
-    -- added for each.
-    Has_Pipeline_Result : Boolean := False;
-
     procedure Print_Contexts (
         Srch     : in Search;
         Contexts : SP.Contexts.Context_Vectors.Vector;
@@ -625,13 +621,12 @@ package body SP.Searches is
         Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin
         if SP.Output.Is_Pipeline then
-            if Has_Pipeline_Result then
-                Put_Line (",");
-            else
-                Has_Pipeline_Result := True;
-            end if;
+            SP.Output.Start_Pipeline_Result;
 
             Put_Line ("{");
+            Put ("    ");
+            Put_JSON_Key_Value ("command", "match-contexts");
+            Put_Line (",");
             Put ("    ""matching_contexts"":" & Contexts.Length'Image);
             Put_Line (",");
             Put ("    ""matching_files"":" & SP.Contexts.Files_In (Contexts).Length'Image);

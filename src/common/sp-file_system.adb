@@ -149,19 +149,27 @@ package body SP.File_System is
 
     -- Rewrite a path with all forward slashes for simplicity.
     function Rewrite_Path (Path : String) return String is
-        S        : String := Path;
-        Opposite : constant Character := SP.Platform.Path_Opposite_Separator;
-        Local    : constant Character := SP.Platform.Path_Separator;
+        S : String := Path;
     begin
         for I in 1 .. S'Length loop
-            if (Path (I) = Opposite) then
-                S(I) := Local;
-            else
-                S(I) := Path (I);
+            if (Path (I) = '\') then
+                S (I) := '/';
             end if;
         end loop;
         return S;
     end Rewrite_Path;
+
+    function Rewrite_Path (Path : Ada.Strings.Unbounded.Unbounded_String) return Ada.Strings.Unbounded.Unbounded_String is
+        S : Ada.Strings.Unbounded.Unbounded_String := Path;
+    begin
+        for I in 1 .. Ada.Strings.Unbounded.Length (S) loop
+            if (Ada.Strings.Unbounded.Element (S, I) = '\') then
+                Ada.Strings.Unbounded.Replace_Element (S, I, '/');
+            end if;
+        end loop;
+        return S;
+    end Rewrite_Path;
+
 
     -- Produces all of the possible options for a path.
     function File_Completions (Path : String) return SP.Strings.String_Vectors.Vector

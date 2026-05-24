@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Strings.Unbounded;
 with SP.Strings;
 
 -- Wraps file system operations to make them simpler, and handle cases without
@@ -52,6 +53,7 @@ package SP.File_System is
 
     -- Rewrite a path with all forward slashes for simplicity.
     function Rewrite_Path (Path : String) return String;
+    function Rewrite_Path (Path : Ada.Strings.Unbounded.Unbounded_String) return Ada.Strings.Unbounded.Unbounded_String;
 
     -- Produces all of the possible options for a path.
     function File_Completions (Path : String) return String_Vectors.Vector;

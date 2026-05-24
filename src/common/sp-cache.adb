@@ -198,7 +198,7 @@ package body SP.Cache is
                 Characters := Characters + Interfaces.Unsigned_64 (ASU.Length (Line));
             end loop;
 
-            Contents.Insert (File_Name, String_Vectors.Empty_Vector, Position, Inserted);
+            Contents.Insert (SP.File_System.Rewrite_Path (File_Name), String_Vectors.Empty_Vector, Position, Inserted);
             if not Inserted then
                 SP.Output.Put_Line ("Replacing contents of " & To_String (File_Name));
             end if;
@@ -245,7 +245,7 @@ package body SP.Cache is
     end Async_File_Cache;
 
     function Add_File (File_Cache : in out Async_File_Cache; File_Name : String) return Boolean is
-        S : constant ASU.Unbounded_String := ASU.To_Unbounded_String (File_Name);
+        S : constant ASU.Unbounded_String := ASU.To_Unbounded_String (Sp.File_System.Rewrite_Path (File_Name));
         use all type Ada.Directories.File_Kind;
     begin
         if not Ada.Directories.Exists (File_Name)

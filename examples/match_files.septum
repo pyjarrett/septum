@@ -1,0 +1,6 @@
+clear-dirs
+clear-files
+disable-auto-search
+add-dirs docs/tests
+find-like septum
+match-files

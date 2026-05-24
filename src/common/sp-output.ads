@@ -83,7 +83,10 @@ package SP.Output is
 
     -- JSON
 
-    procedure Print_JSON_String (S : String);
+    procedure Start_Pipeline_Result;
+    procedure Put_JSON_Key_Value (Key : String; Value : String);
+    procedure Put_JSON_Key_Value (Key : String; Value : Ada.Strings.Unbounded.Unbounded_String);
+    procedure Put_JSON_String (S : String);
 
     -- Cancellation
 

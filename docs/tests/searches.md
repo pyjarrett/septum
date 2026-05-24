@@ -1,11 +1,27 @@
 ## Feature : Running searches
 
+### Scenario : Tool call for results
+  - When I run `bin/septum run --no-config --tool examples/match_files.septum`
+  - Then I get
+```
+[
+{
+    "command": "match-files",
+    "results": [
+        docs/tests/basic_command_line.md,
+        docs/tests/searches.md
+    ]
+}
+]
+```
+
 ### Scenario : Tool call with single result
   - When I run `bin/septum run --no-config --tool examples/single_result.septum`
   - Then I get
 ```
 [
 {
+    "command": "match-contexts",
     "matching_contexts": 1,
     "matching_files": 1,
     "results": [
@@ -28,6 +44,46 @@
                 "      \"License\" shall mean the terms and conditions for use, reproduction,"
             ]
         }
+    ]
+}
+]
+```
+
+### Scenario : Tool call with single result, followed by matching files
+  - When I run `bin/septum run --no-config --tool examples/single_result_and_match_files.septum`
+  - Then I get
+```
+[
+{
+    "command": "match-contexts",
+    "matching_contexts": 1,
+    "matching_files": 1,
+    "results": [
+        {
+            "file": "LICENSE",
+            "range": [ 1,  10 ],
+            "matches": [
+                 3
+            ],
+            "lines": [
+                "",
+                "                                 Apache License",
+                "                           Version 2.0, January 2004",
+                "                        http://www.apache.org/licenses/",
+                "",
+                "   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+                "",
+                "   1. Definitions.",
+                "",
+                "      \"License\" shall mean the terms and conditions for use, reproduction,"
+            ]
+        }
+    ]
+},
+{
+    "command": "match-files",
+    "results": [
+        LICENSE
     ]
 }
 ]
@@ -80,6 +136,7 @@ Matching files: 1
 ```
 [
 {
+    "command": "match-contexts",
     "matching_contexts": 1,
     "matching_files": 1,
     "results": [
@@ -105,6 +162,7 @@ Matching files: 1
     ]
 },
 {
+    "command": "match-contexts",
     "matching_contexts": 1,
     "matching_files": 1,
     "results": [
