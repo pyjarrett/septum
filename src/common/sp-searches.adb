@@ -14,7 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Characters.Latin_1;
 with Ada.Directories;
 with Ada.Strings.Unbounded;
 with AnsiAda;
@@ -532,18 +531,6 @@ package body SP.Searches is
         end;
         return Result;
     end Matching_Contexts;
-
-    procedure Print_JSON_String (S : String) is
-    begin
-        Put ('"');
-        for C of S loop
-            if C in '\' | ''' | '"' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.VT then
-                Put ('\');
-            end if;
-            Put (C);
-        end loop;
-        Put ('"');
-    end Print_JSON_String;
 
     procedure Print_Context_As_JSON (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
         Items_Left : Ada.Containers.Count_Type := 0;

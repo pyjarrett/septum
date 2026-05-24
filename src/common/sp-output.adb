@@ -14,6 +14,7 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Trendy_Terminal.Platform;
 with Trendy_Terminal.Maps;
 
@@ -124,6 +125,20 @@ package body SP.Output is
     end Hide_Cursor;
 
     -- Old-style printing
+
+    -- JSON
+
+    procedure Print_JSON_String (S : String) is
+    begin
+        Put ('"');
+        for C of S loop
+            if C in '\' | ''' | '"' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.VT then
+                Put ('\');
+            end if;
+            Put (C);
+        end loop;
+        Put ('"');
+    end Print_JSON_String;
 
     -- Cancellation
 

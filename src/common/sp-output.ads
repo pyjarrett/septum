@@ -81,6 +81,12 @@ package SP.Output is
 
     procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.IO.New_Line;
 
+    -- JSON
+
+    procedure Print_JSON_String (S : String);
+
+    -- Cancellation
+
     protected type Cancellation_Gate is
         entry Closed;
         procedure Finish;
