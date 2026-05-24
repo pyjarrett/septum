@@ -21,7 +21,7 @@ with Ada.Directories;
 
 with SP.File_System;
 with SP.Progress;
-with SP.Terminal;
+with SP.Output;
 
 with System.Multiprocessors.Dispatching_Domains;
 
@@ -200,7 +200,7 @@ package body SP.Cache is
 
             Contents.Insert (File_Name, String_Vectors.Empty_Vector, Position, Inserted);
             if not Inserted then
-                SP.Terminal.Put_Line ("Replacing contents of " & To_String (File_Name));
+                SP.Output.Put_Line ("Replacing contents of " & To_String (File_Name));
             end if;
             Contents.Update_Element (Position, Swap_Lines'Access);
         end Cache_File;
@@ -342,8 +342,8 @@ package body SP.Cache is
 
             Progress_Tracker : SP.Progress.Update_Progress (Progress'Access);
         begin
-            SP.Terminal.Put_Line (Terminal.UI, "Loading with" & Num_CPUs'Image & " tasks.");
-            SP.Terminal.New_Line (Terminal.UI);
+            SP.Output.Put_Line (SP.Output.UI, "Loading with" & Num_CPUs'Image & " tasks.");
+            SP.Output.New_Line (SP.Output.UI);
 
             declare
                 File_Loader : array (File_CPU_Start .. Num_CPUs) of File_Loader_Task;
@@ -359,7 +359,7 @@ package body SP.Cache is
             end;
 
             Progress_Tracker.Stop;
-            SP.Terminal.New_Line (Terminal.UI);
+            SP.Output.New_Line (SP.Output.UI);
 
             return True;
         end;

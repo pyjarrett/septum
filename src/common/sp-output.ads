@@ -21,7 +21,7 @@ with Trendy_Terminal.Environments;
 with Trendy_Terminal.IO;
 with Trendy_Terminal.VT100;
 
-package SP.Terminal is
+package SP.Output is
 
     -- Functions for operations to the terminal. This hides the usage of Ada.Text_IO and may silently ignore
     -- capabilities if the terminal does not support them, such as if coloring text or line clearing is added.
@@ -100,4 +100,4 @@ package SP.Terminal is
 private
     Environment : Trendy_Terminal.Environments.Environment;
 
-end SP.Terminal;
+end SP.Output;

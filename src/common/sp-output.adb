@@ -17,7 +17,7 @@
 with Trendy_Terminal.Platform;
 with Trendy_Terminal.Maps;
 
-package body SP.Terminal is
+package body SP.Output is
 
     function Is_Interactive return Boolean is (SP.Current_User = SP.Human and then Environment.Is_Available);
     function Is_Pipeline return Boolean is (SP.Current_User = SP.Tool);
@@ -111,14 +111,14 @@ package body SP.Terminal is
 
     procedure Show_Cursor is
     begin
-        if SP.Terminal.Is_Interactive then
+        if SP.Output.Is_Interactive then
             Trendy_Terminal.VT100.Show_Cursor;
         end if;
     end Show_Cursor;
 
     procedure Hide_Cursor is
     begin
-        if SP.Terminal.Is_Interactive then
+        if SP.Output.Is_Interactive then
             Trendy_Terminal.VT100.Hide_Cursor;
         end if;
     end Hide_Cursor;
@@ -202,4 +202,4 @@ package body SP.Terminal is
         abort Input_Thread;
     end Terminal_Cancellation_Monitor;
 
-end SP.Terminal;
+end SP.Output;

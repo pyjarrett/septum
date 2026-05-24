@@ -23,13 +23,13 @@ with Atomic.Signed;
 with Progress_Indicators.Work_Trackers;
 
 with SP.Progress;
-with SP.Terminal;
+with SP.Output;
 
 with System.Multiprocessors.Dispatching_Domains;
 
 package body SP.Searches is
     use Ada.Strings.Unbounded;
-    use SP.Terminal;
+    use SP.Output;
 
     function Load_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
@@ -39,7 +39,7 @@ package body SP.Searches is
         if Is_Directory then
             return SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
         else
-            SP.Terminal.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
+            SP.Output.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
             return False;
         end if;
     end Load_Directory;
@@ -80,14 +80,14 @@ package body SP.Searches is
         if Path_Exists and then Is_File and then not Srch.Files.Contains (Unbounded_Name) then
             Srch.Files.Insert (Unbounded_Name);
             if SP.Cache.Add_File (Srch.File_Cache, File_Name) then
-                SP.Terminal.Put_Line (SP.Terminal.UI, "Added " & File_Name & " to search.");
+                SP.Output.Put_Line (SP.Output.UI, "Added " & File_Name & " to search.");
                 return True;
             else
-                SP.Terminal.Put_Line (SP.Terminal.UI, "Unable to add " & File_Name & " to search.");
+                SP.Output.Put_Line (SP.Output.UI, "Unable to add " & File_Name & " to search.");
                 return False;
             end if;
         else
-            SP.Terminal.Put_Line ("Could not add " & File_Name & " to search.");
+            SP.Output.Put_Line ("Could not add " & File_Name & " to search.");
             return False;
         end if;
     end Add_File;
@@ -102,14 +102,14 @@ package body SP.Searches is
         if Is_Directory and then not Srch.Directories.Contains (Unbounded_Name) then
             Srch.Directories.Insert (Unbounded_Name);
             if Load_Directory (Srch, Dir_Name) then
-                Terminal.Put_Line (Terminal.UI, "Added " & Dir_Name & " to search path.");
+                SP.Output.Put_Line (SP.Output.UI, "Added " & Dir_Name & " to search path.");
                 return True;
             else
-                Terminal.Put_Line (Terminal.UI, "Directory load cancelled.");
+                SP.Output.Put_Line (SP.Output.UI, "Directory load cancelled.");
                 return False;
             end if;
         else
-            SP.Terminal.Put_Line (Terminal.Error, "Could not add " & Dir_Name & " to search path.");
+            SP.Output.Put_Line (SP.Output.Error, "Could not add " & Dir_Name & " to search path.");
             return True;
         end if;
     end Add_Directory;
@@ -221,9 +221,9 @@ package body SP.Searches is
                 then Pointers.Make_Null else Srch.Line_Filters.Constant_Reference (Index));
     begin
         if not Filter_Being_Dropped.Is_Valid then
-            SP.Terminal.Put_Line ("No filter exists at that index to drop.");
+            SP.Output.Put_Line ("No filter exists at that index to drop.");
         else
-            SP.Terminal.Put_Line ("Dropping filter: " & Image (Filter_Being_Dropped.Get));
+            SP.Output.Put_Line ("Dropping filter: " & Image (Filter_Being_Dropped.Get));
             Srch.Line_Filters.Delete (Index);
         end if;
     end Drop_Filter;
@@ -231,7 +231,7 @@ package body SP.Searches is
     procedure Pop_Filter (Srch : in out Search) is
     begin
         if Srch.Line_Filters.Is_Empty then
-            SP.Terminal.Put_line ("There are no filters to pop.");
+            SP.Output.Put_Line ("There are no filters to pop.");
         else
             Drop_Filter (Srch, Positive (Srch.Line_Filters.Length));
         end if;
@@ -593,7 +593,7 @@ package body SP.Searches is
 
     procedure Print_Context (Srch : SP.Searches.Search; Context : SP.Contexts.Context_Match) is
     begin
-        Put_Line (SP.Terminal.Colorize (To_String (Context.File_Name), AnsiAda.Light_Magenta));
+        Put_Line (SP.Output.Colorize (To_String (Context.File_Name), AnsiAda.Light_Magenta));
         for Line_Num in Context.Minimum .. Context.Maximum loop
             if Context.Internal_Matches.Contains (Line_Num) then
                 Put ("-> ");
@@ -614,7 +614,7 @@ package body SP.Searches is
                 Put ("  ");
             end if;
             if Srch.Enable_Line_Colors and then Context.Internal_Matches.Contains (Line_Num) then
-                Put_Line (SP.Terminal.Colorize (
+                Put_Line (SP.Output.Colorize (
                     To_String (Srch.File_Cache.File_Line (Context.File_Name, Line_Num)),
                     AnsiAda.Green));
             else
@@ -637,7 +637,7 @@ package body SP.Searches is
         use all type Ada.Containers.Count_Type;
         Bounded_Last : constant Natural := Natural'Min (Last, Natural (Contexts.Length));
     begin
-        if SP.Terminal.Is_Pipeline then
+        if SP.Output.Is_Pipeline then
             if Has_Pipeline_Result then
                 Put_Line (",");
             else
@@ -742,30 +742,30 @@ package body SP.Searches is
         Excludes : Natural := 0;
     begin
         for F of Srch.Line_Filters loop
-            Put (Terminal.UI, '[');
+            Put (SP.Output.UI, '[');
             if F.Get.Matches_Line (Input) then
                 case F.Get.Action is
                     when SP.Filters.Keep =>
-                        Put (Terminal.UI, SP.Terminal.Colorize ("  MATCH  ", AnsiAda.Light_Green));
+                        Put (SP.Output.UI, SP.Output.Colorize ("  MATCH  ", AnsiAda.Light_Green));
                         Keeps := Keeps + 1;
                     when SP.Filters.Exclude =>
-                        Put (Terminal.UI, SP.Terminal.Colorize (" EXCLUDE ", AnsiAda.Light_Red));
+                        Put (SP.Output.UI, SP.Output.Colorize (" EXCLUDE ", AnsiAda.Light_Red));
                         Excludes := Excludes + 1;
                 end case;
             else
-                Put (Terminal.UI, "         ");
+                Put (SP.Output.UI, "         ");
             end if;
-            Put (Terminal.UI, "]    ");
-            Put (Terminal.UI, F.Get.Image);
-            New_Line (Terminal.UI);
+            Put (SP.Output.UI, "]    ");
+            Put (SP.Output.UI, F.Get.Image);
+            New_Line (SP.Output.UI);
         end loop;
 
         -- Summary
         New_Line;
         if Excludes > 0 then
-            Put (SP.Terminal.Colorize ("EXCLUDED", AnsiAda.Light_Red));
+            Put (SP.Output.Colorize ("EXCLUDED", AnsiAda.Light_Red));
         elsif Keeps > 0 then
-            Put (SP.Terminal.Colorize ("MATCHED", AnsiAda.Light_Green));
+            Put (SP.Output.Colorize ("MATCHED", AnsiAda.Light_Green));
         else
             Put ("IGNORED");
         end if;

@@ -19,7 +19,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with SP.File_System;
 with SP.Platform;
-with SP.Terminal;
+with SP.Output;
 
 package body SP.Config is
     package AD renames Ada.Directories;
@@ -36,7 +36,7 @@ package body SP.Config is
         Config_File : SH.Holder;
     begin
         if Is_Global then
-            Terminal.Put_Line (Terminal.UI, "In home directory, trying to create a user global config instead.");
+            SP.Output.Put_Line (SP.Output.UI, "In home directory, trying to create a user global config instead.");
             Config_Dir := SH.To_Holder (SP.Platform.Global_Config_Dir.Constant_Reference
                 & "/" & Global_Config_Dir_Name);
             Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
@@ -45,7 +45,7 @@ package body SP.Config is
             Config_File := SH.To_Holder (Config_Dir.Constant_Reference & "/" & Config_File_Name);
         end if;
 
-        Terminal.Put_Line (Terminal.UI, "Creating config at: " & Config_File.Constant_Reference);
+        SP.Output.Put_Line (SP.Output.UI, "Creating config at: " & Config_File.Constant_Reference);
 
         if not AD.Exists (Config_Dir.Constant_Reference) then
             begin

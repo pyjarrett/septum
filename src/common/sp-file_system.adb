@@ -20,7 +20,7 @@ with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
 with SP.Platform;
-with SP.Terminal;
+with SP.Output;
 
 package body SP.File_System is
 
@@ -122,7 +122,7 @@ package body SP.File_System is
             end if;
             return True;
         when others =>
-            SP.Terminal.Put_Line ("Unable to read contents of: " & File_Name);
+            SP.Output.Put_Line ("Unable to read contents of: " & File_Name);
             return False;
     end Read_Lines;
 

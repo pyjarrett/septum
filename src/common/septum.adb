@@ -25,7 +25,7 @@ with SP.Commands;
 with SP.Config;
 with SP.Interactive;
 with SP.Searches;
-with SP.Terminal;
+with SP.Output;
 
 procedure Septum is
     use Ada.Text_IO;
@@ -98,7 +98,7 @@ procedure Septum is
                     return;
                 end if;
                 SP.Current_User := SP.Tool;
-                SP.Terminal.Stop_Interactivity;
+                SP.Output.Stop_Interactivity;
             elsif SP.Command_Line.Try_Match (Parse, "--script") then
                 if SP.Current_User /= SP.Human then
                     Ada.Text_IO.Put_Line ("Cannot set both tool and scripted mode.");
@@ -106,7 +106,7 @@ procedure Septum is
                     return;
                 end if;
                 SP.Current_User := SP.Script;
-                SP.Terminal.Stop_Interactivity;
+                SP.Output.Stop_Interactivity;
             else
                 exit;
             end if;
@@ -129,8 +129,8 @@ procedure Septum is
             return;
         end if;
 
-        if SP.Terminal.Is_Pipeline then
-            SP.Terminal.Put_Line ("[");
+        if SP.Output.Is_Pipeline then
+            SP.Output.Put_Line ("[");
         end if;
 
         while SP.Command_Line.Has_More_Arguments (Parse) loop
@@ -141,9 +141,9 @@ procedure Septum is
             end if;
         end loop;
 
-        if SP.Terminal.Is_Pipeline then
-            SP.Terminal.New_Line;
-            SP.Terminal.Put_Line ("]");
+        if SP.Output.Is_Pipeline then
+            SP.Output.New_Line;
+            SP.Output.Put_Line ("]");
         end if;
     end Execute_Run;
 

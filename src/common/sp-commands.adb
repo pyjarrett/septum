@@ -22,13 +22,13 @@ with SP.Config;
 with SP.Contexts;
 with SP.File_System;
 with SP.Platform;
-with SP.Terminal;
+with SP.Output;
 
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
 
     use Ada.Strings.Unbounded;
-    use SP.Terminal;
+    use SP.Output;
 
     type Help_Proc is not null access procedure;
     -- Prints a detailed help description for a command.
@@ -114,9 +114,9 @@ package body SP.Commands is
                 begin
                     Parameters.Delete_First;
                     if Best_Command /= Command_Name then
-                        Put_Line (UI, "Resolved to: " & To_String (Best_Command));
+                        Put_Line (SP.Output.UI, "Resolved to: " & To_String (Best_Command));
                     end if;
-                    New_Line (UI);
+                    New_Line (SP.Output.UI);
 
                     declare
                         Start : constant Ada.Calendar.Time := Ada.Calendar.Clock;
@@ -131,7 +131,7 @@ package body SP.Commands is
                             --  End the clock.
                             Finish := Ada.Calendar.Clock;
                             Delta_Time := Finish - Start;
-                            Put_Line (UI, To_String (Best_Command) & ": " & Delta_Time'Image);
+                            Put_Line (SP.Output.UI, To_String (Best_Command) & ": " & Delta_Time'Image);
                         end if;
                     end;
                 end;
@@ -152,7 +152,7 @@ package body SP.Commands is
             return Command_Failed;
         end if;
 
-        Put_Line (UI, "Loading commands from: " & Ada.Directories.Full_Name (File));
+        Put_Line (SP.Output.UI, "Loading commands from: " & Ada.Directories.Full_Name (File));
 
         if not SP.File_System.Read_Lines (Ada.Directories.Full_Name (File), Commands) then
             Put_Line ("Unable to load configuration file from: " & Ada.Directories.Full_Name (File));
@@ -164,8 +164,8 @@ package body SP.Commands is
                 Command_Line : constant String_Vectors.Vector := Exploded.Words;
                 Result : Command_Result;
             begin
-                Terminal.New_Line (UI);
-                Terminal.Put_Line (UI, +" > " & Command);
+                SP.Output.New_Line (SP.Output.UI);
+                SP.Output.Put_Line (SP.Output.UI, +" > " & Command);
                 Result := SP.Commands.Execute (Srch, Command_Line);
 
                 case Result is
@@ -213,12 +213,12 @@ package body SP.Commands is
         New_Line;
 
         Put_Line ("Configurations are loaded from " &
-            SP.Terminal.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta));
+            SP.Output.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta));
         Put_Line ("looking upward from the current directory when Septum is started.");
 
         if not Global_Config_Dir.Is_Empty then
             Put_Line ("A global config will be loaded from " &
-            SP.Terminal.Colorize (SP.File_System.Rewrite_Path (Global_Config_Dir.Element & "/" &
+            SP.Output.Colorize (SP.File_System.Rewrite_Path (Global_Config_Dir.Element & "/" &
                 SP.Config.Global_Config_Dir_Name & "/" & SP.Config.Config_File_Name), AnsiAda.Magenta));
         end if;
         Put_Line ("Commands will be executed from the " & SP.Config.Config_File_Name & " files in these on startup.");
@@ -310,12 +310,12 @@ package body SP.Commands is
     function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
-            Put_Line (Terminal.Error, "Stats should have an empty command line.");
+            Put_Line (SP.Output.Error, "Stats should have an empty command line.");
             return Command_Failed;
         end if;
-        Put_Line (Terminal.UI, "Files:      " & SP.Searches.Num_Files (Srch)'Image);
-        Put_Line (Terminal.UI, "Lines:      " & SP.Searches.Num_Lines (Srch)'Image);
-        Put_Line (Terminal.UI, "Characters: " & SP.Searches.Num_Characters (Srch)'Image);
+        Put_Line (SP.Output.UI, "Files:      " & SP.Searches.Num_Files (Srch)'Image);
+        Put_Line (SP.Output.UI, "Lines:      " & SP.Searches.Num_Lines (Srch)'Image);
+        Put_Line (SP.Output.UI, "Characters: " & SP.Searches.Num_Characters (Srch)'Image);
         return Command_Success;
     end Stats_Exec;
 
@@ -964,12 +964,12 @@ package body SP.Commands is
             then
                 SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, First, Last);
             else
-                SP.Terminal.Put_Line ("Bad number of results to give.");
+                SP.Output.Put_Line ("Bad number of results to give.");
                 return Command_Failed;
             end if;
         when 1 =>
             if not Try_Parse (To_String(Command_Line.First_Element), Last) then
-                SP.Terminal.Put_Line ("Bad number of results to give.");
+                SP.Output.Put_Line ("Bad number of results to give.");
                 return Command_Failed;
             end if;
 
@@ -977,7 +977,7 @@ package body SP.Commands is
         when 0 =>
             SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, 1, SP.Searches.Get_Max_Results (Srch));
         when others =>
-            SP.Terminal.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
+            SP.Output.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
             return Command_Failed;
         end case;
         return Command_Success;
@@ -996,12 +996,12 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Line);
 
-        SP.Terminal.New_Line (SP.Terminal.Data);
+        SP.Output.New_Line (SP.Output.Data);
         for File of Files loop
-            SP.Terminal.Put_Line (File);
+            SP.Output.Put_Line (File);
         end loop;
-        SP.Terminal.New_Line (SP.Terminal.Data);
-        SP.Terminal.Put_Line (SP.Terminal.Data, "Matching files:" & Files.Length'Image);
+        SP.Output.New_Line (SP.Output.Data);
+        SP.Output.Put_Line (SP.Output.Data, "Matching files:" & Files.Length'Image);
 
         return Command_Success;
     end Matching_Files_Exec;
@@ -1061,25 +1061,25 @@ package body SP.Commands is
     begin
         case Natural (Command_Line.Length) is
             when 0 =>
-                Put_Line (Terminal.UI, "Removing maximum result restriction");
+                Put_Line (SP.Output.UI, "Removing maximum result restriction");
                 SP.Searches.Set_Max_Results (Srch, SP.Searches.No_Max_Results);
             when 1 =>
                 Max_Results := Natural'Value (To_String (Command_Line.First_Element));
                 if Max_Results = 0 then
-                    Put_Line (Terminal.Error, "Must return at least 1 result.");
+                    Put_Line (SP.Output.Error, "Must return at least 1 result.");
                     return Command_Failed;
                 end if;
                 SP.Searches.Set_Max_Results (Srch, Max_Results);
-                Put_Line (Terminal.UI, "Maximum results set to " & Max_Results'Image);
+                Put_Line (SP.Output.UI, "Maximum results set to " & Max_Results'Image);
             when others =>
                 Put_Line
-                    (Terminal.Error, "Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
+                    (SP.Output.Error, "Expected a single value for the number of maximum results or no value to remove restriction on number of results.");
                 return Command_Failed;
         end case;
         return Command_Success;
     exception
         when Constraint_Error =>
-            Put_Line (Terminal.Error, "Invalid number of maximum results: " & To_String (Command_Line.First_Element));
+            Put_Line (SP.Output.Error, "Invalid number of maximum results: " & To_String (Command_Line.First_Element));
         return Command_Failed;
     end Set_Max_Results_Exec;
 

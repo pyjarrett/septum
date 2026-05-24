@@ -21,7 +21,7 @@ with SP.Commands;
 with SP.Config;
 with SP.File_System;
 with SP.Filters;
-with SP.Terminal;
+with SP.Output;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
 with Trendy_Terminal.Lines.Line_Vectors;
@@ -29,7 +29,7 @@ with Trendy_Terminal.Platform;
 
 package body SP.Interactive is
     package ASU renames Ada.Strings.Unbounded;
-    use SP.Terminal;
+    use SP.Output;
 
     procedure Write_Prompt (Srch : in SP.Searches.Search) is
         -- Writes the prompt and get ready to read user input.
@@ -105,30 +105,30 @@ package body SP.Interactive is
             begin
                 if Positive (Index) = 1 then
                     if SP.Commands.Is_Command (S) or else (SP.Commands.Is_Like_Command (S) and then V.Length > 1) then
-                        Result.Append (SP.Terminal.Colorize(US, AnsiAda.Green));
+                        Result.Append (SP.Output.Colorize(US, AnsiAda.Green));
                     elsif SP.Commands.Is_Like_Command (S) and then V.Length = 1 then
                         declare
                             Command : constant ASU.Unbounded_String := SP.Commands.Target_Command (US);
                             Suffix  : constant ASU.Unbounded_String := SP.Strings.Matching_Suffix (US, Command);
                         begin
                             Result.Append (
-                                SP.Terminal.Colorize (US, AnsiAda.Yellow)
-                                & SP.Terminal.Colorize (Suffix, AnsiAda.Light_Cyan));
+                                SP.Output.Colorize (US, AnsiAda.Yellow)
+                                & SP.Output.Colorize (Suffix, AnsiAda.Light_Cyan));
                         end;
                     else
-                        Result.Append (SP.Terminal.Colorize (US, AnsiAda.Red));
+                        Result.Append (SP.Output.Colorize (US, AnsiAda.Red));
                     end if;
                 elsif SP.Commands.Target_Command (V (1)) = "find-regex"
                     or else SP.Commands.Target_Command (V (1)) = "exclude-regex"
                 then
                     if SP.Filters.Is_Valid_Regex (S) then
-                        Result.Append (SP.Terminal.Colorize (US, AnsiAda.Green));
+                        Result.Append (SP.Output.Colorize (US, AnsiAda.Green));
                     else
-                        Result.Append (SP.Terminal.Colorize (US, AnsiAda.Red));
+                        Result.Append (SP.Output.Colorize (US, AnsiAda.Red));
                     end if;
                 else
                     if SP.File_System.Is_File (S) or else SP.File_System.Is_Dir (S) then
-                        Result.Append (SP.Terminal.Colorize (US, AnsiAda.Magenta));
+                        Result.Append (SP.Output.Colorize (US, AnsiAda.Magenta));
                     else
                         Result.Append (US);
                     end if;
@@ -262,7 +262,7 @@ package body SP.Interactive is
     function Main return Boolean is
         Srch : SP.Searches.Search;
     begin
-        if not SP.Terminal.Is_Interactive then
+        if not SP.Output.Is_Interactive then
             Put_Line ("Unable to run REPL when terminal is not interactive.");
             return False;
         end if;

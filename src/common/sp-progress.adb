@@ -1,7 +1,7 @@
 with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Progress_Indicators.Spinners;
-with SP.Terminal;
+with SP.Output;
 
 package body SP.Progress is
 
@@ -16,8 +16,8 @@ package body SP.Progress is
         begin
             Current_Time := Ada.Calendar.Clock;
 
-            SP.Terminal.Beginning_Of_Line;
-            SP.Terminal.Clear_Line;
+            SP.Output.Beginning_Of_Line;
+            SP.Output.Clear_Line;
             SR := Work.Report;
             PI.Spinners.Tick(Spinner);
 
@@ -28,7 +28,7 @@ package body SP.Progress is
                     else Ada.Strings.Fixed.Trim (Seconds'Image, Ada.Strings.Left) & " s")
                     & ')';
             begin
-                SP.Terminal.Put (
+                SP.Output.Put (
                     PI.Spinners.Value (Spinner)
                     & "  "
                     & SR.Completed'Image
@@ -41,14 +41,14 @@ package body SP.Progress is
             end;
         end Update;
     begin
-        if SP.Terminal.Is_Interactive then
+        if SP.Output.Is_Interactive then
             Start_Time := Ada.Calendar.Clock;
 
-            SP.Terminal.Hide_Cursor;
+            SP.Output.Hide_Cursor;
             loop
                 select
                     accept Stop;
-                    SP.Terminal.Show_Cursor;
+                    SP.Output.Show_Cursor;
                     exit;
                 or
                     delay 0.2;
