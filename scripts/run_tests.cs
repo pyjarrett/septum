@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -73,6 +75,12 @@ bool IsAlrToolInstalled(string toolName)
 
     var lines = alrOutputRaw.Split(new[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
     return lines.Any(line => line.Trim().StartsWith(toolNameVersion));
+}
+
+if (!File.Exists("septum.gpr") || !File.Exists("alire.toml"))
+{
+    Console.Error.WriteLine("Error: This script must be run from the root directory of the septum project.");
+    Environment.Exit(1);
 }
 
 if (!IsAlrToolInstalled("bbt"))
