@@ -68,9 +68,11 @@ string RunProcess(string fileName, params string[] args)
     }
 }
 
-bool IsAlrToolInstalled(string toolName)
+const string expectedBBTVersion = "0.2.1";
+
+bool IsAlrToolInstalled(string toolName, string toolVersion)
 {
-    string toolNameVersion = toolName + "=";
+    string toolNameVersion = toolName + "=" + toolVersion;
     string alrOutputRaw = RunProcess("alr", "install", "--info");
 
     var lines = alrOutputRaw.Split(new[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -83,10 +85,10 @@ if (!File.Exists("septum.gpr") || !File.Exists("alire.toml"))
     Environment.Exit(1);
 }
 
-if (!IsAlrToolInstalled("bbt"))
+if (!IsAlrToolInstalled("bbt", expectedBBTVersion))
 {
     Console.WriteLine("Installing BBT from Alire");
-    RunProcess("alr", "install", "bbt^0.2.1");
+    RunProcess("alr", "install", "bbt^" + expectedBBTVersion);
 }
 else
 {
