@@ -88,7 +88,7 @@ if (!File.Exists("septum.gpr") || !File.Exists("alire.toml"))
 if (!IsAlrToolInstalled("bbt", expectedBBTVersion))
 {
     Console.WriteLine("Installing BBT from Alire");
-    RunProcess("alr", "install", "bbt^" + expectedBBTVersion);
+    RunProcess("alr", "--force", "install", "bbt^" + expectedBBTVersion);
 }
 else
 {
