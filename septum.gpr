@@ -30,6 +30,23 @@ project Septum is
       for Default_Switches ("Ada") use Septum_Config.Ada_Compiler_Switches;
    end Compiler;
 
+   package Linker is
+      case Septum_Config.Build_Profile is
+         --  Ensure the creation of reproducible builds.  This is primarily for
+         --  security to be confident that the builds created via GitHub actions
+         --  for release match what can be built locally.
+         when "release" =>
+            case Platform is
+               when "windows" =>
+                  for Default_Switches ("Ada") use ("-s", "-Wl,--no-insert-timestamp");
+               when "linux" | "macos" =>
+                  for Default_Switches ("Ada") use ("-s");
+            end case;
+         when others =>
+            null;
+      end case;
+   end Linker;
+
    package Pretty_Printer is
       for Default_Switches ("ada") use (
          "-i4",                     -- Indentation level
