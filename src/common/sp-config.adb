@@ -72,6 +72,7 @@ package body SP.Config is
             Ada.Text_IO.Put_Line (File, "enable-line-numbers");
             Ada.Text_IO.Put_Line (File, "enable-line-colors");
             Ada.Text_IO.Put_Line (File, "enable-auto-search");
+            Ada.Text_IO.Put_Line (File, "exclude-path .git/");
             Ada.Text_IO.Put_Line (File, "set-max-results 200");
             if not Is_Global then
                 declare
