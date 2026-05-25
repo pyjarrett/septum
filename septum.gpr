@@ -39,7 +39,10 @@ project Septum is
             case Platform is
                when "windows" =>
                   for Default_Switches ("Ada") use ("-s", "-Wl,--no-insert-timestamp");
-               when "linux" | "macos" =>
+               when "linux" =>
+                   --  TODO: Maybe at some point specify the tag instead of "none"
+                  for Default_Switches ("Ada") use ("-s", "-Wl,--build-id=none");
+               when "macos" =>
                   for Default_Switches ("Ada") use ("-s");
             end case;
          when others =>
