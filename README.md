@@ -201,7 +201,7 @@ Integration tests use [BBT](https://github.com/LionelDraghi/bbt).
 Run these like:
 
 ```
-dotnet run scripts/run_tests.cs
+dotnet run run_tests.cs
 ```
 
 or directly with
