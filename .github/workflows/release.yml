@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g., v0.3.0). Required if running manually.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: septum-linux-x86_64
+            binary_name: septum
+          - os: macos-latest
+            artifact_name: septum-macos-arm64
+            binary_name: septum
+          - os: windows-latest
+            artifact_name: septum-windows-x86_64
+            binary_name: septum.exe
+
+    steps:
+      - name: Checkout Septum
+        uses: actions/checkout@v6
+        with:
+          path: septum
+
+      - name: Setup Alire
+        uses: alire-project/setup-alire@v4
+        with:
+          version: 2.1.0
+
+      - name: Build project
+        working-directory: septum
+        run: alr build --release
+
+      - name: Unit Tests
+        working-directory: septum/tests/
+        run: alr --no-tty run
+
+      - name: Prepare Artifact Folder
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp septum/bin/${{ matrix.binary_name }} dist/
+          cp septum/LICENSE dist/ || true
+          cp septum/README.md dist/ || true
+
+      - name: Upload Platform Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/*
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Validate Tag Name
+        run: |
+          TAG="${{ github.event.inputs.tag_name || github.ref_name }}"
+          echo "Release tag to use: $TAG"
+          if [[ "$TAG" == "main" || "$TAG" == "master" || "$TAG" == "gh-actions" ]]; then
+            echo "ERROR: Cannot release using a branch name '$TAG' as the tag. Please specify a tag name when running manually."
+            exit 1
+          fi
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v8
+
+      - name: Package Assets
+        run: |
+          mkdir release-assets
+
+          # Package Linux
+          tar -czvf release-assets/septum-linux-x86_64.tar.gz -C septum-linux-x86_64 .
+
+          # Package macOS
+          tar -czvf release-assets/septum-macos-arm64.tar.gz -C septum-macos-arm64 .
+
+          # Package Windows
+          cd septum-windows-x86_64
+          zip -r ../release-assets/septum-windows-x86_64.zip .
+          cd ..
+
+          # Generate SHA-256 checksums
+          cd release-assets
+          sha256sum * > ../SHA256SUMS.txt
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          files: |
+            release-assets/septum-linux-x86_64.tar.gz
+            release-assets/septum-macos-arm64.tar.gz
+            release-assets/septum-windows-x86_64.zip
+            SHA256SUMS.txt
+          draft: true
+          prerelease: false
+          generate_release_notes: true
