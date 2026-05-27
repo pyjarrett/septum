@@ -56,6 +56,7 @@ jobs:
         run: |
           mkdir -p dist
           cp septum/bin/${{ matrix.binary_name }} dist/
+          chmod +x dist/${{ matrix.binary_name }}
           cp septum/LICENSE dist/ || true
           cp septum/README.md dist/ || true
 
@@ -89,6 +90,10 @@ jobs:
       - name: Package Assets
         run: |
           mkdir release-assets
+
+          # Mark executables as executable
+          chmod +x septum-linux-x86_64/septum
+          chmod +x septum-macos-arm64/septum
 
           # Package Linux
           tar -czvf release-assets/septum-linux-x86_64.tar.gz -C septum-linux-x86_64 .
