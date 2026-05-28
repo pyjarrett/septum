@@ -1,0 +1,6 @@
+{
+    "[ada]": {
+        "editor.indentSize": "4",
+        "editor.defaultFormatter": "AdaCore.ada"
+    }
+}
