@@ -111,7 +111,7 @@ Matching files: 16
 ```
 
 At program start, commands get loaded and run from `.septum/config` in the
-current and ancestor directories, and `%LOCALAPPDATA%/septum/config` on
+current directory, and `%LOCALAPPDATA%/septum/config` on
 Windows or `$XDG_CONFIG_HOME` on Mac/Linux, which defaults
 to `~/.config/septum/config`.
 
