@@ -279,7 +279,6 @@ package body SP.Commands is
         Help_Text.Block("Searches occur across multi-line 'contexts'.  Specify what "
             & "those must include with `find-*` commands, and skip contexts "
             & "containing elements with `exclude-*` commands.");
-        New_Line;
 
         Put_Line ("Configurations are loaded from " &
             SP.Output.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta)
@@ -325,7 +324,7 @@ package body SP.Commands is
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
                         Name    : constant String := ASU.To_String (Target);
                     begin
-                        Help_text.Header (Name, ASU.To_String (Command.Simple_Help));
+                        Help_Text.Header (Name, ASU.To_String (Command.Simple_Help));
                         Command.Help.all (Name);
                     end;
                 end if;
@@ -339,14 +338,18 @@ package body SP.Commands is
 
     procedure Reload_Help (Command_Name : String) is
     begin
-        Help_Text.Block ("Septum currently doesn't track updates to files to loaded directories.");
+        Help_Text.Block ("Septum currently doesn't track updates to files to "
+            & "loaded directories."
+        );
         Help_Text.Block (
             Help_Text.Colorize_Command (Command_Name)
             & " provides the means to update all currently loaded files with the "
-            & "current contents on disk.");
+            & "current contents on disk."
+        );
         Help_Text.Block (Help_Text.Colorize_Command (Command_Name)
             & " also provides the counterpart to `unload` which is used to drop "
-            & "the file cache.");
+            & "the file cache."
+        );
     end Reload_Help;
 
     function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -393,9 +396,9 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command_Name);
         Help_Text.Block (
-            "Septum maintains all search context in memory within the file cache."
-            & " Due to the large amount of text that can be loaded, it can be useful"
-            & " to examine where and how this storage is used"
+            "Septum maintains all search context in memory within the file cache. "
+            & "Due to the large amount of text that can be loaded, it can be useful "
+            & "to examine where and how this storage is used. "
         );
     end Stats_Help;
 
@@ -421,7 +424,6 @@ package body SP.Commands is
             & "This provides a mechanism for simple configuration, or re-running specific setups "
             & "for complicated searches."
         );
-        New_Line;
         Help_Text.Block ("`source` is the deprecated alias for `run`.");
     end Source_Help;
 
@@ -463,13 +465,11 @@ package body SP.Commands is
 
     procedure Test_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Tests arguments against all filters.");
-        New_Line;
         Help_Text.Block (
             "It can be confusing to know exactly why something is not being filtered. "
-            & "`test` provides a mechanism to see how different filters evaluate against a line of "
-            & "text."
+            & Help_Text.Colorize_Command (Command_Name)
+            & " provides a mechanism to see how different filters evaluate against"
+            & " a line of text."
         );
     end Test_Help;
 
@@ -495,14 +495,16 @@ package body SP.Commands is
 
     procedure Add_Files_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Adds files to the search list.");
-        New_Line;
         Help_Text.Block (
             "Normally, directories get added for search, and then every file "
             & "is evaluated in turn to decide whether or not it should be loaded."
             & "`add-files` provides a mechanism to add specific files, while not "
             & "loading the containing directory."
+        );
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " provides a mechanism for target loads, such as for logfiles, "
+            & " or otherwise isolated files."
         );
     end Add_Files_Help;
 
@@ -529,6 +531,17 @@ package body SP.Commands is
             Help_Text.Colorize_Command (Command_Name)
             & " is the primary mechanism through which files get added "
             & "for search."
+        );
+        Help_Text.Block (
+            "Adding directories causes septum to recursively add every file "
+            & " which looks like text to the search pool.  ""Looks like"" covers "
+            & "popularly known extensions (.txt, .cpp, .rs, etc.) while "
+            & "ignoring other known binary extensions (.jpg, .png, .zip). "
+        );
+        Help_Text.Block (
+            "If a file's extensions don't match the built-in filters, then "
+            & "the first 4 KiB of characters are loaded and the file is "
+            & "considered text if a null byte is not found."
         );
     end Add_Dirs_Help;
 
@@ -608,9 +621,11 @@ package body SP.Commands is
     procedure List_Files_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("List the files of the search list.");
-        Put_Line ("Supports an optional 'full' argument, otherwise caps the number");
-        Put_Line ("of printed files is capped.");
+        Help_Text.Block (
+            "List the files of the search list."
+            & " Supports an optional 'full' argument, otherwise the number"
+            & " of printed files is capped."
+        );
     end List_Files_Help;
 
     function List_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
@@ -648,8 +663,12 @@ package body SP.Commands is
 
     procedure Find_Path_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides path elements to search for.");
+        Help_Text.Block (
+            "All files are considered during the search, unless specific paths"
+            & " are requested to be found. "
+            & Help_Text.Colorize_Command (Command_Name)
+            & " restricts the search to only files which match this filter."
+        );
     end Find_Path_Help;
 
     function Find_Path_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
@@ -765,8 +784,20 @@ package body SP.Commands is
     begin
         Help_Text.Block (
             Help_Text.Colorize_Command (Command_Name)
-            & " provides a case-sensitive search filter.  `file-like` provides "
-            & " a case-insensitive filter."
+            & " provides a case-sensitive search filter."
+            & Help_Text.Colorize_Command ("find-like")
+            & " provides a case-insensitive filter."
+        );
+        Help_Text.Block (
+            "Each space separated text parameter to "
+            & Help_Text.Colorize_Command (Command_Name)
+            & " is treated as an additional filter. This supports applying "
+            & "multiple text filters and then being able to manipulate individual "
+            & "ones using commands like "
+            & Help_Text.Colorize_Command ("drop")
+            & " and "
+            & Help_Text.Colorize_Command ("reorder")
+            & "."
         );
     end Find_Text_Help;
 
@@ -1131,8 +1162,12 @@ package body SP.Commands is
 
     procedure Match_Files_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists files currently matching all filters.");
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " lists all files which match the current filters. "
+            & "This command is particularly useful to determine if path filters "
+            & "would be effective to cull search results. "
+        );
     end Match_Files_Help;
 
     function Match_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
@@ -1186,7 +1221,16 @@ package body SP.Commands is
     procedure Quit_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("Quits this program.");
+        Help_Text.Block (
+            "Septum is designed as a interactive search application. "
+            & "In typical usage, the program remains 'live' in the background "
+            & "in a separate tmux tab or terminal."
+        );
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("reload")
+            & " is needed to update text files during heavy edits or when "
+            & " rebasing during the day."
+        );
     end Quit_Help;
 
     function Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
