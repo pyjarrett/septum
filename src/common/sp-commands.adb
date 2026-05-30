@@ -17,6 +17,8 @@
 with Ada.Calendar;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with AnsiAda;
 with SP.Config;
 with SP.Contexts;
@@ -200,6 +202,72 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    package Help_Text is
+        function Colorize_Command (Command_Name : String) return String;
+        procedure Header (Command_Name : String; Simple_Help : String);
+        procedure Block (Contents : String);
+    end Help_Text;
+
+    package body Help_Text is
+        function Colorize_Command (Command_Name : String) return String is
+        begin
+            return "|" & SP.Output.Colorize (Command_Name, AnsiAda.Green) & "|";
+        end Colorize_Command;
+
+        procedure Header (Command_Name : String; Simple_Help : String) is
+        begin
+            New_Line;
+            Put_Line ("-------------------------------------------------------");
+            Put_Line (Colorize_Command (Command_Name));
+            Put_Line ("-------------------------------------------------------");
+            Put_Line (Simple_Help);
+            New_Line;
+        end Header;
+
+        procedure Block (Contents : String) is
+            Width : constant := 80;
+            Cursor : Positive := Contents'First;
+            Last_In_Line : Positive;
+
+            -- Terminates lines early to avoid overfilling a line past the limit.
+            function Last_Space return Natural is
+            begin
+                if Cursor + Width >= Contents'Last then
+                    return Contents'Last;
+                end if;
+
+                return Ada.Strings.Fixed.Index (
+                    Source => Contents,
+                    Set => Ada.Strings.Maps.To_Set (Ada.Strings.Space),
+                    From => Positive'Min (Cursor + Width, Contents'Last), -- tries to fill the entire line.
+                    Test => Ada.Strings.Inside,
+                    Going => Ada.Strings.Backward);
+            end Last_Space;
+
+            function First_Non_Space return Natural is
+            begin
+                if Last_In_Line + 1 >= Contents'Last then
+                    return Last_In_Line + 1;
+                end if;
+
+                return Ada.Strings.Fixed.Index_Non_Blank (
+                    Source => Contents,
+                    From => Last_In_Line + 1,
+                    Going => Ada.Strings.Forward);
+            end First_Non_Space;
+
+        begin
+            while Cursor <= Contents'Last loop
+                Last_In_Line := Last_Space;
+                Put_Line (Contents (Cursor .. Last_In_Line));
+                Cursor := First_Non_Space;
+            end loop;
+            New_Line;
+        end Block;
+    end Help_Text;
+
+    ----------------------------------------------------------------------------
+
     procedure Help_Help (Command_Name : String) is
         use Command_Maps;
         Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
@@ -208,9 +276,9 @@ package body SP.Commands is
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
 
-        Put_Line ("Searches occur across multi-line 'contexts'.  Specify what");
-        Put_Line ("those must include with 'find' commands, and skip contexts");
-        Put_Line ("containing elements with 'exclude' commands.");
+        Help_Text.Block("Searches occur across multi-line 'contexts'.  Specify what "
+            & "those must include with `find-*` commands, and skip contexts "
+            & "containing elements with `exclude-*` commands.");
         New_Line;
 
         Put_Line ("Configurations are loaded from " &
@@ -255,8 +323,10 @@ package body SP.Commands is
                     declare
                         Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
+                        Name    : constant String := ASU.To_String (Target);
                     begin
-                        Command.Help.all (ASU.To_String (Target));
+                        Help_text.Header (Name, ASU.To_String (Command.Simple_Help));
+                        Command.Help.all (Name);
                     end;
                 end if;
             when others =>
@@ -269,13 +339,13 @@ package body SP.Commands is
 
     procedure Reload_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Septum currently doesn't track updates to files to loaded directories.");
-        New_Line;
-        Put_Line ("`reload` provides the means to update all currently loaded files with the "
-                 & "current contents on disk.");
-        New_Line;
-        Put_Line ("`reload` also provides the counterpart to `unload` which is used to drop "
+        Help_Text.Block ("Septum currently doesn't track updates to files to loaded directories.");
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " provides the means to update all currently loaded files with the "
+            & "current contents on disk.");
+        Help_Text.Block (Help_Text.Colorize_Command (Command_Name)
+            & " also provides the counterpart to `unload` which is used to drop "
             & "the file cache.");
     end Reload_Help;
 
@@ -295,12 +365,15 @@ package body SP.Commands is
 
     procedure Unload_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
+        Help_Text.Block ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
             & "for search. When dealing with extremely large amounts of text this "
             & "can interfere with other operations.  Instead of shutting down the "
-            & "program, instead you can `unload` the data set, do whatever operations "
-            & "you need and then `reload` to bring the files back for search."
+            & "program, instead you can "
+            & Help_Text.Colorize_Command (Command_Name)
+            & " the data set, do whatever operations "
+            & "you need and then "
+            & Help_text.Colorize_Command ("reload")
+            & " to bring the files back for search."
         );
     end Unload_Help;
 
@@ -319,7 +392,11 @@ package body SP.Commands is
     procedure Stats_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("Prints statistics about the file cache.");
+        Help_Text.Block (
+            "Septum maintains all search context in memory within the file cache."
+            & " Due to the large amount of text that can be loaded, it can be useful"
+            & " to examine where and how this storage is used"
+        );
     end Stats_Help;
 
     function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -338,15 +415,14 @@ package body SP.Commands is
 
     procedure Source_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Loads and runs commands from a file.");
-        New_Line;
-        Put_Line ("`run` executes septum commands from a file, as-if they were run by a user. "
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " executes septum commands from a file, as-if they were run by a user. "
             & "This provides a mechanism for simple configuration, or re-running specific setups "
             & "for complicated searches."
         );
         New_Line;
-        Put_Line ("`source` is the deprecated alias for `run`.");
+        Help_Text.Block ("`source` is the deprecated alias for `run`.");
     end Source_Help;
 
     function Source_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -390,9 +466,10 @@ package body SP.Commands is
         pragma Unreferenced (Command_Name);
         Put_Line ("Tests arguments against all filters.");
         New_Line;
-        Put_Line ("It can be confusing to know exactly why something is not being filtered. "
+        Help_Text.Block (
+            "It can be confusing to know exactly why something is not being filtered. "
             & "`test` provides a mechanism to see how different filters evaluate against a line of "
-            & "text"
+            & "text."
         );
     end Test_Help;
 
@@ -421,7 +498,8 @@ package body SP.Commands is
         pragma Unreferenced (Command_Name);
         Put_Line ("Adds files to the search list.");
         New_Line;
-        Put_Line ("Normally, directories get added for search, and then every file "
+        Help_Text.Block (
+            "Normally, directories get added for search, and then every file "
             & "is evaluated in turn to decide whether or not it should be loaded."
             & "`add-files` provides a mechanism to add specific files, while not "
             & "loading the containing directory."
@@ -447,10 +525,9 @@ package body SP.Commands is
 
     procedure Add_Dirs_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Adds a directory to the search list.");
-        New_Line;
-        Put_Line ("`add-dirs` is the primary mechanism through which files get added "
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " is the primary mechanism through which files get added "
             & "for search."
         );
     end Add_Dirs_Help;
@@ -686,8 +763,11 @@ package body SP.Commands is
 
     procedure Find_Text_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for.");
+        Help_Text.Block (
+            Help_Text.Colorize_Command (Command_Name)
+            & " provides a case-sensitive search filter.  `file-like` provides "
+            & " a case-insensitive filter."
+        );
     end Find_Text_Help;
 
     function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
@@ -705,7 +785,6 @@ package body SP.Commands is
     procedure Exclude_Text_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for.");
     end Exclude_Text_Help;
 
     function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
