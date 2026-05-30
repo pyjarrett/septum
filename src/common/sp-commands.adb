@@ -30,7 +30,7 @@ package body SP.Commands is
     use Ada.Strings.Unbounded;
     use SP.Output;
 
-    type Help_Proc is not null access procedure;
+    type Help_Proc is not null access procedure (Command_Name : String);
     -- Prints a detailed help description for a command.
 
     type Exec_Proc is not null access function
@@ -200,10 +200,11 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Help is
+    procedure Help_Help (Command_Name : String) is
         use Command_Maps;
         Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
 
@@ -248,14 +249,14 @@ package body SP.Commands is
 
         case Command_Line.Length is
             when 0 =>
-                Help_Help;
+                Help_Help ("help");
             when 1 =>
                 if Command_Map.Contains (Target) then
                     declare
                         Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
                     begin
-                        Command.Help.all;
+                        Command.Help.all (ASU.To_String (Target));
                     end;
                 end if;
             when others =>
@@ -266,8 +267,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Reload_Help is
+    procedure Reload_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Septum currently doesn't track updates to files to loaded directories.");
         New_Line;
         Put_Line ("`reload` provides the means to update all currently loaded files with the "
@@ -291,8 +293,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Unload_Help is
+    procedure Unload_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
             & "for search. When dealing with extremely large amounts of text this "
             & "can interfere with other operations.  Instead of shutting down the "
@@ -313,8 +316,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Stats_Help is
+    procedure Stats_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Prints statistics about the file cache.");
     end Stats_Help;
 
@@ -332,8 +336,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Source_Help is
+    procedure Source_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Loads and runs commands from a file.");
         New_Line;
         Put_Line ("`run` executes septum commands from a file, as-if they were run by a user. "
@@ -380,8 +385,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Test_Help is
+    procedure Test_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Tests arguments against all filters.");
         New_Line;
         Put_Line ("It can be confusing to know exactly why something is not being filtered. "
@@ -410,8 +416,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Add_Files_Help is
+    procedure Add_Files_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Adds files to the search list.");
         New_Line;
         Put_Line ("Normally, directories get added for search, and then every file "
@@ -438,8 +445,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Add_Dirs_Help is
+    procedure Add_Dirs_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Adds a directory to the search list.");
         New_Line;
         Put_Line ("`add-dirs` is the primary mechanism through which files get added "
@@ -464,8 +472,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Dirs_Help is
+    procedure List_Dirs_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("List the directories of the search list.");
     end List_Dirs_Help;
 
@@ -483,8 +492,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Dirs_Help is
+    procedure Clear_Dirs_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Clears all search directories.");
     end Clear_Dirs_Help;
 
@@ -500,8 +510,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Files_Help is
+    procedure Clear_Files_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Clears custom added search files.");
     end Clear_Files_Help;
 
@@ -517,8 +528,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Files_Help is
+    procedure List_Files_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("List the files of the search list.");
         Put_Line ("Supports an optional 'full' argument, otherwise caps the number");
         Put_Line ("of printed files is capped.");
@@ -557,8 +569,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Path_Help is
+    procedure Find_Path_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides path elements to search for.");
     end Find_Path_Help;
 
@@ -574,8 +587,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Path_Help is
+    procedure Exclude_Path_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides path elements to exclude from the search.");
     end Exclude_Path_Help;
 
@@ -591,8 +605,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Add_Extensions_Help is
+    procedure Add_Extensions_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Adds extension to the search list.");
     end Add_Extensions_Help;
 
@@ -611,8 +626,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Extensions_Help is
+    procedure Clear_Extensions_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Clears extension to the search list.");
     end Clear_Extensions_Help;
 
@@ -629,8 +645,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Remove_Extensions_Help is
+    procedure Remove_Extensions_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Removes extension to the search list.");
     end Remove_Extensions_Help;
 
@@ -649,8 +666,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Extensions_Help is
+    procedure List_Extensions_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Lists extensions to filter by.");
     end List_Extensions_Help;
 
@@ -666,8 +684,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Text_Help is
+    procedure Find_Text_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides text to search for.");
     end Find_Text_Help;
 
@@ -683,8 +702,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Text_Help is
+    procedure Exclude_Text_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides text to search for.");
     end Exclude_Text_Help;
 
@@ -700,8 +720,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Like_Help is
+    procedure Find_Like_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides text to search for (case insensitive).");
     end Find_Like_Help;
 
@@ -717,8 +738,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Like_Help is
+    procedure Exclude_Like_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides text to search for (case insensitive).");
     end Exclude_Like_Help;
 
@@ -734,8 +756,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Regex_Help is
+    procedure Find_Regex_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides regex to search for.");
     end Find_Regex_Help;
 
@@ -751,8 +774,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Regex_Help is
+    procedure Exclude_Regex_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Provides Regex to search for.");
     end Exclude_Regex_Help;
 
@@ -768,8 +792,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Line_Filters_Help is
+    procedure List_Line_Filters_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Lists the currently bound line filters.");
     end List_Line_Filters_Help;
 
@@ -788,8 +813,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Path_Filters_Help is
+    procedure List_Path_Filters_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Lists the currently bound path filters.");
     end List_Path_Filters_Help;
 
@@ -808,8 +834,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Reorder_Help is
+    procedure Reorder_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Reorders filters, possibly dropping some of them.");
     end Reorder_Help;
 
@@ -869,8 +896,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Drop_Help is
+    procedure Drop_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Drops given filters, or the most recent filter if non given.");
     end Drop_Help;
 
@@ -918,8 +946,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Pop_Help is
+    procedure Pop_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Pops the last applied filter from the search.");
     end Pop_Help;
 
@@ -937,8 +966,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Line_Filters_Help is
+    procedure Clear_Line_Filters_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Pops all filters.");
     end Clear_Line_Filters_Help;
 
@@ -956,8 +986,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Path_Filters_Help is
+    procedure Clear_Path_Filters_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Removes all path filters.");
     end Clear_Path_Filters_Help;
 
@@ -975,8 +1006,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Match_Contexts_Help is
+    procedure Match_Contexts_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Lists the Contexts currently matching all filters.");
         New_Line;
         Put_Line ("match-contexts        Prints up to max-results results");
@@ -1018,8 +1050,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Match_Files_Help is
+    procedure Match_Files_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Lists files currently matching all filters.");
     end Match_Files_Help;
 
@@ -1071,8 +1104,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Quit_Help is
+    procedure Quit_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Quits this program.");
     end Quit_Help;
 
@@ -1084,8 +1118,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Set_Context_Width_Help is
+    procedure Set_Context_Width_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("List lines matching the current filter.");
     end Set_Context_Width_Help;
 
@@ -1114,8 +1149,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Set_Max_Results_Help is
+    procedure Set_Max_Results_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Sets the maximum number of results which can be returned.");
     end Set_Max_Results_Help;
 
@@ -1148,8 +1184,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Search_On_Filters_Changed_Help is
+    procedure Enable_Search_On_Filters_Changed_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Enables searching automatically when filters are changed.");
     end Enable_Search_On_Filters_Changed_Help;
 
@@ -1163,8 +1200,9 @@ package body SP.Commands is
         return Command_Success;
     end Enable_Search_On_Filters_Changed_Exec;
 
-    procedure Disable_Search_On_Filters_Changed_Help is
+    procedure Disable_Search_On_Filters_Changed_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Disables searching automatically when filters are changed.");
     end Disable_Search_On_Filters_Changed_Help;
 
@@ -1180,8 +1218,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Numbers_Help is
+    procedure Enable_Line_Numbers_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Enables line numbers in context output.");
     end Enable_Line_Numbers_Help;
 
@@ -1195,8 +1234,9 @@ package body SP.Commands is
         return Command_Success;
     end Enable_Line_Numbers_Exec;
 
-    procedure Disable_Line_Numbers_Help is
+    procedure Disable_Line_Numbers_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Disables line numbers in context output.");
     end Disable_Line_Numbers_Help;
 
@@ -1212,8 +1252,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Colors_Help is
+    procedure Enable_Line_Colors_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Enables line colors in context output.");
     end Enable_Line_Colors_Help;
 
@@ -1227,8 +1268,9 @@ package body SP.Commands is
         return Command_Success;
     end Enable_Line_Colors_Exec;
 
-    procedure Disable_Line_Colors_Help is
+    procedure Disable_Line_Colors_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Disables line colors in context output.");
     end Disable_Line_Colors_Help;
 
@@ -1244,8 +1286,9 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Timing_Help is
+    procedure Enable_Timing_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Enables reporting of time it takes to run commands.");
     end Enable_Timing_Help;
 
@@ -1259,8 +1302,9 @@ package body SP.Commands is
         return Command_Success;
     end Enable_Timing_Exec;
 
-    procedure Disable_Timing_Help is
+    procedure Disable_Timing_Help (Command_Name : String) is
     begin
+        pragma Unreferenced (Command_Name);
         Put_Line ("Disables reporting of time it takes to run commands.");
     end Disable_Timing_Help;
 
