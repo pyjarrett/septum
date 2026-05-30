@@ -213,8 +213,8 @@ package body SP.Commands is
         New_Line;
 
         Put_Line ("Configurations are loaded from " &
-            SP.Output.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta));
-        Put_Line ("looking upward from the current directory when Septum is started.");
+            SP.Output.Colorize (SP.Config.Local_Config_Dir_Name & "/" & SP.Config.Config_File_Name, AnsiAda.Magenta)
+            & ".");
 
         if not Global_Config_Dir.Is_Empty then
             Put_Line ("A global config will be loaded from " &
@@ -222,7 +222,7 @@ package body SP.Commands is
                 SP.Config.Global_Config_Dir_Name & "/" & SP.Config.Config_File_Name), AnsiAda.Magenta));
         end if;
         Put_Line ("Commands will be executed from the " & SP.Config.Config_File_Name & " files in these on startup.");
-        Put_Line ("Lines which start with # are ignored.");
+        Put_Line ("Blank lines and lines which start with # are ignored.");
         New_Line;
 
         -- Print commands.
@@ -268,7 +268,13 @@ package body SP.Commands is
 
     procedure Reload_Help is
     begin
-        Put_Line ("Reload help");
+        Put_Line ("Septum currently doesn't track updates to files to loaded directories.");
+        New_Line;
+        Put_Line ("`reload` provides the means to update all currently loaded files with the "
+                 & "current contents on disk.");
+        New_Line;
+        Put_Line ("`reload` also provides the counterpart to `unload` which is used to drop "
+            & "the file cache.");
     end Reload_Help;
 
     function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -287,7 +293,12 @@ package body SP.Commands is
 
     procedure Unload_Help is
     begin
-        Put_Line ("Unload help");
+        Put_Line ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
+            & "for search. When dealing with extremely large amounts of text this "
+            & "can interfere with other operations.  Instead of shutting down the "
+            & "program, instead you can `unload` the data set, do whatever operations "
+            & "you need and then `reload` to bring the files back for search."
+        );
     end Unload_Help;
 
     function Unload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -324,6 +335,13 @@ package body SP.Commands is
     procedure Source_Help is
     begin
         Put_Line ("Loads and runs commands from a file.");
+        New_Line;
+        Put_Line ("`run` executes septum commands from a file, as-if they were run by a user. "
+            & "This provides a mechanism for simple configuration, or re-running specific setups "
+            & "for complicated searches."
+        );
+        New_Line;
+        Put_Line ("`source` is the deprecated alias for `run`.");
     end Source_Help;
 
     function Source_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -365,6 +383,11 @@ package body SP.Commands is
     procedure Test_Help is
     begin
         Put_Line ("Tests arguments against all filters.");
+        New_Line;
+        Put_Line ("It can be confusing to know exactly why something is not being filtered. "
+            & "`test` provides a mechanism to see how different filters evaluate against a line of "
+            & "text"
+        );
     end Test_Help;
 
     function Test_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -390,6 +413,12 @@ package body SP.Commands is
     procedure Add_Files_Help is
     begin
         Put_Line ("Adds files to the search list.");
+        New_Line;
+        Put_Line ("Normally, directories get added for search, and then every file "
+            & "is evaluated in turn to decide whether or not it should be loaded."
+            & "`add-files` provides a mechanism to add specific files, while not "
+            & "loading the containing directory."
+        );
     end Add_Files_Help;
 
     function Add_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -412,6 +441,10 @@ package body SP.Commands is
     procedure Add_Dirs_Help is
     begin
         Put_Line ("Adds a directory to the search list.");
+        New_Line;
+        Put_Line ("`add-dirs` is the primary mechanism through which files get added "
+            & "for search."
+        );
     end Add_Dirs_Help;
 
     function Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
