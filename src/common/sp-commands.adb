@@ -947,7 +947,10 @@ package body SP.Commands is
     procedure Reorder_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("Reorders filters, possibly dropping some of them.");
+
+        Help_Text.Block ("Sometimes you have the right filters, but want to reorder them"
+            & " so it's easier to pop specific ones, or to better organize them. "
+        );
     end Reorder_Help;
 
     function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
@@ -1058,8 +1061,11 @@ package body SP.Commands is
 
     procedure Pop_Help (Command_Name : String) is
     begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Pops the last applied filter from the search.");
+        Help_Text.Block ("Sometimes the filter you just applied is too restrictive"
+            & " or you want to try a different approach. "
+            & Help_Text.Colorize_Command (Command_Name)
+            & " let's you remove the most recently applied line filter."
+        );
     end Pop_Help;
 
     function Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
@@ -1079,7 +1085,8 @@ package body SP.Commands is
     procedure Clear_Line_Filters_Help (Command_Name : String) is
     begin
         pragma Unreferenced (Command_Name);
-        Put_Line ("Pops all filters.");
+        Help_Text.Block ("Removes all line filters, while maintaining currently"
+            & " excluded file extensions and path filters.");
     end Clear_Line_Filters_Help;
 
     function Clear_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
