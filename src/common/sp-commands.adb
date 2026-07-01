@@ -1254,7 +1254,7 @@ begin
 
     -- Actions
 
-    Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
+    Make_Command ("help", "Print commands or help for a specific command.", Help_Help'Access, Help_Exec'Access);
     Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
     Make_Command ("unload", "Unloads the file cache.", Unload_Help'Access, Unload_Exec'Access);
     Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
@@ -1303,7 +1303,7 @@ begin
     -- Path Filtering
 
     Make_Command ("find-path", "Only look in paths containing this.", Find_Path_Help'Access, Find_Path_Exec'Access);
-    Make_Command ("exclude-path", "Exclude paths containing this from the search", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
+    Make_Command ("exclude-path", "Exclude paths containing this from the search.", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
     Make_Command ("clear-path-filters", "Pops all filters.", Clear_Path_Filters_Help'Access, Clear_Path_Filters_Exec'Access);
     Make_Command ("list-path-filters", "Lists all applied path filters.", List_Path_Filters_Help'Access, List_Path_Filters_Exec'Access);
 
@@ -1324,11 +1324,11 @@ begin
          Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
 
     Make_Command
-        ("enable-auto-search", "Search when filters are changed automatically", Enable_Search_On_Filters_Changed_Help'Access,
+        ("enable-auto-search", "Search when filters are changed automatically.", Enable_Search_On_Filters_Changed_Help'Access,
          Enable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
-        ("disable-auto-search", "Turn off search when filters are changed automatically", Disable_Search_On_Filters_Changed_Help'Access,
+        ("disable-auto-search", "Turn off search when filters are changed automatically.", Disable_Search_On_Filters_Changed_Help'Access,
          Disable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
