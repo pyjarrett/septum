@@ -32,8 +32,8 @@ package body SP.Commands is
     use Ada.Strings.Unbounded;
     use SP.Output;
 
-    type Help_Proc is not null access procedure (Command_Name : String);
-    -- Prints a detailed help description for a command.
+    type Help_Proc is not null access procedure;
+    -- Prints a detailed help description for a topic.
 
     type Exec_Proc is not null access function
         (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector)
@@ -287,11 +287,10 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Help (Command_Name : String) is
+    procedure Help_Help is
         use Command_Maps;
         Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
     begin
-        pragma Unreferenced (Command_Name);
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
 
@@ -335,15 +334,14 @@ package body SP.Commands is
 
         case Command_Line.Length is
             when 0 =>
-                Help_Help ("help");
+                Help_Help;
             when 1 =>
                 if Command_Map.Contains (Target) then
                     declare
                         Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
-                        Name    : constant String := ASU.To_String (Target);
                     begin
-                        Command.Help.all (Name);
+                        Command.Help.all;
                     end;
                 end if;
             when others =>
@@ -394,10 +392,10 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Source_Help (Command_Name : String) is
+    procedure Source_Help is
     begin
         Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
+            Help_Text.Colorize_Command ("run")
             & " executes septum commands from a file, as-if they were run by a user. "
             & "This provides a mechanism for simple configuration, or re-running specific setups "
             & "for complicated searches."
@@ -1121,7 +1119,7 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Topic_File_Cache (Unused : String) is
+    procedure Help_Topic_File_Cache is
     begin
         Help_Text.Header ("File Cache", "");
 
@@ -1224,10 +1222,8 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Topic_Line_Filters (Command : String) is
+    procedure Help_Topic_Line_Filters is
     begin
-        pragma Unreferenced (Command);
-
         Help_Text.Header ("Line Filters", "");
 
         Help_Text.Describe_Command(
@@ -1301,10 +1297,8 @@ package body SP.Commands is
 
     end Help_Topic_Line_Filters;
 
-    procedure Help_Topic_Path_Filters (Command_Name : String) is
+    procedure Help_Topic_Path_Filters is
     begin
-        pragma Unreferenced (Command_Name);
-
         Help_Text.Header ("Path Filters");
 
         Help_Text.Block (
@@ -1374,10 +1368,8 @@ package body SP.Commands is
 
     end Help_Topic_Path_Filters;
 
-    procedure Help_Topic_Results (Command : String) is
+    procedure Help_Topic_Results is
     begin
-        pragma Unreferenced (Command);
-
         Help_Text.Header ("Results");
 
         Put_Line ("Lists the Contexts currently matching all filters.");
@@ -1430,10 +1422,8 @@ package body SP.Commands is
         );
     end Help_Topic_Results;
 
-    procedure Help_Topic_System (Command : String) is
+    procedure Help_Topic_System is
     begin
-
-        pragma Unreferenced (Command);
         Help_Text.Block (
             "Septum is designed as a interactive search application. "
             & "In typical usage, the program remains 'live' in the background "
