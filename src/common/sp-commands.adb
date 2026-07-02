@@ -204,8 +204,9 @@ package body SP.Commands is
 
     package Help_Text is
         function Colorize_Command (Command_Name : String) return String;
-        procedure Header (Command_Name : String; Simple_Help : String);
-        procedure Block (Contents : String);
+        procedure Header (Command_Name : String; Simple_Help : String := "");
+        procedure Block (Contents : String; Extra_Space : Boolean := True);
+        procedure Describe_Command (Command_Name : String; Options : String; Description : String);
     end Help_Text;
 
     package body Help_Text is
@@ -214,17 +215,20 @@ package body SP.Commands is
             return "|" & SP.Output.Colorize (Command_Name, AnsiAda.Green) & "|";
         end Colorize_Command;
 
-        procedure Header (Command_Name : String; Simple_Help : String) is
+        procedure Header (Command_Name : String; Simple_Help : String := "") is
         begin
             New_Line;
             Put_Line ("-------------------------------------------------------");
             Put_Line (Colorize_Command (Command_Name));
             Put_Line ("-------------------------------------------------------");
-            Put_Line (Simple_Help);
+
+            if Simple_Help'Length > 0 then
+                Put_Line (Simple_Help);
+            end if;
             New_Line;
         end Header;
 
-        procedure Block (Contents : String) is
+        procedure Block (Contents : String; Extra_Space : Boolean := True) is
             Width : constant := 80;
             Cursor : Positive := Contents'First;
             Last_In_Line : Positive;
@@ -262,8 +266,23 @@ package body SP.Commands is
                 Put_Line (Contents (Cursor .. Last_In_Line));
                 Cursor := First_Non_Space;
             end loop;
-            New_Line;
+
+            if Extra_Space then
+                New_Line;
+            end if;
         end Block;
+
+        procedure Describe_Command (Command_Name : String; Options : String; Description : String) is
+            Spacer : constant String (1 .. 18 - Command_Name'Length) := (others => ' ');
+        begin
+            Block (
+                Colorize_Command (Command_Name)
+                & Spacer
+                & " " & Options
+                & "   " & Description,
+                Extra_Space => False
+            );
+        end Describe_Command;
     end Help_Text;
 
     ----------------------------------------------------------------------------
@@ -324,7 +343,6 @@ package body SP.Commands is
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
                         Name    : constant String := ASU.To_String (Target);
                     begin
-                        Help_Text.Header (Name, ASU.To_String (Command.Simple_Help));
                         Command.Help.all (Name);
                     end;
                 end if;
@@ -422,16 +440,6 @@ package body SP.Commands is
     end Source_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Test_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "It can be confusing to know exactly why something is not being filtered. "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " provides a mechanism to see how different filters evaluate against"
-            & " a line of text."
-        );
-    end Test_Help;
 
     function Test_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -558,16 +566,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Path_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "All files are considered during the search, unless specific paths"
-            & " are requested to be found. "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " restricts the search to only files which match this filter."
-        );
-    end Find_Path_Help;
-
     function Find_Path_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -580,12 +578,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Path_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides path elements to exclude from the search.");
-    end Exclude_Path_Help;
-
     function Exclude_Paths_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -597,12 +589,6 @@ package body SP.Commands is
     end Exclude_Paths_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Add_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Adds extension to the search list.");
-    end Add_Extensions_Help;
 
     function Add_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -619,12 +605,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears extension to the search list.");
-    end Clear_Extensions_Help;
-
     function Clear_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -637,12 +617,6 @@ package body SP.Commands is
     end Clear_Extensions_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Remove_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Removes extension to the search list.");
-    end Remove_Extensions_Help;
 
     function Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -658,12 +632,6 @@ package body SP.Commands is
     end Remove_Extensions_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists extensions to filter by.");
-    end List_Extensions_Help;
 
     function List_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Extensions : constant String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
@@ -763,12 +731,6 @@ package body SP.Commands is
     end List_Line_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Path_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the currently bound path filters.");
-    end List_Path_Filters_Help;
 
     function List_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.Path_Filter_Names (Srch);
@@ -912,12 +874,6 @@ package body SP.Commands is
     end Clear_Line_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Clear_Path_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Removes all path filters.");
-    end Clear_Path_Filters_Help;
 
     function Clear_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1367,15 +1323,18 @@ package body SP.Commands is
     begin
         pragma Unreferenced (Command);
 
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("find-text")
-            & " provides a case-sensitive search filter."
+        Help_Text.Header ("Line Filters", "");
+
+        Help_Text.Describe_Command(
+            "find-text",
+            "TEXT...",
+            "provides a case-sensitive search filter."
         );
 
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("find-like")
-            & " provides a case-insensitive filter."
-        );
+        Help_Text.Describe_Command (
+            "find-like",
+            "TEXT...",
+            "provides a case-insensitive filter.");
 
         Help_Text.Block (
             "Each space separated text parameter to "
@@ -1428,7 +1387,87 @@ package body SP.Commands is
             & " let's you remove the most recently applied line filter."
         );
 
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("test")
+            & " provides a mechanism to see why a specific line is getting"
+            & " matched or excluded from a search.  This command shows how "
+            & " each filter matches against a line of text."
+        );
+
     end Help_Topic_Line_Filters;
+
+    procedure Help_Topic_Path_Filters (Command_Name : String) is
+    begin
+        pragma Unreferenced (Command_Name);
+
+        Help_Text.Header ("Path Filters");
+
+        Help_Text.Block (
+            "All files are considered during the search, unless specific paths"
+            & " are requested to be found. "
+            & Help_Text.Colorize_Command ("find-path")
+            & " restricts the search to only files which match this filter."
+        );
+
+        Help_Text.Block (
+            "Path filtering occurs at both the path and the extension level."
+            & " Paths containing specific elements can be removed, and the results"
+            & " can also be tailored to only produce results which match specific"
+            & " file extensions."
+        );
+
+        Help_Text.Block (
+            "All paths are considered search candidates unless a find-path is"
+            & " provided.  This means "
+            & Help_text.Colorize_Command ("exclude-path")
+            & " can be used as an axe to more easily shave off entire portions"
+            & " of the search space."
+        );
+
+        Help_Text.Describe_Command(
+            "clear-exts",
+            "",
+            "Clears extension filters."
+        );
+
+        Help_Text.Describe_Command(
+            "clear-path-filters",
+            "",
+            "Removes all path filters."
+        );
+
+        Help_Text.Describe_Command(
+            "exclude-path",
+            "",
+            "Provides path elements to exclude from the search."
+        );
+
+
+        Help_Text.Describe_Command (
+            "list-exts",
+            "",
+            "Lists extensions to filter by."
+        );
+
+        Help_Text.Describe_Command(
+            "list-path-filters",
+            "",
+            "Lists the currently bound path filters."
+        );
+
+        Help_Text.Describe_Command(
+            "only-exts",
+            "",
+            "Adds extension to the search list."
+        );
+
+        Help_Text.Describe_Command(
+            "remove-exts",
+            "",
+            "Removes extension from the search list."
+        );
+
+    end Help_Topic_Path_Filters;
 
     ----------------------------------------------------------------------------
 
@@ -1466,7 +1505,6 @@ begin
 
     Make_Command ("source", "[DEPRECATED] Loads a configuration from file. Use 'run' instead.", Source_Help'Access, Source_Exec'Access);
     Make_Command ("run", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
-    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
 
     -- Filters
 
@@ -1482,6 +1520,7 @@ begin
     Make_Command ("pop", "Pops the last applied filter.", Help_Topic_Line_Filters'Access, Pop_Exec'Access);
     Make_Command ("clear-line-filters", "Pops all filters.", Help_Topic_Line_Filters'Access, Clear_Line_Filters_Exec'Access);
     Make_Command ("list-line-filters", "Lists all applied line filters.", Help_Topic_Line_Filters'Access, List_Line_Filters_Exec'Access);
+    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Help_Topic_Line_Filters'Access, Test_Exec'Access);
 
     -- Results
 
@@ -1491,22 +1530,6 @@ begin
     Make_Command
         ("match-files", "Lists files matching the current filter.", Match_Files_Help'Access,
          Match_Files_Exec'Access);
-
-    -- Path Filtering
-
-    Make_Command ("find-path", "Only look in paths containing this.", Find_Path_Help'Access, Find_Path_Exec'Access);
-    Make_Command ("exclude-path", "Exclude paths containing this from the search", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
-    Make_Command ("clear-path-filters", "Pops all filters.", Clear_Path_Filters_Help'Access, Clear_Path_Filters_Exec'Access);
-    Make_Command ("list-path-filters", "Lists all applied path filters.", List_Path_Filters_Help'Access, List_Path_Filters_Exec'Access);
-
-    Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
-    Make_Command
-        ("remove-exts", "Removes an extension filter from the search.", Remove_Extensions_Help'Access,
-         Remove_Extensions_Exec'Access);
-    Make_Command ("clear-exts", "Clears extension filters.", Clear_Extensions_Help'Access, Clear_Extensions_Exec'Access);
-    Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
-
-    -- Settings
 
     Make_Command
         ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
@@ -1518,7 +1541,6 @@ begin
     Make_Command
         ("enable-auto-search", "Search when filters are changed automatically", Enable_Search_On_Filters_Changed_Help'Access,
          Enable_Search_On_Filters_Changed_Exec'Access);
-
     Make_Command
         ("disable-auto-search", "Turn off search when filters are changed automatically", Disable_Search_On_Filters_Changed_Help'Access,
          Disable_Search_On_Filters_Changed_Exec'Access);
@@ -1537,6 +1559,21 @@ begin
         ("disable-line-colors", "Disables colorizing lines with matches.", Disable_Line_Colors_Help'Access,
          Disable_Line_Colors_Exec'Access);
 
+    -- Path Filtering
+
+    Make_Command ("find-path", "Only look in paths containing this.", Help_Topic_Path_Filters'Access, Find_Path_Exec'Access);
+    Make_Command ("exclude-path", "Exclude paths containing this from the search", Help_Topic_Path_Filters'Access, Exclude_Paths_Exec'Access);
+    Make_Command ("clear-path-filters", "Pops all filters.", Help_Topic_Path_Filters'Access, Clear_Path_Filters_Exec'Access);
+    Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topic_Path_Filters'Access, List_Path_Filters_Exec'Access);
+
+    Make_Command ("only-exts", "Adds extensions to find results in.", Help_Topic_Path_Filters'Access, Add_Extensions_Exec'Access);
+    Make_Command
+        ("remove-exts", "Removes an extension filter from the search.", Help_Topic_Path_Filters'Access,
+         Remove_Extensions_Exec'Access);
+    Make_Command ("clear-exts", "Clears extension filters.", Help_Topic_Path_Filters'Access, Clear_Extensions_Exec'Access);
+    Make_Command ("list-exts", "List current extensions.", Help_Topic_Path_Filters'Access, List_Extensions_Exec'Access);
+
+    -- Settings
     Make_Command
         ("enable-timing", "Enables timing of command run time.", Enable_Timing_Help'Access,
          Enable_Timing_Exec'Access);
