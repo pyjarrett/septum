@@ -889,16 +889,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Match_Contexts_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the Contexts currently matching all filters.");
-        New_Line;
-        Put_Line ("match-contexts        Prints up to max-results results");
-        Put_Line ("match-contexts N      Prints the first N results");
-        Put_Line ("match-contexts M N    Prints the M ... N results");
-    end Match_Contexts_Help;
-
     function Match_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         First    : Positive := 1;
@@ -932,16 +922,6 @@ package body SP.Commands is
     end Match_Contexts_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Match_Files_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " lists all files which match the current filters. "
-            & "This command is particularly useful to determine if path filters "
-            & "would be effective to cull search results. "
-        );
-    end Match_Files_Help;
 
     function Match_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
@@ -991,21 +971,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Quit_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "Septum is designed as a interactive search application. "
-            & "In typical usage, the program remains 'live' in the background "
-            & "in a separate tmux tab or terminal."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("reload")
-            & " is needed to update text files during heavy edits or when "
-            & " rebasing during the day."
-        );
-    end Quit_Help;
-
     function Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         pragma Unreferenced (Srch, Command_Line);
@@ -1013,12 +978,6 @@ package body SP.Commands is
     end Quit_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Set_Context_Width_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("List lines matching the current filter.");
-    end Set_Context_Width_Help;
 
     function Set_Context_Width_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Context_Width : Natural := 0;
@@ -1044,12 +1003,6 @@ package body SP.Commands is
     end Set_Context_Width_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Set_Max_Results_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Sets the maximum number of results which can be returned.");
-    end Set_Max_Results_Help;
 
     function Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Max_Results : Natural := SP.Searches.No_Max_Results;
@@ -1080,12 +1033,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Search_On_Filters_Changed_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables searching automatically when filters are changed.");
-    end Enable_Search_On_Filters_Changed_Help;
-
     function Enable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1095,12 +1042,6 @@ package body SP.Commands is
         SP.Searches.Set_Search_On_Filters_Changed (Srch, True);
         return Command_Success;
     end Enable_Search_On_Filters_Changed_Exec;
-
-    procedure Disable_Search_On_Filters_Changed_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables searching automatically when filters are changed.");
-    end Disable_Search_On_Filters_Changed_Help;
 
     function Disable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1114,12 +1055,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Numbers_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables line numbers in context output.");
-    end Enable_Line_Numbers_Help;
-
     function Enable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1129,12 +1064,6 @@ package body SP.Commands is
         SP.Searches.Set_Print_Line_Numbers (Srch, True);
         return Command_Success;
     end Enable_Line_Numbers_Exec;
-
-    procedure Disable_Line_Numbers_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables line numbers in context output.");
-    end Disable_Line_Numbers_Help;
 
     function Disable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1148,12 +1077,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Colors_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables line colors in context output.");
-    end Enable_Line_Colors_Help;
-
     function Enable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1163,12 +1086,6 @@ package body SP.Commands is
         SP.Searches.Set_Line_Colors_Enabled (Srch, True);
         return Command_Success;
     end Enable_Line_Colors_Exec;
-
-    procedure Disable_Line_Colors_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables line colors in context output.");
-    end Disable_Line_Colors_Help;
 
     function Disable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1182,12 +1099,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Timing_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables reporting of time it takes to run commands.");
-    end Enable_Timing_Help;
-
     function Enable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1197,12 +1108,6 @@ package body SP.Commands is
         SP.Searches.Set_Show_Timings (Srch, True);
         return Command_Success;
     end Enable_Timing_Exec;
-
-    procedure Disable_Timing_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables reporting of time it takes to run commands.");
-    end Disable_Timing_Help;
 
     function Disable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1469,6 +1374,89 @@ package body SP.Commands is
 
     end Help_Topic_Path_Filters;
 
+    procedure Help_Topic_Results (Command : String) is
+    begin
+        pragma Unreferenced (Command);
+
+        Help_Text.Header ("Results");
+
+        Put_Line ("Lists the Contexts currently matching all filters.");
+        New_Line;
+        Put_Line ("match-contexts        Prints up to max-results results");
+        Put_Line ("match-contexts N      Prints the first N results");
+        Put_Line ("match-contexts M N    Prints the M ... N results");
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("match-files")
+            & " lists all files which match the current filters. "
+            & "This command is particularly useful to determine if path filters "
+            & "would be effective to cull search results. "
+        );
+
+        Help_Text.Block (
+            "Due to partial matching of commands, the abbreviated versions"
+            & " of match commands are often used instead of the full ones."
+        );
+
+
+        Help_Text.Describe_Command (
+            "set-context-width",
+            "[COUNT]",
+            "Sets the number of lines form the search neighborhood above and below a search term."
+        );
+
+        Help_Text.Describe_Command (
+            "set-max-results",
+            "[COUNT]",
+            "Sets the maximum results printed before truncating."
+        );
+
+        Help_Text.Describe_Command (
+            "enable-auto-search",
+            "",
+            "Automatically search when filters are updated."
+        );
+
+        Help_Text.Describe_Command (
+            "enable-line-numbers",
+            "",
+            "Whether to print line numbers in results."
+        );
+
+        Help_Text.Describe_Command (
+            "enable-line-colors",
+            "",
+            "Whether to colorize lines with found search terms."
+        );
+    end Help_Topic_Results;
+
+    procedure Help_Topic_System (Command : String) is
+    begin
+
+        pragma Unreferenced (Command);
+        Help_Text.Block (
+            "Septum is designed as a interactive search application. "
+            & "In typical usage, the program remains 'live' in the background "
+            & "in a separate tmux tab or terminal."
+        );
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("reload")
+            & " is needed to update text files during heavy edits or when "
+            & " rebasing during the day."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("enable-timing")
+            & " enables reporting of time it takes to run commands."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("disable-timing")
+            & " disables reporting of time it takes to run commands."
+        );
+
+    end Help_Topic_System;
+
     ----------------------------------------------------------------------------
 
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
@@ -1525,38 +1513,38 @@ begin
     -- Results
 
     Make_Command
-        ("match-contexts", "Lists contexts matching the current filter.", Match_Contexts_Help'Access,
+        ("match-contexts", "Lists contexts matching the current filter.", Help_Topic_Results'Access,
          Match_Contexts_Exec'Access);
     Make_Command
-        ("match-files", "Lists files matching the current filter.", Match_Files_Help'Access,
+        ("match-files", "Lists files matching the current filter.", Help_Topic_Results'Access,
          Match_Files_Exec'Access);
 
     Make_Command
-        ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
+        ("set-context-width", "Sets the width of the context in which to find matches.", Help_Topic_Results'Access,
          Set_Context_Width_Exec'Access);
     Make_Command
         ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.",
-         Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
+         Help_Topic_Results'Access, Set_Max_Results_Exec'Access);
 
     Make_Command
-        ("enable-auto-search", "Search when filters are changed automatically", Enable_Search_On_Filters_Changed_Help'Access,
+        ("enable-auto-search", "Search when filters are changed automatically", Help_Topic_Results'Access,
          Enable_Search_On_Filters_Changed_Exec'Access);
     Make_Command
-        ("disable-auto-search", "Turn off search when filters are changed automatically", Disable_Search_On_Filters_Changed_Help'Access,
+        ("disable-auto-search", "Turn off search when filters are changed automatically", Help_Topic_Results'Access,
          Disable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
-        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Enable_Line_Numbers_Help'Access,
+        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Help_Topic_Results'Access,
          Enable_Line_Numbers_Exec'Access);
     Make_Command
-        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Disable_Line_Numbers_Help'Access,
+        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Help_Topic_Results'Access,
          Disable_Line_Numbers_Exec'Access);
 
     Make_Command
-        ("enable-line-colors", "Enables colorizing lines with matches.", Enable_Line_Colors_Help'Access,
+        ("enable-line-colors", "Enables colorizing lines with matches.", Help_Topic_Results'Access,
          Enable_Line_Colors_Exec'Access);
     Make_Command
-        ("disable-line-colors", "Disables colorizing lines with matches.", Disable_Line_Colors_Help'Access,
+        ("disable-line-colors", "Disables colorizing lines with matches.", Help_Topic_Results'Access,
          Disable_Line_Colors_Exec'Access);
 
     -- Path Filtering
@@ -1575,14 +1563,14 @@ begin
 
     -- Settings
     Make_Command
-        ("enable-timing", "Enables timing of command run time.", Enable_Timing_Help'Access,
+        ("enable-timing", "Enables timing of command run time.", Help_Topic_System'Access,
          Enable_Timing_Exec'Access);
     Make_Command
-        ("disable-timing", "Disables timing of command run time.", Disable_Timing_Help'Access,
+        ("disable-timing", "Disables timing of command run time.", Help_Topic_System'Access,
          Disable_Timing_Exec'Access);
 
     -- Quit
 
-    Make_Command ("quit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
-    Make_Command ("exit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
+    Make_Command ("quit", "Exits the search program.", Help_Topic_System'Access, Quit_Exec'Access);
+    Make_Command ("exit", "Exits the search program.", Help_Topic_System'Access, Quit_Exec'Access);
 end SP.Commands;
