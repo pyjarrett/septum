@@ -336,22 +336,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Reload_Help (Command_Name : String) is
-    begin
-        Help_Text.Block ("Septum currently doesn't track updates to files to "
-            & "loaded directories."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides the means to update all currently loaded files with the "
-            & "current contents on disk."
-        );
-        Help_Text.Block (Help_Text.Colorize_Command (Command_Name)
-            & " also provides the counterpart to `unload` which is used to drop "
-            & "the file cache."
-        );
-    end Reload_Help;
-
     function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -366,20 +350,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Unload_Help (Command_Name : String) is
-    begin
-        Help_Text.Block ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
-            & "for search. When dealing with extremely large amounts of text this "
-            & "can interfere with other operations.  Instead of shutting down the "
-            & "program, instead you can "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " the data set, do whatever operations "
-            & "you need and then "
-            & Help_text.Colorize_Command ("reload")
-            & " to bring the files back for search."
-        );
-    end Unload_Help;
-
     function Unload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -391,16 +361,6 @@ package body SP.Commands is
     end Unload_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Stats_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "Septum maintains all search context in memory within the file cache. "
-            & "Due to the large amount of text that can be loaded, it can be useful "
-            & "to examine where and how this storage is used. "
-        );
-    end Stats_Help;
 
     function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -493,21 +453,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Add_Files_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "Normally, directories get added for search, and then every file "
-            & "is evaluated in turn to decide whether or not it should be loaded."
-            & "`add-files` provides a mechanism to add specific files, while not "
-            & "loading the containing directory."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides a mechanism for target loads, such as for logfiles, "
-            & " or otherwise isolated files."
-        );
-    end Add_Files_Help;
-
     function Add_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
@@ -524,26 +469,6 @@ package body SP.Commands is
     end Add_Files_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Add_Dirs_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " is the primary mechanism through which files get added "
-            & "for search."
-        );
-        Help_Text.Block (
-            "Adding directories causes septum to recursively add every file "
-            & " which looks like text to the search pool.  ""Looks like"" covers "
-            & "popularly known extensions (.txt, .cpp, .rs, etc.) while "
-            & "ignoring other known binary extensions (.jpg, .png, .zip). "
-        );
-        Help_Text.Block (
-            "If a file's extensions don't match the built-in filters, then "
-            & "the first 4 KiB of characters are loaded and the file is "
-            & "considered text if a null byte is not found."
-        );
-    end Add_Dirs_Help;
 
     function Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -562,12 +487,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Dirs_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("List the directories of the search list.");
-    end List_Dirs_Help;
-
     function List_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -582,12 +501,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Dirs_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears all search directories.");
-    end Clear_Dirs_Help;
-
     function Clear_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -600,12 +513,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Files_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears custom added search files.");
-    end Clear_Files_Help;
-
     function Clear_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -617,16 +524,6 @@ package body SP.Commands is
     end Clear_Files_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Files_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "List the files of the search list."
-            & " Supports an optional 'full' argument, otherwise the number"
-            & " of printed files is capped."
-        );
-    end List_Files_Help;
 
     function List_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Full : Boolean := False;
@@ -1450,6 +1347,109 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Help_Topic_File_Cache (Unused : String) is
+    begin
+        Help_Text.Header ("File Cache", "");
+
+        Help_Text.Block (
+            "Septum maintains files and directory contents in memory to speed"
+            & " searches.  Anecdotally, this results in ~100 MiB per 1 million"
+            & " lines of code."
+        );
+
+
+        Help_Text.Block (
+            "Adding directories causes septum to recursively add every file"
+            & " which looks like text to the search pool. ""Looks like"" covers "
+            & "popularly known extensions (.txt, .cpp, .rs, etc.) while "
+            & "ignoring other known binary extensions (.jpg, .png, .zip). "
+        );
+        Help_Text.Block (
+            "If a file's extensions don't match the built-in filters, then "
+            & "the first 4 KiB of characters are loaded and the file is "
+            & "considered text if a null byte is not found."
+        );
+
+        Help_Text.Block (
+            "Normally, directories get added for search, and then every file "
+            & "is evaluated in turn to decide whether or not it should be loaded."
+            & "`add-files` provides a mechanism to add specific files, while not "
+            & "loading the containing directory."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("add-dirs")
+            & " is the primary mechanism through which files get added "
+            & "for search."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("add-files")
+            & " provides a mechanism for target loads, such as for logfiles,"
+            & " or otherwise isolated files."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("clear-dirs")
+            & " removes all search directories and their contents from the file cache."
+            & " Files added directly via " & Help_Text.Colorize_Command ("add-files")
+            & " are not affected."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("clear-files")
+            & " removes files directly added to the file cache.  Files discovered "
+            & " by recursive directory search are unaffected."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("list-dirs")
+            & " lists all directories which recursively get traversed looking"
+            & " for files to add to the file cache."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("list-files")
+            & "List the files of the search list."
+            & " Supports an optional 'full' argument, otherwise the number"
+            & " of printed files is capped."
+        );
+
+        Help_Text.Block ("Septum currently doesn't track updates to files to "
+            & "loaded directories."
+        );
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("reload")
+            & " provides the means to update all currently loaded files with the "
+            & "current contents on disk."
+        );
+        Help_Text.Block (Help_Text.Colorize_Command ("reload")
+            & " also provides the counterpart to `unload` which is used to drop "
+            & "the file cache."
+        );
+
+
+        Help_Text.Block ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
+            & "for search. When dealing with extremely large amounts of text this "
+            & "can interfere with other operations.  Instead of shutting down the "
+            & "program, instead you can "
+            & Help_Text.Colorize_Command ("unload")
+            & " the data set, do whatever operations "
+            & "you need and then "
+            & Help_text.Colorize_Command ("reload")
+            & " to bring the files back for search.");
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("stats")
+            & " septum maintains all search context in memory within the file cache. "
+            & "Due to the large amount of text that can be loaded, it can be useful "
+            & "to examine where and how this storage is used. "
+        );
+
+    end Help_Topic_File_Cache;
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -1459,12 +1459,29 @@ package body SP.Commands is
 
 begin
 
-    -- Actions
+    -- Commands
 
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
-    Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
-    Make_Command ("unload", "Unloads the file cache.", Unload_Help'Access, Unload_Exec'Access);
-    Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
+
+    -- File Cache
+
+    Make_Command ("add-files", "Adds files to the search list.", Help_Topic_File_Cache'Access, Add_Files_Exec'Access);
+    Make_Command ("add-dirs", "Adds directory to the search list.", Help_Topic_File_Cache'Access, Add_Dirs_Exec'Access);
+    Make_Command
+        ("list-dirs", "List the directories in the search list.", Help_Topic_File_Cache'Access, List_Dirs_Exec'Access);
+    Make_Command
+        ("clear-dirs", "Removes all directories from the search list.", Help_Topic_File_Cache'Access, Clear_Dirs_Exec'Access);
+    Make_Command
+        ("clear-files", "Removes all custom added files from the search list.", Help_Topic_File_Cache'Access, Clear_Files_Exec'Access);
+    Make_Command
+        ("list-files", "List the files in the search list.", Help_Topic_File_Cache'Access, List_Files_Exec'Access);
+
+    Make_Command ("reload", "Reloads the file cache.", Help_Topic_File_Cache'Access, Reload_Exec'Access);
+    Make_Command ("unload", "Unloads the file cache.", Help_Topic_File_Cache'Access, Unload_Exec'Access);
+    Make_Command ("stats", "Print file cache statistics.", Help_Topic_File_Cache'Access, Stats_Exec'Access);
+
+    --
+
     Make_Command ("source", "[DEPRECATED] Loads a configuration from file. Use 'run' instead.", Source_Help'Access, Source_Exec'Access);
     Make_Command ("run", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
     Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
@@ -1492,20 +1509,6 @@ begin
     Make_Command
         ("match-files", "Lists files matching the current filter.", Match_Files_Help'Access,
          Match_Files_Exec'Access);
-
-    -- Global configuration
-
-    Make_Command ("add-files", "Adds files to the search list.", Add_Files_Help'Access, Add_Files_Exec'Access);
-    Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
-    Make_Command
-        ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
-    Make_Command
-        ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
-    Make_Command
-        ("clear-files", "Removes all custom added files from the search list.", Clear_Files_Help'Access, Clear_Files_Exec'Access);
-
-    Make_Command
-        ("list-files", "List the files in the search list.", List_Files_Help'Access, List_Files_Exec'Access);
 
     -- Path Filtering
 
