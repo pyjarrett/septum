@@ -677,27 +677,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Text_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides a case-sensitive search filter."
-            & Help_Text.Colorize_Command ("find-like")
-            & " provides a case-insensitive filter."
-        );
-        Help_Text.Block (
-            "Each space separated text parameter to "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " is treated as an additional filter. This supports applying "
-            & "multiple text filters and then being able to manipulate individual "
-            & "ones using commands like "
-            & Help_Text.Colorize_Command ("drop")
-            & " and "
-            & Help_Text.Colorize_Command ("reorder")
-            & "."
-        );
-    end Find_Text_Help;
-
     function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -709,11 +688,6 @@ package body SP.Commands is
     end Find_Text_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Exclude_Text_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-    end Exclude_Text_Help;
 
     function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -727,12 +701,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Like_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for (case insensitive).");
-    end Find_Like_Help;
-
     function Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -744,12 +712,6 @@ package body SP.Commands is
     end Find_Like_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Exclude_Like_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for (case insensitive).");
-    end Exclude_Like_Help;
 
     function Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -763,12 +725,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Regex_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides regex to search for.");
-    end Find_Regex_Help;
-
     function Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -781,12 +737,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Regex_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides Regex to search for.");
-    end Exclude_Regex_Help;
-
     function Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -798,12 +748,6 @@ package body SP.Commands is
     end Exclude_Regex_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Line_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the currently bound line filters.");
-    end List_Line_Filters_Help;
 
     function List_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
@@ -840,15 +784,6 @@ package body SP.Commands is
     end List_Path_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Reorder_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-
-        Help_Text.Block ("Sometimes you have the right filters, but want to reorder them"
-            & " so it's easier to pop specific ones, or to better organize them. "
-        );
-    end Reorder_Help;
 
     function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
         Index : Positive := Positive'Last;
@@ -906,12 +841,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Drop_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Drops given filters, or the most recent filter if non given.");
-    end Drop_Help;
-
     function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
@@ -956,15 +885,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Pop_Help (Command_Name : String) is
-    begin
-        Help_Text.Block ("Sometimes the filter you just applied is too restrictive"
-            & " or you want to try a different approach. "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " let's you remove the most recently applied line filter."
-        );
-    end Pop_Help;
-
     function Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -978,13 +898,6 @@ package body SP.Commands is
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Clear_Line_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block ("Removes all line filters, while maintaining currently"
-            & " excluded file extensions and path filters.");
-    end Clear_Line_Filters_Help;
 
     function Clear_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1450,6 +1363,75 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    procedure Help_Topic_Line_Filters (Command : String) is
+    begin
+        pragma Unreferenced (Command);
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("find-text")
+            & " provides a case-sensitive search filter."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("find-like")
+            & " provides a case-insensitive filter."
+        );
+
+        Help_Text.Block (
+            "Each space separated text parameter to "
+            & Help_Text.Colorize_Command ("find-text")
+            & " is treated as an additional filter. This supports applying "
+            & "multiple text filters and then being able to manipulate individual "
+            & "ones using commands like "
+            & Help_Text.Colorize_Command ("drop")
+            & " and "
+            & Help_Text.Colorize_Command ("reorder")
+            & "."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("exclude-regex")
+            & " provides a regex to exclude."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("find-regex")
+            & " provides a regex to search for."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("clear-line-filters")
+            & " Removes all line filters, while maintaining currently"
+            & " excluded file extensions and path filters."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("list-line-filters")
+            & " provides a case-insensitive filter."
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("reorder")
+            & " Sometimes you have the right filters, but want to reorder them"
+            & " so it's easier to pop specific ones, or to better organize them. "
+        );
+
+        Help_Text.Block(
+            Help_Text.Colorize_Command ("drop")
+            & " drops given filters, or the most recent filter if non given."
+        );
+
+        Help_Text.Block (
+            Help_Text.Colorize_Command ("pop")
+            & " sometimes the filter you just applied is too restrictive"
+            & " or you want to try a different approach. "
+            & " let's you remove the most recently applied line filter."
+        );
+
+    end Help_Topic_Line_Filters;
+
+    ----------------------------------------------------------------------------
+
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -1488,18 +1470,18 @@ begin
 
     -- Filters
 
-    Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
-    Make_Command ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
-    Make_Command ("find-like", "Adds filter text (case insensitive).", Find_Like_Help'Access, Find_Like_Exec'Access);
-    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Exclude_Like_Help'Access, Exclude_Like_Exec'Access);
-    Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
-    Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("find-text", "Adds filter text.", Help_Topic_Line_Filters'Access, Find_Text_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude.", Help_Topic_Line_Filters'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-like", "Adds filter text (case insensitive).", Help_Topic_Line_Filters'Access, Find_Like_Exec'Access);
+    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topic_Line_Filters'Access, Exclude_Like_Exec'Access);
+    Make_Command ("find-regex", "Adds filter regex.", Help_Topic_Line_Filters'Access, Find_Regex_Exec'Access);
+    Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topic_Line_Filters'Access, Exclude_Regex_Exec'Access);
 
-    Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
-    Make_Command ("drop", "Drops the filters at the given indices.", Drop_Help'Access, Drop_Exec'Access);
-    Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
-    Make_Command ("clear-line-filters", "Pops all filters.", Clear_Line_Filters_Help'Access, Clear_Line_Filters_Exec'Access);
-    Make_Command ("list-line-filters", "Lists all applied line filters.", List_Line_Filters_Help'Access, List_Line_Filters_Exec'Access);
+    Make_Command ("reorder", "Reorder filters by index.", Help_Topic_Line_Filters'Access, Reorder_Exec'Access);
+    Make_Command ("drop", "Drops the filters at the given indices.", Help_Topic_Line_Filters'Access, Drop_Exec'Access);
+    Make_Command ("pop", "Pops the last applied filter.", Help_Topic_Line_Filters'Access, Pop_Exec'Access);
+    Make_Command ("clear-line-filters", "Pops all filters.", Help_Topic_Line_Filters'Access, Clear_Line_Filters_Exec'Access);
+    Make_Command ("list-line-filters", "Lists all applied line filters.", Help_Topic_Line_Filters'Access, List_Line_Filters_Exec'Access);
 
     -- Results
 
