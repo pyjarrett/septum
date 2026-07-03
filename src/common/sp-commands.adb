@@ -17,12 +17,11 @@
 with Ada.Calendar;
 with Ada.Containers.Ordered_Maps;
 with Ada.Directories;
-with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
 with AnsiAda;
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;
+with SP.Help.Topics;
 with SP.Platform;
 with SP.Output;
 
@@ -202,91 +201,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    package Help_Text is
-        function Colorize_Command (Command_Name : String) return String;
-        procedure Header (Command_Name : String; Simple_Help : String := "");
-        procedure Block (Contents : String; Extra_Space : Boolean := True);
-        procedure Describe_Command (Command_Name : String; Options : String; Description : String);
-    end Help_Text;
-
-    package body Help_Text is
-        function Colorize_Command (Command_Name : String) return String is
-        begin
-            return "|" & SP.Output.Colorize (Command_Name, AnsiAda.Green) & "|";
-        end Colorize_Command;
-
-        procedure Header (Command_Name : String; Simple_Help : String := "") is
-        begin
-            New_Line;
-            Put_Line ("-------------------------------------------------------");
-            Put_Line (Colorize_Command (Command_Name));
-            Put_Line ("-------------------------------------------------------");
-
-            if Simple_Help'Length > 0 then
-                Put_Line (Simple_Help);
-            end if;
-            New_Line;
-        end Header;
-
-        procedure Block (Contents : String; Extra_Space : Boolean := True) is
-            Width : constant := 80;
-            Cursor : Positive := Contents'First;
-            Last_In_Line : Positive;
-
-            -- Terminates lines early to avoid overfilling a line past the limit.
-            function Last_Space return Natural is
-            begin
-                if Cursor + Width >= Contents'Last then
-                    return Contents'Last;
-                end if;
-
-                return Ada.Strings.Fixed.Index (
-                    Source => Contents,
-                    Set => Ada.Strings.Maps.To_Set (Ada.Strings.Space),
-                    From => Positive'Min (Cursor + Width, Contents'Last), -- tries to fill the entire line.
-                    Test => Ada.Strings.Inside,
-                    Going => Ada.Strings.Backward);
-            end Last_Space;
-
-            function First_Non_Space return Natural is
-            begin
-                if Last_In_Line + 1 >= Contents'Last then
-                    return Last_In_Line + 1;
-                end if;
-
-                return Ada.Strings.Fixed.Index_Non_Blank (
-                    Source => Contents,
-                    From => Last_In_Line + 1,
-                    Going => Ada.Strings.Forward);
-            end First_Non_Space;
-
-        begin
-            while Cursor <= Contents'Last loop
-                Last_In_Line := Last_Space;
-                Put_Line (Contents (Cursor .. Last_In_Line));
-                Cursor := First_Non_Space;
-            end loop;
-
-            if Extra_Space then
-                New_Line;
-            end if;
-        end Block;
-
-        procedure Describe_Command (Command_Name : String; Options : String; Description : String) is
-            Spacer : constant String (1 .. 18 - Command_Name'Length) := (others => ' ');
-        begin
-            Block (
-                Colorize_Command (Command_Name)
-                & Spacer
-                & " " & Options
-                & "   " & Description,
-                Extra_Space => False
-            );
-        end Describe_Command;
-    end Help_Text;
-
-    ----------------------------------------------------------------------------
-
     procedure Help_Help is
         use Command_Maps;
         Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
@@ -294,7 +208,7 @@ package body SP.Commands is
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
 
-        Help_Text.Block("Searches occur across multi-line 'contexts'.  Specify what "
+        SP.Help.Block("Searches occur across multi-line 'contexts'.  Specify what "
             & "those must include with `find-*` commands, and skip contexts "
             & "containing elements with `exclude-*` commands.");
 
@@ -367,7 +281,7 @@ package body SP.Commands is
     ----------------------------------------------------------------------------
 
     function Unload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
-    begin
+begin
         if not Command_Line.Is_Empty then
             Put_Line ("Unload should have an empty command line.");
             return Command_Failed;
@@ -394,13 +308,13 @@ package body SP.Commands is
 
     procedure Source_Help is
     begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("run")
+        SP.Help.Block (
+            SP.Help.Colorize_Command ("run")
             & " executes septum commands from a file, as-if they were run by a user. "
             & "This provides a mechanism for simple configuration, or re-running specific setups "
             & "for complicated searches."
         );
-        Help_Text.Block ("`source` is the deprecated alias for `run`.");
+        SP.Help.Block ("`source` is the deprecated alias for `run`.");
     end Source_Help;
 
     function Source_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
@@ -1119,336 +1033,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Topic_File_Cache is
-    begin
-        Help_Text.Header ("File Cache", "");
-
-        Help_Text.Block (
-            "Septum maintains files and directory contents in memory to speed"
-            & " searches.  Anecdotally, this results in ~100 MiB per 1 million"
-            & " lines of code."
-        );
-
-
-        Help_Text.Block (
-            "Adding directories causes septum to recursively add every file"
-            & " which looks like text to the search pool. ""Looks like"" covers "
-            & "popularly known extensions (.txt, .cpp, .rs, etc.) while "
-            & "ignoring other known binary extensions (.jpg, .png, .zip). "
-        );
-        Help_Text.Block (
-            "If a file's extensions don't match the built-in filters, then "
-            & "the first 4 KiB of characters are loaded and the file is "
-            & "considered text if a null byte is not found."
-        );
-
-        Help_Text.Block (
-            "Normally, directories get added for search, and then every file "
-            & "is evaluated in turn to decide whether or not it should be loaded."
-            & "`add-files` provides a mechanism to add specific files, while not "
-            & "loading the containing directory."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("add-dirs")
-            & " is the primary mechanism through which files get added "
-            & "for search."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("add-files")
-            & " provides a mechanism for target loads, such as for logfiles,"
-            & " or otherwise isolated files."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("clear-dirs")
-            & " removes all search directories and their contents from the file cache."
-            & " Files added directly via " & Help_Text.Colorize_Command ("add-files")
-            & " are not affected."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("clear-files")
-            & " removes files directly added to the file cache.  Files discovered "
-            & " by recursive directory search are unaffected."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("list-dirs")
-            & " lists all directories which recursively get traversed looking"
-            & " for files to add to the file cache."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("list-files")
-            & "List the files of the search list."
-            & " Supports an optional 'full' argument, otherwise the number"
-            & " of printed files is capped."
-        );
-
-        Help_Text.Block ("Septum currently doesn't track updates to files to "
-            & "loaded directories."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("reload")
-            & " provides the means to update all currently loaded files with the "
-            & "current contents on disk."
-        );
-        Help_Text.Block (Help_Text.Colorize_Command ("reload")
-            & " also provides the counterpart to `unload` which is used to drop "
-            & "the file cache."
-        );
-
-
-        Help_Text.Block ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
-            & "for search. When dealing with extremely large amounts of text this "
-            & "can interfere with other operations.  Instead of shutting down the "
-            & "program, instead you can "
-            & Help_Text.Colorize_Command ("unload")
-            & " the data set, do whatever operations "
-            & "you need and then "
-            & Help_text.Colorize_Command ("reload")
-            & " to bring the files back for search.");
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("stats")
-            & " septum maintains all search context in memory within the file cache. "
-            & "Due to the large amount of text that can be loaded, it can be useful "
-            & "to examine where and how this storage is used. "
-        );
-
-    end Help_Topic_File_Cache;
-
-    ----------------------------------------------------------------------------
-
-    procedure Help_Topic_Line_Filters is
-    begin
-        Help_Text.Header ("Line Filters", "");
-
-        Help_Text.Describe_Command(
-            "find-text",
-            "TEXT...",
-            "provides a case-sensitive search filter."
-        );
-
-        Help_Text.Describe_Command (
-            "find-like",
-            "TEXT...",
-            "provides a case-insensitive filter.");
-
-        Help_Text.Block (
-            "Each space separated text parameter to "
-            & Help_Text.Colorize_Command ("find-text")
-            & " is treated as an additional filter. This supports applying "
-            & "multiple text filters and then being able to manipulate individual "
-            & "ones using commands like "
-            & Help_Text.Colorize_Command ("drop")
-            & " and "
-            & Help_Text.Colorize_Command ("reorder")
-            & "."
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("exclude-regex")
-            & " provides a regex to exclude."
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("find-regex")
-            & " provides a regex to search for."
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("clear-line-filters")
-            & " Removes all line filters, while maintaining currently"
-            & " excluded file extensions and path filters."
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("list-line-filters")
-            & " provides a case-insensitive filter."
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("reorder")
-            & " Sometimes you have the right filters, but want to reorder them"
-            & " so it's easier to pop specific ones, or to better organize them. "
-        );
-
-        Help_Text.Block(
-            Help_Text.Colorize_Command ("drop")
-            & " drops given filters, or the most recent filter if non given."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("pop")
-            & " sometimes the filter you just applied is too restrictive"
-            & " or you want to try a different approach. "
-            & " let's you remove the most recently applied line filter."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("test")
-            & " provides a mechanism to see why a specific line is getting"
-            & " matched or excluded from a search.  This command shows how "
-            & " each filter matches against a line of text."
-        );
-
-    end Help_Topic_Line_Filters;
-
-    procedure Help_Topic_Path_Filters is
-    begin
-        Help_Text.Header ("Path Filters");
-
-        Help_Text.Block (
-            "All files are considered during the search, unless specific paths"
-            & " are requested to be found. "
-            & Help_Text.Colorize_Command ("find-path")
-            & " restricts the search to only files which match this filter."
-        );
-
-        Help_Text.Block (
-            "Path filtering occurs at both the path and the extension level."
-            & " Paths containing specific elements can be removed, and the results"
-            & " can also be tailored to only produce results which match specific"
-            & " file extensions."
-        );
-
-        Help_Text.Block (
-            "All paths are considered search candidates unless a find-path is"
-            & " provided.  This means "
-            & Help_text.Colorize_Command ("exclude-path")
-            & " can be used as an axe to more easily shave off entire portions"
-            & " of the search space."
-        );
-
-        Help_Text.Describe_Command(
-            "clear-exts",
-            "",
-            "Clears extension filters."
-        );
-
-        Help_Text.Describe_Command(
-            "clear-path-filters",
-            "",
-            "Removes all path filters."
-        );
-
-        Help_Text.Describe_Command(
-            "exclude-path",
-            "",
-            "Provides path elements to exclude from the search."
-        );
-
-
-        Help_Text.Describe_Command (
-            "list-exts",
-            "",
-            "Lists extensions to filter by."
-        );
-
-        Help_Text.Describe_Command(
-            "list-path-filters",
-            "",
-            "Lists the currently bound path filters."
-        );
-
-        Help_Text.Describe_Command(
-            "only-exts",
-            "",
-            "Adds extension to the search list."
-        );
-
-        Help_Text.Describe_Command(
-            "remove-exts",
-            "",
-            "Removes extension from the search list."
-        );
-
-    end Help_Topic_Path_Filters;
-
-    procedure Help_Topic_Results is
-    begin
-        Help_Text.Header ("Results");
-
-        Put_Line ("Lists the Contexts currently matching all filters.");
-        New_Line;
-        Put_Line ("match-contexts        Prints up to max-results results");
-        Put_Line ("match-contexts N      Prints the first N results");
-        Put_Line ("match-contexts M N    Prints the M ... N results");
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("match-files")
-            & " lists all files which match the current filters. "
-            & "This command is particularly useful to determine if path filters "
-            & "would be effective to cull search results. "
-        );
-
-        Help_Text.Block (
-            "Due to partial matching of commands, the abbreviated versions"
-            & " of match commands are often used instead of the full ones."
-        );
-
-
-        Help_Text.Describe_Command (
-            "set-context-width",
-            "[COUNT]",
-            "Sets the number of lines form the search neighborhood above and below a search term."
-        );
-
-        Help_Text.Describe_Command (
-            "set-max-results",
-            "[COUNT]",
-            "Sets the maximum results printed before truncating."
-        );
-
-        Help_Text.Describe_Command (
-            "enable-auto-search",
-            "",
-            "Automatically search when filters are updated."
-        );
-
-        Help_Text.Describe_Command (
-            "enable-line-numbers",
-            "",
-            "Whether to print line numbers in results."
-        );
-
-        Help_Text.Describe_Command (
-            "enable-line-colors",
-            "",
-            "Whether to colorize lines with found search terms."
-        );
-    end Help_Topic_Results;
-
-    procedure Help_Topic_System is
-    begin
-        Help_Text.Block (
-            "Septum is designed as a interactive search application. "
-            & "In typical usage, the program remains 'live' in the background "
-            & "in a separate tmux tab or terminal."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("reload")
-            & " is needed to update text files during heavy edits or when "
-            & " rebasing during the day."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("enable-timing")
-            & " enables reporting of time it takes to run commands."
-        );
-
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("disable-timing")
-            & " disables reporting of time it takes to run commands."
-        );
-
-    end Help_Topic_System;
-
-    ----------------------------------------------------------------------------
-
     procedure Make_Command (Command : String; Simple_Help : String; Help : Help_Proc; Exec : Exec_Proc) with
         Pre => Command'Length > 0 and then not Command_Map.Contains (To_Unbounded_String (Command))
     is
@@ -1464,20 +1048,20 @@ begin
 
     -- File Cache
 
-    Make_Command ("add-files", "Adds files to the search list.", Help_Topic_File_Cache'Access, Add_Files_Exec'Access);
-    Make_Command ("add-dirs", "Adds directory to the search list.", Help_Topic_File_Cache'Access, Add_Dirs_Exec'Access);
+    Make_Command ("add-files", "Adds files to the search list.", SP.Help.Topics.File_Cache'Access, Add_Files_Exec'Access);
+    Make_Command ("add-dirs", "Adds directory to the search list.", SP.Help.Topics.File_Cache'Access, Add_Dirs_Exec'Access);
     Make_Command
-        ("list-dirs", "List the directories in the search list.", Help_Topic_File_Cache'Access, List_Dirs_Exec'Access);
+        ("list-dirs", "List the directories in the search list.", SP.Help.Topics.File_Cache'Access, List_Dirs_Exec'Access);
     Make_Command
-        ("clear-dirs", "Removes all directories from the search list.", Help_Topic_File_Cache'Access, Clear_Dirs_Exec'Access);
+        ("clear-dirs", "Removes all directories from the search list.", SP.Help.Topics.File_Cache'Access, Clear_Dirs_Exec'Access);
     Make_Command
-        ("clear-files", "Removes all custom added files from the search list.", Help_Topic_File_Cache'Access, Clear_Files_Exec'Access);
+        ("clear-files", "Removes all custom added files from the search list.", SP.Help.Topics.File_Cache'Access, Clear_Files_Exec'Access);
     Make_Command
-        ("list-files", "List the files in the search list.", Help_Topic_File_Cache'Access, List_Files_Exec'Access);
+        ("list-files", "List the files in the search list.", SP.Help.Topics.File_Cache'Access, List_Files_Exec'Access);
 
-    Make_Command ("reload", "Reloads the file cache.", Help_Topic_File_Cache'Access, Reload_Exec'Access);
-    Make_Command ("unload", "Unloads the file cache.", Help_Topic_File_Cache'Access, Unload_Exec'Access);
-    Make_Command ("stats", "Print file cache statistics.", Help_Topic_File_Cache'Access, Stats_Exec'Access);
+    Make_Command ("reload", "Reloads the file cache.", SP.Help.Topics.File_Cache'Access, Reload_Exec'Access);
+    Make_Command ("unload", "Unloads the file cache.", SP.Help.Topics.File_Cache'Access, Unload_Exec'Access);
+    Make_Command ("stats", "Print file cache statistics.", SP.Help.Topics.File_Cache'Access, Stats_Exec'Access);
 
     --
 
@@ -1486,81 +1070,81 @@ begin
 
     -- Filters
 
-    Make_Command ("find-text", "Adds filter text.", Help_Topic_Line_Filters'Access, Find_Text_Exec'Access);
-    Make_Command ("exclude-text", "Adds text to exclude.", Help_Topic_Line_Filters'Access, Exclude_Text_Exec'Access);
-    Make_Command ("find-like", "Adds filter text (case insensitive).", Help_Topic_Line_Filters'Access, Find_Like_Exec'Access);
-    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topic_Line_Filters'Access, Exclude_Like_Exec'Access);
-    Make_Command ("find-regex", "Adds filter regex.", Help_Topic_Line_Filters'Access, Find_Regex_Exec'Access);
-    Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topic_Line_Filters'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("find-text", "Adds filter text.", SP.Help.Topics.Line_Filters'Access, Find_Text_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude.", SP.Help.Topics.Line_Filters'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-like", "Adds filter text (case insensitive).", SP.Help.Topics.Line_Filters'Access, Find_Like_Exec'Access);
+    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", SP.Help.Topics.Line_Filters'Access, Exclude_Like_Exec'Access);
+    Make_Command ("find-regex", "Adds filter regex.", SP.Help.Topics.Line_Filters'Access, Find_Regex_Exec'Access);
+    Make_Command ("exclude-regex", "Adds regex to exclude.", SP.Help.Topics.Line_Filters'Access, Exclude_Regex_Exec'Access);
 
-    Make_Command ("reorder", "Reorder filters by index.", Help_Topic_Line_Filters'Access, Reorder_Exec'Access);
-    Make_Command ("drop", "Drops the filters at the given indices.", Help_Topic_Line_Filters'Access, Drop_Exec'Access);
-    Make_Command ("pop", "Pops the last applied filter.", Help_Topic_Line_Filters'Access, Pop_Exec'Access);
-    Make_Command ("clear-line-filters", "Pops all filters.", Help_Topic_Line_Filters'Access, Clear_Line_Filters_Exec'Access);
-    Make_Command ("list-line-filters", "Lists all applied line filters.", Help_Topic_Line_Filters'Access, List_Line_Filters_Exec'Access);
-    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Help_Topic_Line_Filters'Access, Test_Exec'Access);
+    Make_Command ("reorder", "Reorder filters by index.", SP.Help.Topics.Line_Filters'Access, Reorder_Exec'Access);
+    Make_Command ("drop", "Drops the filters at the given indices.", SP.Help.Topics.Line_Filters'Access, Drop_Exec'Access);
+    Make_Command ("pop", "Pops the last applied filter.", SP.Help.Topics.Line_Filters'Access, Pop_Exec'Access);
+    Make_Command ("clear-line-filters", "Pops all filters.", SP.Help.Topics.Line_Filters'Access, Clear_Line_Filters_Exec'Access);
+    Make_Command ("list-line-filters", "Lists all applied line filters.", SP.Help.Topics.Line_Filters'Access, List_Line_Filters_Exec'Access);
+    Make_Command ("test", "Check to see which filters would trigger on a line of text.", SP.Help.Topics.Line_Filters'Access, Test_Exec'Access);
 
     -- Results
 
     Make_Command
-        ("match-contexts", "Lists contexts matching the current filter.", Help_Topic_Results'Access,
+        ("match-contexts", "Lists contexts matching the current filter.", SP.Help.Topics.Results'Access,
          Match_Contexts_Exec'Access);
     Make_Command
-        ("match-files", "Lists files matching the current filter.", Help_Topic_Results'Access,
+        ("match-files", "Lists files matching the current filter.", SP.Help.Topics.Results'Access,
          Match_Files_Exec'Access);
 
     Make_Command
-        ("set-context-width", "Sets the width of the context in which to find matches.", Help_Topic_Results'Access,
+        ("set-context-width", "Sets the width of the context in which to find matches.", SP.Help.Topics.Results'Access,
          Set_Context_Width_Exec'Access);
     Make_Command
         ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.",
-         Help_Topic_Results'Access, Set_Max_Results_Exec'Access);
+         SP.Help.Topics.Results'Access, Set_Max_Results_Exec'Access);
 
     Make_Command
-        ("enable-auto-search", "Search when filters are changed automatically", Help_Topic_Results'Access,
+        ("enable-auto-search", "Search when filters are changed automatically", SP.Help.Topics.Results'Access,
          Enable_Search_On_Filters_Changed_Exec'Access);
     Make_Command
-        ("disable-auto-search", "Turn off search when filters are changed automatically", Help_Topic_Results'Access,
+        ("disable-auto-search", "Turn off search when filters are changed automatically", SP.Help.Topics.Results'Access,
          Disable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
-        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Help_Topic_Results'Access,
+        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", SP.Help.Topics.Results'Access,
          Enable_Line_Numbers_Exec'Access);
     Make_Command
-        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Help_Topic_Results'Access,
+        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", SP.Help.Topics.Results'Access,
          Disable_Line_Numbers_Exec'Access);
 
     Make_Command
-        ("enable-line-colors", "Enables colorizing lines with matches.", Help_Topic_Results'Access,
+        ("enable-line-colors", "Enables colorizing lines with matches.", SP.Help.Topics.Results'Access,
          Enable_Line_Colors_Exec'Access);
     Make_Command
-        ("disable-line-colors", "Disables colorizing lines with matches.", Help_Topic_Results'Access,
+        ("disable-line-colors", "Disables colorizing lines with matches.", SP.Help.Topics.Results'Access,
          Disable_Line_Colors_Exec'Access);
 
     -- Path Filtering
 
-    Make_Command ("find-path", "Only look in paths containing this.", Help_Topic_Path_Filters'Access, Find_Path_Exec'Access);
-    Make_Command ("exclude-path", "Exclude paths containing this from the search", Help_Topic_Path_Filters'Access, Exclude_Paths_Exec'Access);
-    Make_Command ("clear-path-filters", "Pops all filters.", Help_Topic_Path_Filters'Access, Clear_Path_Filters_Exec'Access);
-    Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topic_Path_Filters'Access, List_Path_Filters_Exec'Access);
+    Make_Command ("find-path", "Only look in paths containing this.", SP.Help.Topics.Path_Filters'Access, Find_Path_Exec'Access);
+    Make_Command ("exclude-path", "Exclude paths containing this from the search", SP.Help.Topics.Path_Filters'Access, Exclude_Paths_Exec'Access);
+    Make_Command ("clear-path-filters", "Pops all filters.", SP.Help.Topics.Path_Filters'Access, Clear_Path_Filters_Exec'Access);
+    Make_Command ("list-path-filters", "Lists all applied path filters.", SP.Help.Topics.Path_Filters'Access, List_Path_Filters_Exec'Access);
 
-    Make_Command ("only-exts", "Adds extensions to find results in.", Help_Topic_Path_Filters'Access, Add_Extensions_Exec'Access);
+    Make_Command ("only-exts", "Adds extensions to find results in.", SP.Help.Topics.Path_Filters'Access, Add_Extensions_Exec'Access);
     Make_Command
-        ("remove-exts", "Removes an extension filter from the search.", Help_Topic_Path_Filters'Access,
+        ("remove-exts", "Removes an extension filter from the search.", SP.Help.Topics.Path_Filters'Access,
          Remove_Extensions_Exec'Access);
-    Make_Command ("clear-exts", "Clears extension filters.", Help_Topic_Path_Filters'Access, Clear_Extensions_Exec'Access);
-    Make_Command ("list-exts", "List current extensions.", Help_Topic_Path_Filters'Access, List_Extensions_Exec'Access);
+    Make_Command ("clear-exts", "Clears extension filters.", SP.Help.Topics.Path_Filters'Access, Clear_Extensions_Exec'Access);
+    Make_Command ("list-exts", "List current extensions.", SP.Help.Topics.Path_Filters'Access, List_Extensions_Exec'Access);
 
     -- Settings
     Make_Command
-        ("enable-timing", "Enables timing of command run time.", Help_Topic_System'Access,
+        ("enable-timing", "Enables timing of command run time.", SP.Help.Topics.System'Access,
          Enable_Timing_Exec'Access);
     Make_Command
-        ("disable-timing", "Disables timing of command run time.", Help_Topic_System'Access,
+        ("disable-timing", "Disables timing of command run time.", SP.Help.Topics.System'Access,
          Disable_Timing_Exec'Access);
 
     -- Quit
 
-    Make_Command ("quit", "Exits the search program.", Help_Topic_System'Access, Quit_Exec'Access);
-    Make_Command ("exit", "Exits the search program.", Help_Topic_System'Access, Quit_Exec'Access);
+    Make_Command ("quit", "Exits the search program.", SP.Help.Topics.System'Access, Quit_Exec'Access);
+    Make_Command ("exit", "Exits the search program.", SP.Help.Topics.System'Access, Quit_Exec'Access);
 end SP.Commands;
