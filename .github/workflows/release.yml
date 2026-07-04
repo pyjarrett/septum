@@ -39,7 +39,7 @@ jobs:
           path: septum
 
       - name: Setup Alire
-        uses: alire-project/setup-alire@v4
+        uses: alire-project/setup-alire@1ff7d9224297858cc9ecce29b08bc6109f93e49a
         with:
           version: 2.1.0
 
