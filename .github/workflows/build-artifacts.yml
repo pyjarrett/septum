@@ -36,6 +36,9 @@ jobs:
       - name: Build project
         working-directory: septum
         run: alr build --release
+        env:
+          SDKROOT: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+          LIBRARY_PATH: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
 
       - name: Prepare Artifact Folder
         shell: bash
