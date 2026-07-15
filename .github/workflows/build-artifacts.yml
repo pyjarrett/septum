@@ -32,7 +32,7 @@ jobs:
 
       - name: Build project
         working-directory: septum
-        run: alr build --release -v
+        run: alr build --release
 
       - name: Prepare Artifact Folder
         shell: bash
