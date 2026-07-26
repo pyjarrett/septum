@@ -206,6 +206,7 @@ package body SP.Commands is
         function Colorize_Command (Command_Name : String) return String;
         procedure Header (Command_Name : String; Simple_Help : String);
         procedure Block (Contents : String);
+        procedure Example (Contents : String_Vectors.Vector);
     end Help_Text;
 
     package body Help_Text is
@@ -264,6 +265,15 @@ package body SP.Commands is
             end loop;
             New_Line;
         end Block;
+
+        procedure Example (Contents : String_Vectors.Vector) is
+        begin
+            New_Line;
+            for V of Contents loop
+                Put_Line (SP.Output.Colorize (V, AnsiAda.Yellow));
+            end loop;
+            New_Line;
+        end Example;
     end Help_Text;
 
     ----------------------------------------------------------------------------
