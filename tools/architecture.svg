@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" width="960" height="720" role="img" aria-labelledby="title desc">
+  <title id="title">Help generation tools architecture</title>
+  <desc id="desc">
+    Architecture of tools/write_help.py: markdown help sources are parsed into topics
+    and paragraphs, transformed into Ada string expressions with Colorize_Command, and
+    rendered as SP.Help.Header and SP.Help.Block fragments on stdout. Unit and golden
+    tests verify the pipeline.
+  </desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#1a202c" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fafc"/>
+      <stop offset="100%" stop-color="#edf2f7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="720" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="22" font-weight="700" fill="#1a202c">Help generation tools architecture</text>
+  <text x="480" y="58" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" fill="#4a5568">tools/write_help.py — markdown help → Ada SP.Help fragments</text>
+
+  <!-- ========== INPUT ========== -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="90" width="180" height="100" rx="10" fill="#ebf8ff" stroke="#3182ce" stroke-width="1.5"/>
+  </g>
+  <text x="130" y="118" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700" fill="#2c5282">INPUT</text>
+  <text x="130" y="142" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="13" fill="#1a365d">help/*.md</text>
+  <text x="130" y="164" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568"># Topic</text>
+  <text x="130" y="180" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">paragraphs · `cmd`</text>
+
+  <!-- Arrow input → pipeline -->
+  <line x1="220" y1="140" x2="268" y2="140" stroke="#2b6cb0" stroke-width="2" marker-end="url(#arrow-accent)"/>
+
+  <!-- ========== PIPELINE BOX ========== -->
+  <g filter="url(#shadow)">
+    <rect x="270" y="80" width="420" height="280" rx="12" fill="#ffffff" stroke="#cbd5e0" stroke-width="1.5"/>
+  </g>
+  <text x="480" y="104" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2d3748">write_help.py pipeline</text>
+  <line x1="290" y1="114" x2="670" y2="114" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Stage 1 -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="130" width="360" height="48" rx="8" fill="#e6fffa" stroke="#319795" stroke-width="1.25"/>
+  </g>
+  <text x="318" y="150" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#234e52">1. read_help_files(path)</text>
+  <text x="318" y="168" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">Parse → {topic_name: [paragraph, …]}</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="480" y1="178" x2="480" y2="192" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Stage 2 -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="194" width="360" height="48" rx="8" fill="#faf5ff" stroke="#805ad5" stroke-width="1.25"/>
+  </g>
+  <text x="318" y="214" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#44337a">2. transform_to_ada(text)</text>
+  <text x="318" y="232" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">" → "" · `cmd` → Colorize_Command · join with &amp;</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="480" y1="242" x2="480" y2="256" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Stage 3 -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="258" width="360" height="48" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.25"/>
+  </g>
+  <text x="318" y="278" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#7b341e">3. render_ada_help(path)</text>
+  <text x="318" y="296" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">Header(topic) + Block(paragraph) per topic</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="480" y1="306" x2="480" y2="320" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Stage 4 -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="322" width="360" height="28" rx="8" fill="#edf2f7" stroke="#718096" stroke-width="1.25"/>
+  </g>
+  <text x="480" y="341" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#2d3748">4. main() → stdout</text>
+
+  <!-- Arrow pipeline → output -->
+  <line x1="690" y1="140" x2="738" y2="140" stroke="#2b6cb0" stroke-width="2" marker-end="url(#arrow-accent)"/>
+
+  <!-- ========== OUTPUT ========== -->
+  <g filter="url(#shadow)">
+    <rect x="740" y="90" width="180" height="100" rx="10" fill="#f0fff4" stroke="#38a169" stroke-width="1.5"/>
+  </g>
+  <text x="830" y="118" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700" fill="#276749">OUTPUT</text>
+  <text x="830" y="142" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="11" fill="#1a365d">SP.Help.Header (…)</text>
+  <text x="830" y="160" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="11" fill="#1a365d">SP.Help.Block (…)</text>
+  <text x="830" y="178" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">Ada source fragments</text>
+
+  <!-- ========== FLOW SUMMARY ========== -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="390" width="880" height="52" rx="10" fill="#ffffff" stroke="#cbd5e0" stroke-width="1.25"/>
+  </g>
+  <text x="480" y="412" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#718096">TYPICAL FLOW</text>
+  <text x="480" y="432" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="14" fill="#2d3748">help/*.md  →  write_help.py  →  Ada SP.Help.* calls on stdout</text>
+
+  <!-- ========== TESTS ========== -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="470" width="430" height="210" rx="12" fill="#ffffff" stroke="#cbd5e0" stroke-width="1.5"/>
+  </g>
+  <text x="255" y="498" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2d3748">Verification</text>
+  <line x1="60" y1="508" x2="450" y2="508" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Unit tests -->
+  <rect x="60" y="522" width="390" height="64" rx="8" fill="#ebf8ff" stroke="#63b3ed" stroke-width="1"/>
+  <text x="76" y="544" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#2b6cb0">test_write_help.py</text>
+  <text x="76" y="564" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">Unit tests: parse · transform · CLI</text>
+  <text x="76" y="578" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#718096">python -m unittest discover -s tools -p "test_*.py"</text>
+
+  <!-- Golden tests -->
+  <rect x="60" y="598" width="390" height="64" rx="8" fill="#faf5ff" stroke="#b794f4" stroke-width="1"/>
+  <text x="76" y="620" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="700" fill="#6b46c1">test_write_help_golden.py</text>
+  <text x="76" y="640" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#4a5568">Golden files: input.md ↔ expected.ada</text>
+  <text x="76" y="654" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#718096">--update / WRITE_HELP_UPDATE_GOLDEN=1</text>
+
+  <!-- ========== LAYOUT ========== -->
+  <g filter="url(#shadow)">
+    <rect x="490" y="470" width="430" height="210" rx="12" fill="#ffffff" stroke="#cbd5e0" stroke-width="1.5"/>
+  </g>
+  <text x="705" y="498" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2d3748">tools/ layout</text>
+  <line x1="510" y1="508" x2="900" y2="508" stroke="#e2e8f0" stroke-width="1"/>
+
+  <text x="520" y="534" font-family="Consolas, Menlo, monospace" font-size="12" fill="#2d3748">tools/</text>
+  <text x="536" y="554" font-family="Consolas, Menlo, monospace" font-size="11" fill="#4a5568">README.md</text>
+  <text x="536" y="572" font-family="Consolas, Menlo, monospace" font-size="11" fill="#2b6cb0">write_help.py</text>
+  <text x="536" y="590" font-family="Consolas, Menlo, monospace" font-size="11" fill="#4a5568">test_write_help.py</text>
+  <text x="536" y="608" font-family="Consolas, Menlo, monospace" font-size="11" fill="#4a5568">test_write_help_golden.py</text>
+  <text x="536" y="626" font-family="Consolas, Menlo, monospace" font-size="11" fill="#4a5568">testdata/golden/</text>
+  <text x="552" y="644" font-family="Consolas, Menlo, monospace" font-size="11" fill="#718096">&lt;case&gt;/input.md</text>
+  <text x="552" y="662" font-family="Consolas, Menlo, monospace" font-size="11" fill="#718096">&lt;case&gt;/expected.ada</text>
+
+  <!-- Dashed connector: tests verify pipeline -->
+  <path d="M 255 470 L 255 380 L 480 380 L 480 360" fill="none" stroke="#a0aec0" stroke-width="1.25" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="360" y="374" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#718096">verifies</text>
+</svg>
