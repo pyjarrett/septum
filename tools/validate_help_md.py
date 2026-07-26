@@ -6,8 +6,9 @@ Allowed constructs (see tools/README.md):
 * Blank lines — paragraph separators
 * Paragraph text — consecutive non-blank lines join with spaces
 * `` `command` `` — non-empty inline backticks for command names
+* Fenced examples — `` ``` `` … `` ``` `` (optional language tag on the opener)
 
-Everything else CommonMark offers (lists, links, fences, tables, deeper
+Everything else CommonMark offers (lists, links, ``~~~`` fences, tables, deeper
 headings, HTML, …) is rejected so authors do not write markup the generator
 silently flattens or mis-handles.
 
@@ -41,7 +42,8 @@ _ATX_MULTI = re.compile(r"^#{2,6}(\s|$)")
 _UNORDERED_LIST = re.compile(r"^(\s*)([-*+])\s+\S")
 _ORDERED_LIST = re.compile(r"^(\s*)\d+\.\s+\S")
 _BLOCKQUOTE = re.compile(r"^\s{0,3}>")
-_FENCE = re.compile(r"^\s{0,3}(```|~~~)")
+_TICK_FENCE = re.compile(r"^\s*```")
+_TILDE_FENCE = re.compile(r"^\s{0,3}~~~")
 _TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
 _HORIZONTAL_RULE = re.compile(r"^\s{0,3}((-\s*){3,}|(\*\s*){3,}|(_\s*){3,})\s*$")
 _INDENTED_CODE = re.compile(r"^ {4,}\S")
@@ -108,7 +110,7 @@ class Issue:
 
 
 def _body_line_issues(path: Path, line_no: int, line: str) -> list[Issue]:
-    """Return issues for a non-heading content line."""
+    """Return issues for a non-heading content line (outside example fences)."""
     issues: list[Issue] = []
 
     checks: list[tuple[re.Pattern[str], str]] = [
@@ -116,7 +118,7 @@ def _body_line_issues(path: Path, line_no: int, line: str) -> list[Issue]:
         (_UNORDERED_LIST, "unordered list markers are not supported; use plain paragraphs"),
         (_ORDERED_LIST, "ordered list markers are not supported; use plain paragraphs"),
         (_BLOCKQUOTE, "blockquotes are not supported"),
-        (_FENCE, "fenced code blocks are not supported"),
+        (_TILDE_FENCE, "only ``` fenced examples are supported; ~~~ fences are not"),
         (_TABLE_ROW, "tables are not supported"),
         (_HORIZONTAL_RULE, "horizontal rules are not supported"),
         (_INDENTED_CODE, "indented code blocks are not supported; the generator strips leading spaces"),
@@ -216,9 +218,37 @@ def validate_text(path: Path, text: str) -> list[Issue]:
     seen_heading = False
     prev_nonempty: str | None = None
     prev_nonempty_no: int | None = None
+    in_example = False
+    example_open_line: int | None = None
 
     for line_no, raw in enumerate(lines, start=1):
         line = raw.rstrip("\n")
+
+        if in_example:
+            if _TICK_FENCE.match(line):
+                in_example = False
+                example_open_line = None
+            # Content inside examples is free-form (session transcripts, etc.).
+            prev_nonempty = None
+            prev_nonempty_no = None
+            continue
+
+        if _TICK_FENCE.match(line):
+            in_example = True
+            example_open_line = line_no
+            if not seen_heading:
+                issues.append(
+                    Issue(
+                        path,
+                        line_no,
+                        "warning",
+                        "text before the first `#` heading is ignored by write_help.py",
+                    )
+                )
+            prev_nonempty = None
+            prev_nonempty_no = None
+            continue
+
         # Preserve internal content; do not strip yet so indented constructs are visible.
         if not line.strip():
             prev_nonempty = None
@@ -262,6 +292,16 @@ def validate_text(path: Path, text: str) -> list[Issue]:
         prev_nonempty = line
         prev_nonempty_no = line_no
 
+    if in_example:
+        issues.append(
+            Issue(
+                path,
+                example_open_line,
+                "error",
+                "unclosed example fence; each ``` opener needs a matching ``` closer",
+            )
+        )
+
     # Structural checks via the real parser (duplicate topics, load errors).
     try:
         # write_help reads from disk; use a temporary path only when needed.
@@ -281,8 +321,8 @@ def validate_text(path: Path, text: str) -> list[Issue]:
         issues.append(
             Issue(path, None, "warning", "no topics found; file has no `#` headings")
         )
-    for title, paragraphs in topics.items():
-        if not paragraphs:
+    for title, blocks in topics.items():
+        if not blocks:
             issues.append(
                 Issue(
                     path,
@@ -304,31 +344,53 @@ def validate_text(path: Path, text: str) -> list[Issue]:
     return _dedupe_issues(issues)
 
 
-def _parse_topics_from_text(text: str) -> dict[str, list[str]]:
+def _parse_topics_from_text(text: str) -> dict[str, list[write_help.Block]]:
     """Mirror write_help.read_help_files for in-memory strings (tests)."""
-    topics: dict[str, list[str]] = {}
+    topics: dict[str, list[write_help.Block]] = {}
     topic: str | None = None
     buf: list[str] = []
+    example_lines: list[str] | None = None
 
-    def flush() -> None:
+    def flush_paragraph() -> None:
         nonlocal buf
         if topic is not None and buf:
-            topics[topic].append(" ".join(buf))
+            topics[topic].append(write_help.Paragraph(" ".join(buf)))
         buf = []
+
+    def flush_example() -> None:
+        nonlocal example_lines
+        if topic is not None and example_lines is not None:
+            topics[topic].append(write_help.Example(tuple(example_lines)))
+        example_lines = None
 
     for raw in text.splitlines():
         line = raw.rstrip("\n")
+        if example_lines is not None:
+            if _TICK_FENCE.match(line):
+                flush_example()
+            else:
+                example_lines.append(line)
+            continue
+
+        if _TICK_FENCE.match(line):
+            flush_paragraph()
+            example_lines = []
+            continue
+
         if line.startswith("#"):
-            flush()
+            flush_paragraph()
             topic = line[1:].strip()
             if topic in topics:
                 raise ValueError(f"Found a duplicate topic {topic}")
             topics[topic] = []
         elif not line.strip():
-            flush()
+            flush_paragraph()
         else:
             buf.append(line.strip())
-    flush()
+
+    if example_lines is not None:
+        raise ValueError("Unclosed example fence")
+    flush_paragraph()
     return topics
 
 

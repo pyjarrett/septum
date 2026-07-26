@@ -1,6 +1,6 @@
 # Help generation tools
 
-This directory contains a small Python tool that turns markdown help sources into Ada code for Septum’s in-program help (`SP.Help.Header` / `SP.Help.Block` / `Colorize_Command`).
+This directory contains a small Python tool that turns markdown help sources into Ada code for Septum’s in-program help (`SP.Help.Header` / `SP.Help.Block` / `SP.Help.Example` / `Colorize_Command`).
 
 ## Purpose
 
@@ -26,7 +26,14 @@ You can pass multiple markdown files; each is processed in order and written to 
 python tools/write_help.py help/topic_a.md help/topic_b.md
 ```
 
-With no arguments, the tool exits without writing anything.
+Write the combined Ada text to a file with `--output` (or `-o`):
+
+```bash
+python tools/write_help.py --output src/common/generated/help.ada help/path_filters.md
+python tools/write_help.py -o help.ada help/topic_a.md help/topic_b.md
+```
+
+With no markdown paths, the tool exits without writing anything (or writes an empty file if `--output` is given).
 
 ## Input format
 
@@ -38,6 +45,7 @@ The parser understands a **small markdown subset**, not full CommonMark.
 | Blank line | Ends the current paragraph. |
 | Wrapped lines | Consecutive non-blank lines are joined with spaces into one paragraph. |
 | `` `command` `` | Inline command reference; becomes a colorized Ada call (see below). |
+| `` ``` `` … `` ``` `` | Fenced example block; each interior line becomes an entry in a `String_Vectors` for `SP.Help.Example`. Optional language tag on the opening fence is ignored. |
 | `"` in text | Escaped for Ada string literals (`""`). |
 
 Rules and edge cases:
@@ -46,17 +54,25 @@ Rules and edge cases:
 - Duplicate topic names in the same file raise `ValueError`.
 - Text before the first `#` heading is ignored.
 - An empty topic (heading with no body) is allowed and emits only a header.
+- An unclosed `` ``` `` fence raises `ValueError`.
+- Example lines keep indentation and blank lines; they are **not** joined with spaces and do **not** process inline `` `command` `` spans.
+- Only backtick fences (`` ``` ``) are supported; `~~~` fences are rejected by the validator.
 
 ### Example input
 
-```markdown
+````markdown
 # Commands
 
 Use `add-dirs` to load directories into the search pool.
 
 `list-dirs` lists currently loaded directories while
 `list-files` lists individual files.
+
 ```
+add-dirs src
+find-text needle
+```
+````
 
 ### Example output
 
@@ -70,6 +86,12 @@ SP.Help.Block (
 SP.Help.Block (
     Colorize_Command ("list-dirs") & " lists currently loaded directories while " & Colorize_Command ("list-files") & " lists individual files."
 );
+
+SP.Help.Example (
+    String_Vectors.Empty_Vector
+    & To_Unbounded_String ("add-dirs src")
+    & To_Unbounded_String ("find-text needle")
+);
 ```
 
 ## How generation works
@@ -77,20 +99,18 @@ SP.Help.Block (
 `write_help.py` is a short pipeline:
 
 1. **`read_help_files(path)`**  
-   Parse the markdown file into `{topic_name: [paragraph, ...]}`.
+   Parse the markdown file into `{topic_name: [Block, ...]}` where each block is a `Paragraph` or `Example`.
 
-2. **`transform_to_ada(text)`**  
-   Convert one paragraph:
-   - double quotes → Ada `""`
-   - `` `cmd` `` → `Colorize_Command ("cmd")`
-   - remaining text → `"literal"`
-   - pieces joined with Ada `&`
+2. **`transform_to_ada(text)`** / **`transform_example_to_ada(lines)`**  
+   Convert one block:
+   - paragraphs: double quotes → Ada `""`; `` `cmd` `` → `Colorize_Command ("cmd")`; join with Ada `&`
+   - examples: each line → `To_Unbounded_String ("…")` chained from `String_Vectors.Empty_Vector`
 
 3. **`render_ada_help(path)`**  
-   For each topic, emit `SP.Help.Header ("…");` then one `SP.Help.Block (…);` per paragraph.
+   For each topic, emit `SP.Help.Header ("…");` then `SP.Help.Block (…);` or `SP.Help.Example (…);` per block.
 
 4. **`main()`**  
-   CLI entry: for each argument path, write `render_ada_help` to stdout.
+   CLI entry: for each argument path, write `render_ada_help` to stdout, or to `--output` / `-o` FILE when given.
 
 ## Validating the subset
 
@@ -101,7 +121,7 @@ python tools/validate_help_md.py help/
 python tools/validate_help_md.py help/full_help.md
 ```
 
-The checker rejects CommonMark features the generator does not implement (lists, links, fenced code, tables, headings deeper than `#`, HTML, emphasis markers, and so on). It also reports unbalanced backticks, duplicate topics, and `"` in topic titles.
+The checker rejects CommonMark features the generator does not implement (lists, links, `~~~` fences, tables, headings deeper than `#`, HTML, emphasis markers, and so on). Balanced `` ``` `` example fences are allowed. It also reports unclosed example fences, unbalanced backticks, duplicate topics, and `"` in topic titles.
 
 Warnings (preamble text before the first heading, empty topics) do not fail the run unless you pass `--strict`.
 
@@ -153,4 +173,4 @@ To add a new golden case:
 
 - Output is Ada **source fragments**, not a complete compilable package by itself.
 - Topic titles in headers are not yet quote-escaped the same way body text is; avoid `"` in topic names for now.
-- Full markdown (lists, links, fenced code blocks, etc.) is not supported—keep help sources to headings, paragraphs, and backtick command names.
+- Full markdown (lists, links, tables, etc.) is not supported—keep help sources to headings, paragraphs, inline backtick command names, and `` ``` `` example fences.

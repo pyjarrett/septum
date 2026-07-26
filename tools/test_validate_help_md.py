@@ -67,9 +67,32 @@ class ValidateTextTests(unittest.TestCase):
         errs = self.errors("# T\n\n> quoted\n")
         self.assertTrue(any("blockquote" in e.message for e in errs))
 
-    def test_rejects_fenced_code(self):
-        errs = self.errors("# T\n\n```\ncode\n```\n")
-        self.assertTrue(any("fenced" in e.message for e in errs))
+    def test_allows_tick_fenced_examples(self):
+        text = (
+            "# T\n\n"
+            "Try this:\n\n"
+            "```\n"
+            "add-dirs src\n"
+            "find-text foo\n"
+            "```\n"
+        )
+        self.assertEqual(self.errors(text), [])
+
+    def test_allows_fenced_example_with_language_tag(self):
+        self.assertEqual(self.errors("# T\n\n```text\nhello\n```\n"), [])
+
+    def test_rejects_tilde_fences(self):
+        errs = self.errors("# T\n\n~~~\ncode\n~~~\n")
+        self.assertTrue(any("~~~" in e.message or "fenced" in e.message for e in errs))
+
+    def test_rejects_unclosed_example_fence(self):
+        errs = self.errors("# T\n\n```\nno closer\n")
+        self.assertTrue(any("unclosed" in e.message.lower() for e in errs))
+
+    def test_list_marker_ok_inside_example(self):
+        # Example bodies are free-form; list markers must not fail validation.
+        text = "# T\n\n```\n- not a list outside a fence\n```\n"
+        self.assertEqual(self.errors(text), [])
 
     def test_rejects_table(self):
         errs = self.errors("# T\n\n| a | b |\n| --- | --- |\n| 1 | 2 |\n")
