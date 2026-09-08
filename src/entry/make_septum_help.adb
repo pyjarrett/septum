@@ -1,6 +1,7 @@
 with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings.Equal_Case_Insensitive;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with SP.Command_Line;
@@ -22,28 +23,28 @@ procedure Make_Septum_Help is
     package Help_Printing is
         type Help_Printer is interface;
 
-        procedure Print_Title (Self : in Help_Printer; Title : in String) is abstract;
-        procedure Print_Content (Self : in Help_Printer; Content : in String) is abstract;
+        procedure Print_Title (Self : in out Help_Printer; Title : String; Heading_Level : Positive) is abstract;
+        procedure Print_Content (Self : in out Help_Printer; Content : String) is abstract;
 
         type Ada_Help_Printer is new Help_Printer with null record;
 
         overriding
-        procedure Print_Title (Self : in Ada_Help_Printer; Title : in String);
+        procedure Print_Title (Self : in out Ada_Help_Printer; Title : String; Heading_Level : Positive);
 
         overriding
-        procedure Print_Content (Self : in Ada_Help_Printer; Content : in String);
+        procedure Print_Content (Self : in out Ada_Help_Printer; Content : String);
     end Help_Printing;
 
     package body Help_Printing is
         overriding
-        procedure Print_Title (Self : in Ada_Help_Printer; Title : in String) is
+        procedure Print_Title (Self : in out Ada_Help_Printer; Title : String; Heading_Level : Positive) is
             pragma Unreferenced (Self);
         begin
-            Ada.Text_IO.Put_Line ("Title: " & Title);
+            Ada.Text_IO.Put_Line ("Title" & Heading_Level'Image & ": " & Title);
         end Print_Title;
 
         overriding
-        procedure Print_Content (Self : in Ada_Help_Printer; Content : in String) is
+        procedure Print_Content (Self : in out Ada_Help_Printer; Content : String) is
             pragma Unreferenced (Self);
         begin
             Ada.Text_IO.Put_Line ("Content: " & Content);
@@ -102,13 +103,29 @@ procedure Make_Septum_Help is
 
     procedure Write_Help_File (Lines : in out SP.Strings.String_Vectors.Vector) is
         Printer : Help_Printing.Ada_Help_Printer;
+
+        function Leading_Hash_Count (Str : String) return Natural is
+            Count : Natural := 0;
+        begin
+            for C of Str loop
+                exit when C /= '#';
+                Count := @ + 1;
+            end loop;
+            return Count;
+        end Leading_Hash_Count;
     begin
         for Line of Lines loop
             ASU.Trim (Line, Ada.Strings.Both);
             declare
-                Str : constant String := ASU.To_String (Line);
+                Str   : constant String := ASU.To_String (Line);
+                Level : constant Natural := Leading_Hash_Count (Str);
             begin
-                Help_Printing.Print_Content (Printer, Str);
+                if Level > 0 then
+                    Help_Printing.Print_Title
+                       (Printer, Ada.Strings.Fixed.Trim (Str (Str'First + Level .. Str'Last), Ada.Strings.Left), Level);
+                else
+                    Help_Printing.Print_Content (Printer, Str);
+                end if;
             end;
         end loop;
     end Write_Help_File;
