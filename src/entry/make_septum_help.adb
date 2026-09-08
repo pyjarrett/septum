@@ -18,6 +18,38 @@ procedure Make_Septum_Help is
 
     package ASU renames Ada.Strings.Unbounded;
 
+    --  Dispatching interfaces must be declared in a package spec.
+    package Help_Printing is
+        type Help_Printer is interface;
+
+        procedure Print_Title (Self : in Help_Printer; Title : in String) is abstract;
+        procedure Print_Content (Self : in Help_Printer; Content : in String) is abstract;
+
+        type Ada_Help_Printer is new Help_Printer with null record;
+
+        overriding
+        procedure Print_Title (Self : in Ada_Help_Printer; Title : in String);
+
+        overriding
+        procedure Print_Content (Self : in Ada_Help_Printer; Content : in String);
+    end Help_Printing;
+
+    package body Help_Printing is
+        overriding
+        procedure Print_Title (Self : in Ada_Help_Printer; Title : in String) is
+            pragma Unreferenced (Self);
+        begin
+            Ada.Text_IO.Put_Line ("Title: " & Title);
+        end Print_Title;
+
+        overriding
+        procedure Print_Content (Self : in Ada_Help_Printer; Content : in String) is
+            pragma Unreferenced (Self);
+        begin
+            Ada.Text_IO.Put_Line ("Content: " & Content);
+        end Print_Content;
+    end Help_Printing;
+
     function Parse_Command_Line return Make_Help_Config is
         package AD renames Ada.Directories;
         package CL renames SP.Command_Line;
@@ -69,10 +101,15 @@ procedure Make_Septum_Help is
     end Parse_Command_Line;
 
     procedure Write_Help_File (Lines : in out SP.Strings.String_Vectors.Vector) is
+        Printer : Help_Printing.Ada_Help_Printer;
     begin
         for Line of Lines loop
             ASU.Trim (Line, Ada.Strings.Both);
-            Ada.Text_IO.Put_Line (ASU.To_String (Line));
+            declare
+                Str : constant String := ASU.To_String (Line);
+            begin
+                Help_Printing.Print_Content (Printer, Str);
+            end;
         end loop;
     end Write_Help_File;
 
