@@ -105,13 +105,13 @@ procedure Make_Septum_Help is
         Printer : Help_Printing.Ada_Help_Printer;
 
         function Leading_Hash_Count (Str : String) return Natural is
-            Count : Natural := 0;
         begin
-            for C of Str loop
-                exit when C /= '#';
-                Count := @ + 1;
-            end loop;
-            return Count;
+            return Count : Natural := 0 do
+                for C of Str loop
+                    exit when C /= '#';
+                    Count := @ + 1;
+                end loop;
+            end return;
         end Leading_Hash_Count;
     begin
         for Line of Lines loop
