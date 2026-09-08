@@ -28,9 +28,12 @@ package body SP.Command_Line is
         CL.Next_Index := CL.Next_Index + 1;
     end Skip_Argument;
 
+    function Peek_Argument (CL : in out Command_Line_Parser) return String
+    is (Ada.Command_Line.Argument (CL.Next_Index));
+
     function Next_Argument (CL : in out Command_Line_Parser) return String is
     begin
-        return Result : constant String := Ada.Command_Line.Argument (CL.Next_Index) do
+        return Result : constant String := Peek_Argument (CL) do
             CL.Next_Index := CL.Next_Index + 1;
         end return;
     end Next_Argument;
@@ -51,9 +54,9 @@ package body SP.Command_Line is
 
     function Is_Flag (CL : Command_Line_Parser) return Boolean is
     begin
-        return (
-            if Has_More_Arguments (CL) and then Ada.Command_Line.Argument (CL.Next_Index)'Length >= 2
-            then Ada.Command_Line.Argument (CL.Next_Index)(1 .. 2) = "--"
+        return
+           (if Has_More_Arguments (CL) and then Ada.Command_Line.Argument (CL.Next_Index)'Length >= 2
+            then Ada.Command_Line.Argument (CL.Next_Index) (1 .. 2) = "--"
             else False);
     end Is_Flag;
 

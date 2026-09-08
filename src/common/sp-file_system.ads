@@ -41,6 +41,9 @@ package SP.File_System is
     -- The immediate, non-recursive, contents of the given directory.
     function Contents (Dir_Name : String) return Dir_Contents;
 
+    --  Recursive contents of a directory.
+    function Recursive_Contents (Dir_Name : String) return Dir_Contents;
+
     --  A very simple "is this likely UTF-8?" check.  Looks for null bytes.
     function Should_Load (File_Name : String) return Boolean;
 

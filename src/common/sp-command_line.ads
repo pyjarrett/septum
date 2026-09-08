@@ -22,6 +22,8 @@ package SP.Command_Line is
 
     procedure Skip_Argument (CL : in out Command_Line_Parser);
 
+    function Peek_Argument (CL : in out Command_Line_Parser) return String;
+
     function Next_Argument (CL : in out Command_Line_Parser) return String;
 
     function Try_Match (CL : in out Command_Line_Parser; S : String) return Boolean;

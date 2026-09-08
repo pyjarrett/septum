@@ -19,6 +19,8 @@ with Ada.IO_Exceptions;
 with Ada.Strings.Unbounded.Text_IO;
 with Ada.Text_IO;
 
+with Dir_Iterators.Recursive;
+
 with SP.Platform;
 with SP.Output;
 
@@ -73,6 +75,19 @@ package body SP.File_System is
             End_Search (Dir_Search);
         end return;
     end Contents;
+
+    function Recursive_Contents (Dir_Name : String) return Dir_Contents is
+        use type AD.File_Kind;
+        Dir_Walk : constant Dir_Iterators.Recursive.Recursive_Dir_Walk := Dir_Iterators.Recursive.Walk (Dir_Name);
+    begin
+        return Result : Dir_Contents do
+            for Dir_Entry of Dir_Walk loop
+                if AD.Kind (Dir_Entry) = AD.Ordinary_File then
+                    Result.Files.Append (Ada.Strings.Unbounded.To_Unbounded_String (AD.Full_Name (Dir_Entry)));
+                end if;
+            end loop;
+        end return;
+    end Recursive_Contents;
 
     function Should_Load (File_Name : String) return Boolean is
         package SIO renames Ada.Streams.Stream_IO;

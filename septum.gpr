@@ -6,7 +6,7 @@ with "config/septum_config.gpr";
 
 project Septum is
 
-   Septum_Sources := ("src/common", "config/");
+   Septum_Sources := ("src/entry/", "src/common/", "config/");
 
    type Platform_Type is ("windows", "linux", "macos");
    Platform : Platform_Type := external ("Septum_Platform");
@@ -20,7 +20,7 @@ project Septum is
    for Object_Dir use "obj/" & Septum_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";
-   for Main use ("septum.adb");
+   for Main use ("septum.adb", "make_septum_help.adb");
 
    package Binder is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
