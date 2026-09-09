@@ -9,7 +9,7 @@ maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
 maintainers-logins = ["pyjarrett"]
 tags = ["search", "code", "text"]
 
-executables = ["septum"]
+executables = ["septum", "make_septum_help"]
 
 [gpr-set-externals.'case(os)']
 windows = { Septum_Platform = "windows" }

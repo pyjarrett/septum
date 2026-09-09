@@ -115,7 +115,7 @@ procedure Make_Septum_Help is
         end Leading_Hash_Count;
     begin
         for Line of Lines loop
-            ASU.Trim (Line, Ada.Strings.Both);
+            ASU.Trim (Line, Ada.Strings.Right);
             declare
                 Str   : constant String := ASU.To_String (Line);
                 Level : constant Natural := Leading_Hash_Count (Str);

@@ -1,3 +1,143 @@
+# About
+
+Septum provides interactive searching of a codebase for blocks of lines which contain the terms you want, and exclude the terms you don't want.
+
+It's different from grep by interactively allowing filters to be added and removed, and focusing on multiple line groups. If you're doing a search looking for something on a specific line, you probably want to use grep (or ripgrep). If you're looking for a block of code with a bunch of terms in those lines and want to whittle it down since they appear in a lot of places, you probably want to use Septum. Using a context width of 0 approximates an interactive grep.
+
+Limiting the search into blocks around search terms allows searching for elements in arbitrary order which may span across lines, in a way which can be difficult to express in other tools. Sometimes terms appear multiple times in a project and have names which change based on context. Septum allows exclusion of these contexts.
+
+Filters get applied in turn with contexts being removed at every step. Similar contexts get deduplicated before presented to cut out more clutter.
+
+## Example:
+
+    > find-like String
+    > match-contexts
+
+    D:/dev/ada/dir_iterators/src/dir_iterators-recursive.ads
+        57      end record;
+        58
+        59      -- The list of unprocessed directories needs to be stored.
+    ->     60      package String_Vectors is new Ada.Containers.Vectors
+        61         (Index_Type   => Positive,
+    ->     62          Element_Type => Ada.Strings.Unbounded.Unbounded_String,
+    ->     63          "="          => Ada.Strings.Unbounded."=");
+
+    ... other results ...
+
+    Matching contexts:  1063
+    Matching files: 118
+
+I don't want Unbounded strings, so exclude those from results.
+
+    > exclude-like Unbounded
+    > match-contexts
+
+    D:/dev/ada/septum/src/linux/sp-platform.adb
+        11              if Env.Exists ("XDG_CONFIG_HOME") then
+    ->     12                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME")));
+        13              elsif Env.Exists ("HOME") then
+    ->     14                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config"));
+        15              end if;
+        16          end return;
+        17      end Global_Config_Dir;
+
+    ... a bunch of other results ...
+
+    Matching contexts:  669
+    Matching files: 111
+
+I also got a bunch of results related to String_Holders, SP.Strings,
+Ada.Strings, String_Vectors and functions which return Strings, and string
+parameters to subprograms but I don't want those either.
+
+Also, it looks like the project has a linux specific folder and some other
+projects I don't want, so ignore those in the results.
+
+    > exclude-like Holder SP.Strings String_Vectors ": String" "Ada.Strings" "return string" : String
+    > exclude-path linux ada/trendy_test ada/dir_iterators ada/trendy_terminal obj/
+
+    Files:      895              Extensions:   Any
+    Path Filters: None
+
+    Distance:   3                Max Results:  50
+    Filters:
+    1      KEEP : Case Insensitive Match "STRING"
+    2          EXCLUDE : Case Insensitive Match "UNBOUNDED"
+    3              EXCLUDE : Case Insensitive Match "HOLDER"
+    4                  EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    5                      EXCLUDE : Case Insensitive Match "STRING_VECTORS"
+    6                          EXCLUDE : Case Insensitive Match "RETURN STRING"
+    7                              EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    8                                  EXCLUDE : Case Insensitive Match ":"
+    9                                      EXCLUDE : Case Insensitive Match "STRING"
+
+
+Oops looks like I forgot to quote ": String" for parameters, let's redo that.
+
+    > drop 8 9
+    > exclude-like ": String"
+
+    Matching contexts:  67
+    Matching files: 14
+
+That's more reasonable. What files is it in?
+
+    > match-f
+    Resolved to: match-files
+
+
+    D:/dev/ada/septum/src/common/sp-cache.adb
+    D:/dev/ada/septum/src/common/sp-cache.ads
+    D:/dev/ada/septum/src/common/sp-commands.adb
+    D:/dev/ada/septum/src/common/sp-config.adb
+    D:/dev/ada/septum/src/common/sp-config.ads
+    D:/dev/ada/septum/src/common/sp-file_system.adb
+    D:/dev/ada/septum/src/common/sp-filters.adb
+    D:/dev/ada/septum/src/common/sp-interactive.adb
+    D:/dev/ada/septum/src/common/sp-output.adb
+    D:/dev/ada/septum/src/common/sp-searches.adb
+    D:/dev/ada/septum/src/common/sp-strings.adb
+    D:/dev/ada/septum/src/common/sp-strings.ads
+    D:/dev/ada/septum/src/common/sp.ads
+    D:/dev/ada/septum/src/entry/make_septum_help.adb
+
+    Matching files: 14
+
+We can abbreviate commands with unambiguous prefixes, so
+let's shorten `match-contexts` to `match-c`.
+
+    > match-c
+
+Matching contexts:  653
+Matching files: 111
+
+# Usage
+
+Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present, unless you opt out with `--no-config`.
+
+Create a starter local config with `septum init`. In config and script files, blank lines and lines whose first non-empty character starts a `#` comment are ignored, so you can document shared setups.
+
+Partial command matching applies everywhere: type a unique prefix and Septum resolves it to the full command name before running. Ambiguous prefixes are rejected rather than guessed. That same resolution is what lets abbreviated match and filter commands feel short in daily use.
+
+An example session might look like this:
+
+    find-t alloc
+    exclude-t malloc alloca
+    match-f
+    match-c
+
+`help` with no arguments prints a one-line summary of every command. `help` with a command name prints that command's longer description.
+
+    help find-like
+
+`run` reads one or more script files and executes each non-comment line as if typed interactively. Nested `run` of a file already on the script stack is refused to prevent recursion loops. From outside the REPL, septum run can drive the same scripts for batch jobs and pipelines; tool-oriented modes can emit structured results for match commands.
+
+    run load_alt_project.septum
+
+`source` remains as a deprecated alias for `run` so older configs keep working. Prefer `run` in new scripts.
+
+`quit` and `exit` end the interactive session. They do not write the cache or filters back to disk; put durable defaults in config files via `run` lines such as `enable-auto-search`, `set-max-results`, and `add-dirs` if you want them every launch.
+
 # Line Filters
 
 Septum searches multi-line neighborhoods called contexts, not single isolated lines. You build a search by stacking filters: find filters require terms to appear somewhere in a context, and exclude filters drop any context that still contains an unwanted term. Filters are applied in order, and each new find filter only keeps contexts that also satisfy earlier find filters where their neighborhoods overlap. That lets terms appear in any order and across line breaks, which is hard to express in ordinary line-oriented tools.
@@ -6,11 +146,19 @@ Because each space-separated argument becomes its own filter entry, you can add 
 
 `find-text` adds a case-sensitive substring filter. Every argument is a separate keep filter that contexts must still satisfy after merging.
 
+    > find-text malloc new unique_ptr
+
 `find-like` works like `find-text` but matches case-insensitively, which is often enough when casing varies across the codebase.
+
+    > find-like make
 
 `exclude-text` adds a case-sensitive exclusion. Any context whose line range still contains a matching line is discarded entirely, even if that line is only in the surrounding neighborhood of another match.
 
+    > exclude-text alloca alloc
+
 `exclude-like` is the case-insensitive form of `exclude-text`. Use it to peel away overloaded names, generated helpers, or other contexts that share a term but are not what you want.
+
+    > exclude-like Destroy
 
 `find-regex` keeps contexts that match a regular expression. Invalid patterns fail that filter rather than being accepted silently.
 
@@ -28,13 +176,37 @@ Because each space-separated argument becomes its own filter entry, you can add 
 
 `test` evaluates each current line filter against a sample line you provide. For every filter it shows whether that line would MATCH a keep filter, EXCLUDE, or neither, then summarizes whether the line would be MATCHED, EXCLUDED, or IGNORED. Use it when the stack is large and a result is mysterious.
 
+    > find-like alloc
+    > exclude-like alloca malloc
+    > test malloc
+
+    malloc
+    [  MATCH  ]    Case Insensitive Match "ALLOC"
+    [         ]    Case Insensitive Match "ALLOCA"
+    [ EXCLUDE ]    Case Insensitive Match "MALLOC"
+
+    EXCLUDED
+
+    > test alloc
+
+    alloc
+    [  MATCH  ]    Case Insensitive Match "ALLOC"
+    [         ]    Case Insensitive Match "ALLOCA"
+    [         ]    Case Insensitive Match "MALLOC"
+
+    MATCHED
+
+
 # File Cache
 
 Septum loads candidate text into an in-memory file cache and runs searches against that cache rather than rereading the disk for every query. Anecdotally this uses about 100 MB per million lines and can scan on the order of millions of lines per second on a modern laptop, which is why interactive refinement stays responsive on large trees.
 
 What you load and what you search are related but not identical. Directories and files define the cache. Path and extension filters decide which cached paths participate in the next match. Reloading refreshes content; it does not by itself change your filter stack.
 
-`add-dirs` is the main way to grow the cache. It walks each directory recursively and loads files that look like text: common source extensions are accepted, known binary extensions are skipped, and unknown types are accepted only if the first 4 KiB contain no null byte. Load progress and failures are reported as each path is processed.
+`add-dirs` is the main way to grow the cache. It walks each directory recursively and loads files that look like text: common source extensions are accepted, known binary extensions are skipped, and unknown types are accepted only if the first 4 KiB contain no null byte. Load progress and failures are reported as each path is processed. Separate directories in the same command with spaces. Quote paths which contain spaces.
+
+    add-dirs D:\dev\ada\septum\src D:\dev\ada\trendy_terminal
+    add-dirs "C:\Program Files\Example\bin"
 
 `add-files` adds individual paths without treating their parent directory as a recursive search root. Prefer it for log files, single dumps, or a handful of targets you do not want to pull an entire tree for.
 
@@ -48,9 +220,20 @@ What you load and what you search are related but not identical. Directories and
 
 `stats` reports how many files, lines, and characters the cache currently holds. Check it after large loads or before `unload` when memory pressure is a concern.
 
+    > stats
+
+    Files:       163128
+    Lines:       40005234
+    Characters:  1593398756
+
 The cache does not watch the filesystem. After edits, rebases, or generated-file updates, run `reload` to reread every currently loaded path from disk while keeping the same roots and direct-file list.
 
 `unload` empties the in-memory text without exiting the session. Use it when a huge load is contending with other work, then `reload` when you need search again. Unloading does not forget your filter stack or settings.
+
+    ... drop file cache to do something memory intensive
+    > unload
+    ... need to search again
+    > reload
 
 # Path Filters
 
@@ -104,20 +287,6 @@ Command names resolve by unique prefix, so short forms such as match-c often exp
 
 `disable-line-colors` prints match lines without that color emphasis. Match arrows still mark hit lines either way.
 
-# System
-
-Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present, unless you opt out with shell flags such as --no-config. Create a starter local config with septum init. In config and script files, blank lines and lines whose first non-empty character starts a # comment are ignored, so you can document shared setups.
-
-Partial command matching applies everywhere: type a unique prefix and Septum resolves it to the full command name before running. Ambiguous prefixes are rejected rather than guessed. That same resolution is what lets abbreviated match and filter commands feel short in daily use.
-
-`help` with no arguments prints a one-line summary of every command. `help` with a command name prints that command's longer description.
-
-`run` reads one or more script files and executes each non-comment line as if typed interactively. Nested `run` of a file already on the script stack is refused to prevent recursion loops. From outside the REPL, septum run can drive the same scripts for batch jobs and pipelines; tool-oriented modes can emit structured results for match commands.
-
-`source` remains as a deprecated alias for `run` so older configs keep working. Prefer `run` in new scripts.
-
 `enable-timing` prints how long each executed command took, which helps when comparing large cache loads or heavy match runs.
 
 `disable-timing` stops those duration lines.
-
-`quit` and `exit` end the interactive session. They do not write the cache or filters back to disk; put durable defaults in config files via `run` lines such as `enable-auto-search`, `set-max-results`, and `add-dirs` if you want them every launch.
