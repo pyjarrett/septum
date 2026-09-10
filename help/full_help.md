@@ -8,7 +8,7 @@ Limiting the search into blocks around search terms allows searching for element
 
 Filters get applied in turn with contexts being removed at every step. Similar contexts get deduplicated before presented to cut out more clutter.
 
-## Example:
+Example:
 
     > find-like String
     > match-contexts
@@ -140,9 +140,9 @@ An example session might look like this:
 
 # Line Filters
 
-Septum searches multi-line neighborhoods called contexts, not single isolated lines. You build a search by stacking filters: find filters require terms to appear somewhere in a context, and exclude filters drop any context that still contains an unwanted term. Filters are applied in order, and each new find filter only keeps contexts that also satisfy earlier find filters where their neighborhoods overlap. That lets terms appear in any order and across line breaks, which is hard to express in ordinary line-oriented tools.
+Septum searches multi-line neighborhoods called contexts, not single isolated lines. You build a search by stacking filters: find filters require terms to appear somewhere in a context, and exclude filters drop any context that still contains an unwanted term. Filters are applied in order, and each new find filter only keeps contexts that also satisfy earlier find filters where their neighborhoods overlap. That lets terms appear in any order and across line breaks, which is hard to express in ordinary line-oriented tools. Exclude filters override find filters on the same line.
 
-Because each space-separated argument becomes its own filter entry, you can add several terms at once and later remove or reorder just one of them. When auto-search is off, filter commands only update the filter stack; you run `match-contexts` or `match-files` to see the effect. With auto-search on, each filter change triggers a search and prints result counts.
+Each space-separated argument becomes its own filter entry. You can add several terms at once and later remove or reorder just one of them. When auto-search is off, filter commands only update the filter stack; you run `match-contexts` or `match-files` to see the effect. With auto-search on, each filter change triggers a search and prints result counts.
 
 `find-text` adds a case-sensitive substring filter. Every argument is a separate keep filter that contexts must still satisfy after merging.
 
