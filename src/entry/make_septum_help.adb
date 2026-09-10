@@ -23,10 +23,18 @@ procedure Make_Septum_Help is
     package Help_Printing is
         type Help_Printer is interface;
 
+        procedure Start (Self : in out Help_Printer) is abstract;
+        procedure Finish (Self : in out Help_Printer) is abstract;
         procedure Print_Title (Self : in out Help_Printer; Title : String; Heading_Level : Positive) is abstract;
         procedure Print_Content (Self : in out Help_Printer; Content : String) is abstract;
 
         type Ada_Help_Printer is new Help_Printer with null record;
+
+        overriding
+        procedure Start (Self : in out Ada_Help_Printer);
+
+        overriding
+        procedure Finish (Self : in out Ada_Help_Printer);
 
         overriding
         procedure Print_Title (Self : in out Ada_Help_Printer; Title : String; Heading_Level : Positive);
@@ -36,6 +44,18 @@ procedure Make_Septum_Help is
     end Help_Printing;
 
     package body Help_Printing is
+        overriding
+        procedure Start (Self : in out Ada_Help_Printer) is
+        begin
+            Ada.Text_IO.Put_Line ("Start!");
+        end Start;
+
+        overriding
+        procedure Finish (Self : in out Ada_Help_Printer) is
+        begin
+            Ada.Text_IO.Put_Line ("Finish!");
+        end Finish;
+
         overriding
         procedure Print_Title (Self : in out Ada_Help_Printer; Title : String; Heading_Level : Positive) is
             pragma Unreferenced (Self);
@@ -114,6 +134,7 @@ procedure Make_Septum_Help is
             end return;
         end Leading_Hash_Count;
     begin
+        Help_Printing.Start (Printer);
         for Line of Lines loop
             ASU.Trim (Line, Ada.Strings.Right);
             declare
@@ -128,6 +149,7 @@ procedure Make_Septum_Help is
                 end if;
             end;
         end loop;
+        Help_Printing.Finish (Printer);
     end Write_Help_File;
 
     Config : Make_Help_Config;
