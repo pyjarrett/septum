@@ -1,10 +1,10 @@
 package SP.Help_Topics is
 
-    procedure About (Command_Name : String);
-    procedure Usage (Command_Name : String);
-    procedure Line_Filters (Command_Name : String);
-    procedure File_Cache (Command_Name : String);
-    procedure Path_Filters (Command_Name : String);
-    procedure Results (Command_Name : String);
+    procedure About;
+    procedure Usage;
+    procedure Line_Filters;
+    procedure File_Cache;
+    procedure Path_Filters;
+    procedure Results;
 
 end SP.Help_Topics;

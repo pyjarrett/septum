@@ -33,7 +33,7 @@ package body SP.Commands is
     use Ada.Strings.Unbounded;
     use SP.Output;
 
-    type Help_Proc is not null access procedure (Command_Name : String);
+    type Help_Proc is not null access procedure;
     -- Prints a detailed help description for a command.
 
     type Exec_Proc is not null access function
@@ -204,27 +204,10 @@ package body SP.Commands is
     ----------------------------------------------------------------------------
 
     package Help_Text is
-        function Colorize_Command (Command_Name : String) return String;
-        procedure Header (Command_Name : String; Simple_Help : String);
         procedure Block (Contents : String);
     end Help_Text;
 
     package body Help_Text is
-        function Colorize_Command (Command_Name : String) return String is
-        begin
-            return "|" & SP.Output.Colorize (Command_Name, AnsiAda.Green) & "|";
-        end Colorize_Command;
-
-        procedure Header (Command_Name : String; Simple_Help : String) is
-        begin
-            New_Line;
-            Put_Line ("-------------------------------------------------------");
-            Put_Line (Colorize_Command (Command_Name));
-            Put_Line ("-------------------------------------------------------");
-            Put_Line (Simple_Help);
-            New_Line;
-        end Header;
-
         procedure Block (Contents : String) is
             Width : constant := 80;
             Cursor : Positive := Contents'First;
@@ -269,11 +252,10 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Help_Help (Command_Name : String) is
+    procedure Help_Help is
         use Command_Maps;
         Global_Config_Dir : constant SP.Strings.String_Holders.Holder := SP.Platform.Global_Config_Dir;
     begin
-        pragma Unreferenced (Command_Name);
         Put_Line ("Septum is an interactive search tool for code discovery.");
         New_Line;
 
@@ -317,16 +299,14 @@ package body SP.Commands is
 
         case Command_Line.Length is
             when 0 =>
-                Help_Help ("help");
+                Help_Help;
             when 1 =>
                 if Command_Map.Contains (Target) then
                     declare
                         Cursor  : constant Command_Maps.Cursor := Command_Map.Find (Target);
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
-                        Name    : constant String := ASU.To_String (Target);
                     begin
-                        Help_Text.Header (Name, ASU.To_String (Command.Simple_Help));
-                        Command.Help.all (Name);
+                        Command.Help.all;
                     end;
                 end if;
             when others =>
