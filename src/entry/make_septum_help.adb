@@ -19,14 +19,16 @@ procedure Make_Septum_Help is
 
     package ASU renames Ada.Strings.Unbounded;
 
-    --  Dispatching interfaces must be declared in a package spec.
     package Help_Printing is
+        --  Provides a common way of converting markdown-esque format into in-program
+        --  help or another form.
         type Help_Printer is interface;
 
         procedure Start (Self : in out Help_Printer) is abstract;
         procedure Finish (Self : in out Help_Printer) is abstract;
         procedure Print_Title (Self : in out Help_Printer; Title : String; Heading_Level : Positive) is abstract;
         procedure Print_Content (Self : in out Help_Printer; Content : String) is abstract;
+        procedure Print_Literal (Self : in out Help_Printer; Content : String) is abstract;
 
         type Ada_Help_Printer is new Help_Printer with null record;
 
@@ -41,6 +43,9 @@ procedure Make_Septum_Help is
 
         overriding
         procedure Print_Content (Self : in out Ada_Help_Printer; Content : String);
+
+        overriding
+        procedure Print_Literal (Self : in out Ada_Help_Printer; Content : String);
     end Help_Printing;
 
     package body Help_Printing is
@@ -69,6 +74,13 @@ procedure Make_Septum_Help is
         begin
             Ada.Text_IO.Put_Line ("Content: " & Content);
         end Print_Content;
+
+        overriding
+        procedure Print_Literal (Self : in out Ada_Help_Printer; Content : String) is
+            pragma Unreferenced (Self);
+        begin
+            Ada.Text_IO.Put_Line (Content);
+        end Print_Literal;
     end Help_Printing;
 
     function Parse_Command_Line return Make_Help_Config is
