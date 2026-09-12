@@ -9,14 +9,11 @@ package body SP.Help is
         return "|" & SP.Output.Colorize (Command_Name, AnsiAda.Green) & "|";
     end Colorize_Command;
 
-    procedure Header (Command_Name : String; Simple_Help : String) is
+    procedure Header (Name : String) is
     begin
-        New_Line;
         Put_Line ("-------------------------------------------------------");
-        Put_Line (Colorize_Command (Command_Name));
+        Put_Line (Colorize_Command (Name));
         Put_Line ("-------------------------------------------------------");
-        Put_Line (Simple_Help);
-        New_Line;
     end Header;
 
     procedure Block (Contents : String) is

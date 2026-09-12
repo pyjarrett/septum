@@ -3,6 +3,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure About is
    begin
+      SP.Help.Header ("About");
       SP.Help.Plain("");
 
       SP.Help.Block("Septum provides interactive searching of a codebase for blocks of lines which contain the terms you want, and exclude the terms you don't want.  ");
@@ -138,6 +139,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure Usage is
    begin
+      SP.Help.Header ("Usage");
       SP.Help.Plain("");
 
       SP.Help.Block("Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present, unless you opt out with `--no-config`.  ");
@@ -174,6 +176,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure Line_Filters is
    begin
+      SP.Help.Header ("Line Filters");
       SP.Help.Plain("");
 
       SP.Help.Block("Septum searches multi-line neighborhoods called contexts, not single isolated lines. You build a search by stacking filters: find filters require terms to appear somewhere in a context, and exclude filters drop any context that still contains an unwanted term. Filters are applied in order, and each new find filter only keeps contexts that also satisfy earlier find filters where their neighborhoods overlap. That lets terms appear in any order and across line breaks, which is hard to express in ordinary line-oriented tools. Exclude filters override find filters on the same line.  ");
@@ -248,6 +251,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure File_Cache is
    begin
+      SP.Help.Header ("File Cache");
       SP.Help.Plain("");
 
       SP.Help.Block("Septum loads candidate text into an in-memory file cache and runs searches against that cache rather than rereading the disk for every query. Anecdotally this uses about 100 MB per million lines and can scan on the order of millions of lines per second on a modern laptop, which is why interactive refinement stays responsive on large trees.  ");
@@ -298,6 +302,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure Path_Filters is
    begin
+      SP.Help.Header ("Path Filters");
       SP.Help.Plain("");
 
       SP.Help.Block("Path filters shrink the set of cached files considered for matching. They do not unload files from memory; they only decide eligibility at search time. Extension filters work the same way and can be combined with path fragment filters.  ");
@@ -328,6 +333,7 @@ package body SP.Help_Topics is
    pragma Style_Checks(Off);
    procedure Results is
    begin
+      SP.Help.Header ("Results");
       SP.Help.Plain("");
 
       SP.Help.Block("A result is a context: a contiguous line range in one file that contains the merged matches of your find filters and none of your exclude hits. Context width controls how many lines above and below each matching line are pulled into that neighborhood. The default width is several lines so nearby declarations stay visible; width 0 collapses each hit toward a single line and approximates an interactive grep. Omitting the argument to `set-context-width` removes the width restriction so neighborhoods can grow to the whole file when needed.  ");

@@ -105,13 +105,13 @@ procedure Make_Septum_Help is
         end Text_Sanitize;
 
         procedure Start_Section (Self : in out Ada_Help_Printer) is
+            Section_String : constant String := Ada.Strings.Unbounded.To_String (Self.Current_Section);
         begin
             Ada.Text_IO.Put_Line (Self.Target.all, "   pragma Style_Checks(Off);");
-            Ada.Text_IO.Put
-               (Self.Target.all,
-                "   procedure " & Title_Sanitize (Ada.Strings.Unbounded.To_String (Self.Current_Section)));
+            Ada.Text_IO.Put (Self.Target.all, "   procedure " & Title_Sanitize (Section_String));
             Ada.Text_IO.Put_Line (Self.Target.all, " is");
             Ada.Text_IO.Put_Line (Self.Target.all, "   begin");
+            Ada.Text_IO.Put_Line (Self.Target.all, "      SP.Help.Header (""" & Section_String & """);");
         end Start_Section;
 
         procedure End_Section (Self : in out Ada_Help_Printer) is
