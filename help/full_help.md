@@ -202,6 +202,8 @@ Septum loads candidate text into an in-memory file cache and runs searches again
 
 What you load and what you search are related but not identical. Directories and files define the cache. Path and extension filters decide which cached paths participate in the next match. Reloading refreshes content; it does not by itself change your filter stack.
 
+Septum currently doesn't track updates to files or loaded directories.
+
 `add-dirs` is the main way to grow the cache. It walks each directory recursively and loads files that look like text: common source extensions are accepted, known binary extensions are skipped, and unknown types are accepted only if the first 4 KiB contain no null byte. Load progress and failures are reported as each path is processed. Separate directories in the same command with spaces. Quote paths which contain spaces.
 
     > add-dirs D:\dev\ada\septum\src D:\dev\ada\trendy_terminal

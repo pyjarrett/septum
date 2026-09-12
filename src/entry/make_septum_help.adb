@@ -181,8 +181,10 @@ procedure Make_Septum_Help is
         begin
             if In_Block (Self) then
                 Print_Block (Self);
+            else
+                Ada.Text_IO.Put_Line (Self.Target.all, "      SP.Help.Plain("""");");
             end if;
-            --  Ada.Text_IO.New_Line (Self.Target.all);
+            Ada.Text_IO.New_Line (Self.Target.all);
         end Print_Line;
 
         overriding

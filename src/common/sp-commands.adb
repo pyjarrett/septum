@@ -337,22 +337,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Reload_Help (Command_Name : String) is
-    begin
-        Help_Text.Block ("Septum currently doesn't track updates to files to "
-            & "loaded directories."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides the means to update all currently loaded files with the "
-            & "current contents on disk."
-        );
-        Help_Text.Block (Help_Text.Colorize_Command (Command_Name)
-            & " also provides the counterpart to `unload` which is used to drop "
-            & "the file cache."
-        );
-    end Reload_Help;
-
     function Reload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -367,20 +351,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Unload_Help (Command_Name : String) is
-    begin
-        Help_Text.Block ("Anecdotally, septum uses ~100 MB per million lines of code loaded "
-            & "for search. When dealing with extremely large amounts of text this "
-            & "can interfere with other operations.  Instead of shutting down the "
-            & "program, instead you can "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " the data set, do whatever operations "
-            & "you need and then "
-            & Help_text.Colorize_Command ("reload")
-            & " to bring the files back for search."
-        );
-    end Unload_Help;
-
     function Unload_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -392,16 +362,6 @@ package body SP.Commands is
     end Unload_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Stats_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "Septum maintains all search context in memory within the file cache. "
-            & "Due to the large amount of text that can be loaded, it can be useful "
-            & "to examine where and how this storage is used. "
-        );
-    end Stats_Help;
 
     function Stats_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -416,17 +376,6 @@ package body SP.Commands is
     end Stats_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Source_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " executes septum commands from a file, as-if they were run by a user. "
-            & "This provides a mechanism for simple configuration, or re-running specific setups "
-            & "for complicated searches."
-        );
-        Help_Text.Block ("`source` is the deprecated alias for `run`.");
-    end Source_Help;
 
     function Source_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -464,16 +413,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Test_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "It can be confusing to know exactly why something is not being filtered. "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " provides a mechanism to see how different filters evaluate against"
-            & " a line of text."
-        );
-    end Test_Help;
-
     function Test_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
@@ -494,21 +433,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Add_Files_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "Normally, directories get added for search, and then every file "
-            & "is evaluated in turn to decide whether or not it should be loaded."
-            & "`add-files` provides a mechanism to add specific files, while not "
-            & "loading the containing directory."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides a mechanism for target loads, such as for logfiles, "
-            & " or otherwise isolated files."
-        );
-    end Add_Files_Help;
-
     function Add_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
@@ -525,26 +449,6 @@ package body SP.Commands is
     end Add_Files_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Add_Dirs_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " is the primary mechanism through which files get added "
-            & "for search."
-        );
-        Help_Text.Block (
-            "Adding directories causes septum to recursively add every file "
-            & " which looks like text to the search pool.  ""Looks like"" covers "
-            & "popularly known extensions (.txt, .cpp, .rs, etc.) while "
-            & "ignoring other known binary extensions (.jpg, .png, .zip). "
-        );
-        Help_Text.Block (
-            "If a file's extensions don't match the built-in filters, then "
-            & "the first 4 KiB of characters are loaded and the file is "
-            & "considered text if a null byte is not found."
-        );
-    end Add_Dirs_Help;
 
     function Add_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -563,12 +467,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure List_Dirs_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("List the directories of the search list.");
-    end List_Dirs_Help;
-
     function List_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -583,12 +481,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Dirs_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears all search directories.");
-    end Clear_Dirs_Help;
-
     function Clear_Dirs_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -601,12 +493,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Files_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears custom added search files.");
-    end Clear_Files_Help;
-
     function Clear_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -618,16 +504,6 @@ package body SP.Commands is
     end Clear_Files_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Files_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "List the files of the search list."
-            & " Supports an optional 'full' argument, otherwise the number"
-            & " of printed files is capped."
-        );
-    end List_Files_Help;
 
     function List_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Full : Boolean := False;
@@ -741,27 +617,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Text_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " provides a case-sensitive search filter."
-            & Help_Text.Colorize_Command ("find-like")
-            & " provides a case-insensitive filter."
-        );
-        Help_Text.Block (
-            "Each space separated text parameter to "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " is treated as an additional filter. This supports applying "
-            & "multiple text filters and then being able to manipulate individual "
-            & "ones using commands like "
-            & Help_Text.Colorize_Command ("drop")
-            & " and "
-            & Help_Text.Colorize_Command ("reorder")
-            & "."
-        );
-    end Find_Text_Help;
-
     function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -773,11 +628,6 @@ package body SP.Commands is
     end Find_Text_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Exclude_Text_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-    end Exclude_Text_Help;
 
     function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -791,12 +641,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Like_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for (case insensitive).");
-    end Find_Like_Help;
-
     function Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -808,12 +652,6 @@ package body SP.Commands is
     end Find_Like_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Exclude_Like_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides text to search for (case insensitive).");
-    end Exclude_Like_Help;
 
     function Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -827,12 +665,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Regex_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides regex to search for.");
-    end Find_Regex_Help;
-
     function Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -845,12 +677,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Regex_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides Regex to search for.");
-    end Exclude_Regex_Help;
-
     function Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -862,12 +688,6 @@ package body SP.Commands is
     end Exclude_Regex_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Line_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the currently bound line filters.");
-    end List_Line_Filters_Help;
 
     function List_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
@@ -898,12 +718,6 @@ package body SP.Commands is
     end List_Path_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Reorder_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Reorders filters, possibly dropping some of them.");
-    end Reorder_Help;
 
     function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
         Index : Positive := Positive'Last;
@@ -961,12 +775,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Drop_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Drops given filters, or the most recent filter if non given.");
-    end Drop_Help;
-
     function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
@@ -1011,12 +819,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Pop_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Pops the last applied filter from the search.");
-    end Pop_Help;
-
     function Pop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1030,12 +832,6 @@ package body SP.Commands is
     end Pop_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Clear_Line_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Pops all filters.");
-    end Clear_Line_Filters_Help;
 
     function Clear_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1064,16 +860,6 @@ package body SP.Commands is
     end Clear_Path_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Match_Contexts_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the Contexts currently matching all filters.");
-        New_Line;
-        Put_Line ("match-contexts        Prints up to max-results results");
-        Put_Line ("match-contexts N      Prints the first N results");
-        Put_Line ("match-contexts M N    Prints the M ... N results");
-    end Match_Contexts_Help;
 
     function Match_Contexts_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
@@ -1108,16 +894,6 @@ package body SP.Commands is
     end Match_Contexts_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Match_Files_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            Help_Text.Colorize_Command (Command_Name)
-            & " lists all files which match the current filters. "
-            & "This command is particularly useful to determine if path filters "
-            & "would be effective to cull search results. "
-        );
-    end Match_Files_Help;
 
     function Match_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
@@ -1167,21 +943,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Quit_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Help_Text.Block (
-            "Septum is designed as a interactive search application. "
-            & "In typical usage, the program remains 'live' in the background "
-            & "in a separate tmux tab or terminal."
-        );
-        Help_Text.Block (
-            Help_Text.Colorize_Command ("reload")
-            & " is needed to update text files during heavy edits or when "
-            & " rebasing during the day."
-        );
-    end Quit_Help;
-
     function Quit_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         pragma Unreferenced (Srch, Command_Line);
@@ -1189,12 +950,6 @@ package body SP.Commands is
     end Quit_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Set_Context_Width_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("List lines matching the current filter.");
-    end Set_Context_Width_Help;
 
     function Set_Context_Width_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Context_Width : Natural := 0;
@@ -1220,12 +975,6 @@ package body SP.Commands is
     end Set_Context_Width_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Set_Max_Results_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Sets the maximum number of results which can be returned.");
-    end Set_Max_Results_Help;
 
     function Set_Max_Results_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Max_Results : Natural := SP.Searches.No_Max_Results;
@@ -1256,12 +1005,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Search_On_Filters_Changed_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables searching automatically when filters are changed.");
-    end Enable_Search_On_Filters_Changed_Help;
-
     function Enable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1271,12 +1014,6 @@ package body SP.Commands is
         SP.Searches.Set_Search_On_Filters_Changed (Srch, True);
         return Command_Success;
     end Enable_Search_On_Filters_Changed_Exec;
-
-    procedure Disable_Search_On_Filters_Changed_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables searching automatically when filters are changed.");
-    end Disable_Search_On_Filters_Changed_Help;
 
     function Disable_Search_On_Filters_Changed_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1290,12 +1027,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Numbers_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables line numbers in context output.");
-    end Enable_Line_Numbers_Help;
-
     function Enable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1305,12 +1036,6 @@ package body SP.Commands is
         SP.Searches.Set_Print_Line_Numbers (Srch, True);
         return Command_Success;
     end Enable_Line_Numbers_Exec;
-
-    procedure Disable_Line_Numbers_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables line numbers in context output.");
-    end Disable_Line_Numbers_Help;
 
     function Disable_Line_Numbers_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1324,12 +1049,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Line_Colors_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables line colors in context output.");
-    end Enable_Line_Colors_Help;
-
     function Enable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1339,12 +1058,6 @@ package body SP.Commands is
         SP.Searches.Set_Line_Colors_Enabled (Srch, True);
         return Command_Success;
     end Enable_Line_Colors_Exec;
-
-    procedure Disable_Line_Colors_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables line colors in context output.");
-    end Disable_Line_Colors_Help;
 
     function Disable_Line_Colors_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1392,50 +1105,50 @@ begin
     -- Actions
 
     Make_Command ("help", "Print commands or help for a specific command", Help_Help'Access, Help_Exec'Access);
-    Make_Command ("reload", "Reloads the file cache.", Reload_Help'Access, Reload_Exec'Access);
-    Make_Command ("unload", "Unloads the file cache.", Unload_Help'Access, Unload_Exec'Access);
-    Make_Command ("stats", "Print file cache statistics.", Stats_Help'Access, Stats_Exec'Access);
-    Make_Command ("source", "[DEPRECATED] Loads a configuration from file. Use 'run' instead.", Source_Help'Access, Source_Exec'Access);
-    Make_Command ("run", "Loads a configuration from file.", Source_Help'Access, Source_Exec'Access);
-    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Test_Help'Access, Test_Exec'Access);
+    Make_Command ("source", "[DEPRECATED] Loads a configuration from file. Use 'run' instead.", Help_Topics.Usage'Access, Source_Exec'Access);
+    Make_Command ("run", "Loads a configuration from file.", Help_Topics.Usage'Access, Source_Exec'Access);
 
     -- Filters
 
-    Make_Command ("find-text", "Adds filter text.", Find_Text_Help'Access, Find_Text_Exec'Access);
-    Make_Command ("exclude-text", "Adds text to exclude.", Exclude_Text_Help'Access, Exclude_Text_Exec'Access);
-    Make_Command ("find-like", "Adds filter text (case insensitive).", Find_Like_Help'Access, Find_Like_Exec'Access);
-    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Exclude_Like_Help'Access, Exclude_Like_Exec'Access);
-    Make_Command ("find-regex", "Adds filter regex.", Find_Regex_Help'Access, Find_Regex_Exec'Access);
-    Make_Command ("exclude-regex", "Adds regex to exclude.", Exclude_Regex_Help'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("find-text", "Adds filter text.", Help_Topics.Path_Filters'Access, Find_Text_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude.", Help_Topics.Path_Filters'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-like", "Adds filter text (case insensitive).", Help_Topics.Path_Filters'Access, Find_Like_Exec'Access);
+    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topics.Path_Filters'Access, Exclude_Like_Exec'Access);
+    Make_Command ("find-regex", "Adds filter regex.", Help_Topics.Path_Filters'Access, Find_Regex_Exec'Access);
+    Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topics.Path_Filters'Access, Exclude_Regex_Exec'Access);
 
-    Make_Command ("reorder", "Reorder filters by index.", Reorder_Help'Access, Reorder_Exec'Access);
-    Make_Command ("drop", "Drops the filters at the given indices.", Drop_Help'Access, Drop_Exec'Access);
-    Make_Command ("pop", "Pops the last applied filter.", Pop_Help'Access, Pop_Exec'Access);
-    Make_Command ("clear-line-filters", "Pops all filters.", Clear_Line_Filters_Help'Access, Clear_Line_Filters_Exec'Access);
-    Make_Command ("list-line-filters", "Lists all applied line filters.", List_Line_Filters_Help'Access, List_Line_Filters_Exec'Access);
+    Make_Command ("reorder", "Reorder filters by index.", Help_Topics.Line_Filters'Access, Reorder_Exec'Access);
+    Make_Command ("drop", "Drops the filters at the given indices.", Help_Topics.Line_Filters'Access, Drop_Exec'Access);
+    Make_Command ("pop", "Pops the last applied filter.", Help_Topics.Line_Filters'Access, Pop_Exec'Access);
+    Make_Command ("test", "Check to see which filters would trigger on a line of text.", Help_Topics.Line_Filters'Access, Test_Exec'Access);
+    Make_Command ("clear-line-filters", "Pops all filters.", Help_Topics.Line_Filters'Access, Clear_Line_Filters_Exec'Access);
+    Make_Command ("list-line-filters", "Lists all applied line filters.", Help_Topics.Line_Filters'Access, List_Line_Filters_Exec'Access);
 
     -- Results
 
     Make_Command
-        ("match-contexts", "Lists contexts matching the current filter.", Match_Contexts_Help'Access,
+        ("match-contexts", "Lists contexts matching the current filter.", Help_Topics.Results'Access,
          Match_Contexts_Exec'Access);
     Make_Command
-        ("match-files", "Lists files matching the current filter.", Match_Files_Help'Access,
+        ("match-files", "Lists files matching the current filter.", Help_Topics.Results'Access,
          Match_Files_Exec'Access);
 
-    -- Global configuration
+    -- File Cache
 
-    Make_Command ("add-files", "Adds files to the search list.", Add_Files_Help'Access, Add_Files_Exec'Access);
-    Make_Command ("add-dirs", "Adds directory to the search list.", Add_Dirs_Help'Access, Add_Dirs_Exec'Access);
+    Make_Command ("add-files", "Adds files to the search list.", Help_Topics.File_Cache'Access, Add_Files_Exec'Access);
+    Make_Command ("add-dirs", "Adds directory to the search list.", Help_Topics.File_Cache'Access, Add_Dirs_Exec'Access);
     Make_Command
-        ("list-dirs", "List the directories in the search list.", List_Dirs_Help'Access, List_Dirs_Exec'Access);
+        ("list-dirs", "List the directories in the search list.", Help_Topics.File_Cache'Access, List_Dirs_Exec'Access);
     Make_Command
-        ("clear-dirs", "Removes all directories from the search list.", Clear_Dirs_Help'Access, Clear_Dirs_Exec'Access);
+        ("clear-dirs", "Removes all directories from the search list.", Help_Topics.File_Cache'Access, Clear_Dirs_Exec'Access);
     Make_Command
-        ("clear-files", "Removes all custom added files from the search list.", Clear_Files_Help'Access, Clear_Files_Exec'Access);
+        ("clear-files", "Removes all custom added files from the search list.", Help_Topics.File_Cache'Access, Clear_Files_Exec'Access);
 
     Make_Command
-        ("list-files", "List the files in the search list.", List_Files_Help'Access, List_Files_Exec'Access);
+        ("list-files", "List the files in the search list.", Help_Topics.File_Cache'Access, List_Files_Exec'Access);
+    Make_Command ("stats", "Print file cache statistics.", Help_Topics.File_Cache'Access, Stats_Exec'Access);
+    Make_Command ("reload", "Reloads the file cache.", Help_Topics.File_Cache'Access, Reload_Exec'Access);
+    Make_Command ("unload", "Unloads the file cache.", Help_Topics.File_Cache'Access, Unload_Exec'Access);
 
     -- Path Filtering
 
@@ -1454,32 +1167,32 @@ begin
     -- Settings
 
     Make_Command
-        ("set-context-width", "Sets the width of the context in which to find matches.", Set_Context_Width_Help'Access,
+        ("set-context-width", "Sets the width of the context in which to find matches.", Help_Topics.Results'Access,
          Set_Context_Width_Exec'Access);
     Make_Command
         ("set-max-results", "Sets the maximum results returned before only the total number of results are returned.",
-         Set_Max_Results_Help'Access, Set_Max_Results_Exec'Access);
+         Help_Topics.Results'Access, Set_Max_Results_Exec'Access);
 
     Make_Command
-        ("enable-auto-search", "Search when filters are changed automatically", Enable_Search_On_Filters_Changed_Help'Access,
+        ("enable-auto-search", "Search when filters are changed automatically", Help_Topics.Results'Access,
          Enable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
-        ("disable-auto-search", "Turn off search when filters are changed automatically", Disable_Search_On_Filters_Changed_Help'Access,
+        ("disable-auto-search", "Turn off search when filters are changed automatically", Help_Topics.Results'Access,
          Disable_Search_On_Filters_Changed_Exec'Access);
 
     Make_Command
-        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Enable_Line_Numbers_Help'Access,
+        ("enable-line-numbers", "Enables prefixing of lines with line numbers.", Help_Topics.Results'Access,
          Enable_Line_Numbers_Exec'Access);
     Make_Command
-        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Disable_Line_Numbers_Help'Access,
+        ("disable-line-numbers", "Disables prefixing of lines with line numbers.", Help_Topics.Results'Access,
          Disable_Line_Numbers_Exec'Access);
 
     Make_Command
-        ("enable-line-colors", "Enables colorizing lines with matches.", Enable_Line_Colors_Help'Access,
+        ("enable-line-colors", "Enables colorizing lines with matches.", Help_Topics.Results'Access,
          Enable_Line_Colors_Exec'Access);
     Make_Command
-        ("disable-line-colors", "Disables colorizing lines with matches.", Disable_Line_Colors_Help'Access,
+        ("disable-line-colors", "Disables colorizing lines with matches.", Help_Topics.Results'Access,
          Disable_Line_Colors_Exec'Access);
 
     Make_Command
@@ -1491,6 +1204,6 @@ begin
 
     -- Quit
 
-    Make_Command ("quit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
-    Make_Command ("exit", "Exits the search program.", Quit_Help'Access, Quit_Exec'Access);
+    Make_Command ("quit", "Exits the search program.", Help_Topics.Usage'Access, Quit_Exec'Access);
+    Make_Command ("exit", "Exits the search program.", Help_Topics.Usage'Access, Quit_Exec'Access);
 end SP.Commands;
