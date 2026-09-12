@@ -60,6 +60,11 @@ package body SP.Help is
         New_Line;
     end Block;
 
+    procedure Plain (Contents : String) is
+    begin
+        Put_Line (Contents);
+    end Plain;
+
     procedure Example (Contents : Strings.String_Vectors.Vector) is
     begin
         New_Line;

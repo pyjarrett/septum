@@ -23,6 +23,7 @@ with AnsiAda;
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;
+with SP.Help_Topics;
 with SP.Platform;
 with SP.Output;
 
@@ -661,16 +662,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Find_Path_Help (Command_Name : String) is
-    begin
-        Help_Text.Block (
-            "All files are considered during the search, unless specific paths"
-            & " are requested to be found. "
-            & Help_Text.Colorize_Command (Command_Name)
-            & " restricts the search to only files which match this filter."
-        );
-    end Find_Path_Help;
-
     function Find_Path_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -683,12 +674,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Exclude_Path_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Provides path elements to exclude from the search.");
-    end Exclude_Path_Help;
-
     function Exclude_Paths_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
@@ -700,12 +685,6 @@ package body SP.Commands is
     end Exclude_Paths_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Add_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Adds extension to the search list.");
-    end Add_Extensions_Help;
 
     function Add_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -722,12 +701,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Clear_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Clears extension to the search list.");
-    end Clear_Extensions_Help;
-
     function Clear_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -740,12 +713,6 @@ package body SP.Commands is
     end Clear_Extensions_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Remove_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Removes extension to the search list.");
-    end Remove_Extensions_Help;
 
     function Remove_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
     begin
@@ -761,12 +728,6 @@ package body SP.Commands is
     end Remove_Extensions_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Extensions_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists extensions to filter by.");
-    end List_Extensions_Help;
 
     function List_Extensions_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Extensions : constant String_Vectors.Vector := SP.Searches.List_Extensions (Srch);
@@ -922,12 +883,6 @@ package body SP.Commands is
     end List_Line_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure List_Path_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Lists the currently bound path filters.");
-    end List_Path_Filters_Help;
 
     function List_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.Path_Filter_Names (Srch);
@@ -1095,12 +1050,6 @@ package body SP.Commands is
     end Clear_Line_Filters_Exec;
 
     ----------------------------------------------------------------------------
-
-    procedure Clear_Path_Filters_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Removes all path filters.");
-    end Clear_Path_Filters_Help;
 
     function Clear_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1409,12 +1358,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    procedure Enable_Timing_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Enables reporting of time it takes to run commands.");
-    end Enable_Timing_Help;
-
     function Enable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if not Command_Line.Is_Empty then
@@ -1424,12 +1367,6 @@ package body SP.Commands is
         SP.Searches.Set_Show_Timings (Srch, True);
         return Command_Success;
     end Enable_Timing_Exec;
-
-    procedure Disable_Timing_Help (Command_Name : String) is
-    begin
-        pragma Unreferenced (Command_Name);
-        Put_Line ("Disables reporting of time it takes to run commands.");
-    end Disable_Timing_Help;
 
     function Disable_Timing_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
@@ -1502,17 +1439,17 @@ begin
 
     -- Path Filtering
 
-    Make_Command ("find-path", "Only look in paths containing this.", Find_Path_Help'Access, Find_Path_Exec'Access);
-    Make_Command ("exclude-path", "Exclude paths containing this from the search", Exclude_Path_Help'Access, Exclude_Paths_Exec'Access);
-    Make_Command ("clear-path-filters", "Pops all filters.", Clear_Path_Filters_Help'Access, Clear_Path_Filters_Exec'Access);
-    Make_Command ("list-path-filters", "Lists all applied path filters.", List_Path_Filters_Help'Access, List_Path_Filters_Exec'Access);
+    Make_Command ("find-path", "Only look in paths containing this.", Help_Topics.Path_Filters'Access, Find_Path_Exec'Access);
+    Make_Command ("exclude-path", "Exclude paths containing this from the search", Help_Topics.Path_Filters'Access, Exclude_Paths_Exec'Access);
+    Make_Command ("clear-path-filters", "Pops all filters.", Help_Topics.Path_Filters'Access, Clear_Path_Filters_Exec'Access);
+    Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topics.Path_Filters'Access, List_Path_Filters_Exec'Access);
 
-    Make_Command ("only-exts", "Adds extensions to find results in.", Add_Extensions_Help'Access, Add_Extensions_Exec'Access);
+    Make_Command ("only-exts", "Adds extensions to find results in.", Help_Topics.Path_Filters'Access, Add_Extensions_Exec'Access);
     Make_Command
-        ("remove-exts", "Removes an extension filter from the search.", Remove_Extensions_Help'Access,
+        ("remove-exts", "Removes an extension filter from the search.", Help_Topics.Path_Filters'Access,
          Remove_Extensions_Exec'Access);
-    Make_Command ("clear-exts", "Clears extension filters.", Clear_Extensions_Help'Access, Clear_Extensions_Exec'Access);
-    Make_Command ("list-exts", "List current extensions.", List_Extensions_Help'Access, List_Extensions_Exec'Access);
+    Make_Command ("clear-exts", "Clears extension filters.", Help_Topics.Path_Filters'Access, Clear_Extensions_Exec'Access);
+    Make_Command ("list-exts", "List current extensions.", Help_Topics.Path_Filters'Access, List_Extensions_Exec'Access);
 
     -- Settings
 
@@ -1546,10 +1483,10 @@ begin
          Disable_Line_Colors_Exec'Access);
 
     Make_Command
-        ("enable-timing", "Enables timing of command run time.", Enable_Timing_Help'Access,
+        ("enable-timing", "Enables timing of command run time.", Help_Topics.Results'Access,
          Enable_Timing_Exec'Access);
     Make_Command
-        ("disable-timing", "Disables timing of command run time.", Disable_Timing_Help'Access,
+        ("disable-timing", "Disables timing of command run time.", Help_Topics.Results'Access,
          Disable_Timing_Exec'Access);
 
     -- Quit

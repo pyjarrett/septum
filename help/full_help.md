@@ -108,8 +108,8 @@ let's shorten `match-contexts` to `match-c`.
 
     > match-c
 
-Matching contexts:  653
-Matching files: 111
+    Matching contexts:  653
+    Matching files: 111
 
 # Usage
 
@@ -196,7 +196,6 @@ Each space-separated argument becomes its own filter entry. You can add several 
 
     MATCHED
 
-
 # File Cache
 
 Septum loads candidate text into an in-memory file cache and runs searches against that cache rather than rereading the disk for every query. Anecdotally this uses about 100 MB per million lines and can scan on the order of millions of lines per second on a modern laptop, which is why interactive refinement stays responsive on large trees.
@@ -205,8 +204,8 @@ What you load and what you search are related but not identical. Directories and
 
 `add-dirs` is the main way to grow the cache. It walks each directory recursively and loads files that look like text: common source extensions are accepted, known binary extensions are skipped, and unknown types are accepted only if the first 4 KiB contain no null byte. Load progress and failures are reported as each path is processed. Separate directories in the same command with spaces. Quote paths which contain spaces.
 
-    add-dirs D:\dev\ada\septum\src D:\dev\ada\trendy_terminal
-    add-dirs "C:\Program Files\Example\bin"
+    > add-dirs D:\dev\ada\septum\src D:\dev\ada\trendy_terminal
+    > add-dirs "C:\Program Files\Example\bin"
 
 `add-files` adds individual paths without treating their parent directory as a recursive search root. Prefer it for log files, single dumps, or a handful of targets you do not want to pull an entire tree for.
 
