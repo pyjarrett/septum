@@ -37,6 +37,7 @@ procedure Make_Septum_Help is
             Target          : Ada.Text_IO.File_Access := Ada.Text_IO.Standard_Output;
             Current_Block   : Ada.Strings.Unbounded.Unbounded_String;
             Current_Section : Ada.Strings.Unbounded.Unbounded_String;
+            Sections        : SP.Strings.String_Sets.Set;
         end record;
 
         procedure Open (Self : in out Ada_Help_Printer; Path : String);
@@ -104,14 +105,30 @@ procedure Make_Septum_Help is
             return ASU.To_String (Temp);
         end Text_Sanitize;
 
+        procedure Start_Procedure (Self : in out Ada_Help_Printer; Name : String) is
+        begin
+            Ada.Text_IO.Put_Line (Self.Target.all, "   pragma Style_Checks(Off);");
+            Ada.Text_IO.Put (Self.Target.all, "   procedure " & Title_Sanitize (Name));
+            Ada.Text_IO.Put_Line (Self.Target.all, " is");
+            Ada.Text_IO.Put_Line (Self.Target.all, "   begin");
+        end Start_Procedure;
+
+        procedure End_Procedure (Self : in out Ada_Help_Printer; Name : String) is
+        begin
+            Ada.Text_IO.Put_Line (Self.Target.all, "   end " & Title_Sanitize (Name) & ";");
+            Ada.Text_IO.Put_Line (Self.Target.all, "   pragma Style_Checks(On);");
+            Ada.Text_IO.New_Line (Self.Target.all);
+        end End_Procedure;
+
         procedure Start_Section (Self : in out Ada_Help_Printer) is
             Section_String : constant String := Ada.Strings.Unbounded.To_String (Self.Current_Section);
         begin
-            Ada.Text_IO.Put_Line (Self.Target.all, "   pragma Style_Checks(Off);");
-            Ada.Text_IO.Put (Self.Target.all, "   procedure " & Title_Sanitize (Section_String));
-            Ada.Text_IO.Put_Line (Self.Target.all, " is");
-            Ada.Text_IO.Put_Line (Self.Target.all, "   begin");
+            if Self.Sections.Contains (Self.Current_Section) then
+                raise Program_Error with "Duplicate section: " & Section_String;
+            end if;
+            Start_Procedure (Self, Section_String);
             Ada.Text_IO.Put_Line (Self.Target.all, "      SP.Help.Header (""" & Section_String & """);");
+            Self.Sections.Insert (Self.Current_Section);
         end Start_Section;
 
         procedure End_Section (Self : in out Ada_Help_Printer) is
@@ -119,12 +136,7 @@ procedure Make_Septum_Help is
             if not In_Section (Self) then
                 raise Program_Error with "No current section.";
             end if;
-
-            Ada.Text_IO.Put_Line
-               (Self.Target.all,
-                "   end " & Title_Sanitize (Ada.Strings.Unbounded.To_String (Self.Current_Section)) & ";");
-            Ada.Text_IO.Put_Line (Self.Target.all, "   pragma Style_Checks(On);");
-            Ada.Text_IO.New_Line (Self.Target.all);
+            End_Procedure (Self, ASU.To_String (Self.Current_Section));
             Self.Current_Section := Ada.Strings.Unbounded.Null_Unbounded_String;
         end End_Section;
 
@@ -144,6 +156,25 @@ procedure Make_Septum_Help is
             if In_Section (Self) then
                 End_Section (Self);
             end if;
+
+            Ada.Text_IO.Put_Line (Self.Target.all, "begin");
+            Ada.Text_IO.New_Line (Self.Target.all);
+            for Section of Self.Sections loop
+                declare
+                    Topic : constant String := Title_Sanitize (ASU.To_String (Section));
+                begin
+                    Ada.Text_IO.Put_Line
+                       (Self.Target.all,
+                        "   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("""
+                        & Topic
+                        & """), "
+                        & Topic
+                        & "'Access"
+                        & ");");
+                end;
+            end loop;
+            Ada.Text_IO.New_Line (Self.Target.all);
+
             Ada.Text_IO.Put_Line (Self.Target.all, "end SP.Help_Topics;");
 
             if Ada.Text_IO.Is_Open (Self.File) then

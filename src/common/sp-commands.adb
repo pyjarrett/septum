@@ -277,6 +277,7 @@ package body SP.Commands is
         New_Line;
 
         -- Print commands.
+        Put_Line ("Commands:");
         for Cursor in Command_Map.Iterate loop
             declare
                 Command_Padding : constant String (1 .. 26 - Length (Key (Cursor))) := [others => ' '];
@@ -287,12 +288,20 @@ package body SP.Commands is
                Put_Line (Constant_Reference (Command_Map, Cursor).Simple_Help);
             end;
         end loop;
+
+        New_Line;
+        Put_Line ("Topics:");
+        for Topic in Help_Topics.Topics.Iterate loop
+            Put ("    ");
+            Put_Line (Help_Topics.String_Maps.Key (Topic));
+        end loop;
+        New_Line;
     end Help_Help;
 
     function Help_Exec (Srch : in out SP.Searches.Search; Command_Line : String_Vectors.Vector) return Command_Result is
-        Command : constant Unbounded_String :=
+        Argument : constant Unbounded_String :=
             (if Command_Line.Is_Empty then Null_Unbounded_String else Command_Line.First_Element);
-        Target : constant Unbounded_String := Target_Command (Command);
+        Target : constant Unbounded_String := Target_Command (Argument);
         use Command_Maps;
     begin
         pragma Unreferenced (Srch);
@@ -307,6 +316,15 @@ package body SP.Commands is
                         Command : constant Executable_Command  := Command_Map.Constant_Reference (Cursor);
                     begin
                         Command.Help.all;
+                    end;
+                end if;
+
+                if Help_Topics.Topics.Contains (Argument) then
+                    declare
+                        Cursor  : constant Help_Topics.String_Maps.Cursor := Help_Topics.Topics.Find (Argument);
+                        Topic : constant Help_Topics.Topic_Help  := Help_Topics.Topics.Constant_Reference (Cursor);
+                    begin
+                        Topic.all;
                     end;
                 end if;
             when others =>

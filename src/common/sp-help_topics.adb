@@ -367,4 +367,13 @@ package body SP.Help_Topics is
    end Results;
    pragma Style_Checks(On);
 
+begin
+
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("About"), About'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("File_Cache"), File_Cache'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Line_Filters"), Line_Filters'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Path_Filters"), Path_Filters'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Results"), Results'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Usage"), Usage'Access);
+
 end SP.Help_Topics;
