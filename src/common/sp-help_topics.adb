@@ -206,9 +206,71 @@ package body SP.Help_Topics is
 
       SP.Help.Block("`pop` removes only the most recently applied line filter. It is the quick undo when the last term was too aggressive or mistyped, as in the common fix-up cycle of apply, inspect counts, then `pop`.  ");
 
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""RETURN STRING""");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    > pop");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("");
+
       SP.Help.Block("`drop` removes filters by 1-based index. With no arguments it behaves like `pop`. With several indices it drops those entries, processing from high to low so remaining indices stay valid.  ");
 
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  KEEP : Case Insensitive Match ""STRING""");
+      SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("    6                          EXCLUDE : Case Insensitive Match ""STRING_VECTORS""");
+      SP.Help.Plain("    7                              EXCLUDE : Case Insensitive Match ""RETURN STRING""");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    > drop 4 6");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""RETURN STRING""");
+      SP.Help.Plain("");
+
       SP.Help.Block("`reorder` rebuilds the stack from a full list of existing indices. You must list every current index exactly once; use `drop` to delete filters and `reorder` only to rearrange what remains so later `pop` operations hit the filter you intend.  ");
+
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      KEEP : Case Insensitive Match ""STRING""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  EXCLUDE : Case Insensitive Match ""STRING_VECTORS""");
+      SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    6                          EXCLUDE : Case Insensitive Match ""RETURN STRING""");
+      SP.Help.Plain("    7                              EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    > reorder 7 5 3 1 2 4 6");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Filters:");
+      SP.Help.Plain("    1      EXCLUDE : Case Insensitive Match "":""");
+      SP.Help.Plain("    2          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
+      SP.Help.Plain("    4                  KEEP : Case Insensitive Match ""STRING""");
+      SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""HOLDER""");
+      SP.Help.Plain("    6                          EXCLUDE : Case Insensitive Match ""STRING_VECTORS""");
+      SP.Help.Plain("    7                              EXCLUDE : Case Insensitive Match ""RETURN STRING""");
+      SP.Help.Plain("");
 
       SP.Help.Block("`clear-line-filters` removes every line filter at once. Path filters and extension filters are left unchanged, so you can start a new content search over the same file subset.  ");
 
@@ -262,6 +324,9 @@ package body SP.Help_Topics is
       SP.Help.Plain("");
 
       SP.Help.Block("`add-files` adds individual paths without treating their parent directory as a recursive search root. Prefer it for log files, single dumps, or a handful of targets you do not want to pull an entire tree for.  ");
+
+      SP.Help.Plain("    > add-files src/common/sp-cache.adb src/common/sp-cache.ads");
+      SP.Help.Plain("");
 
       SP.Help.Block("`list-dirs` prints the directory roots currently registered for recursive loading.  ");
 
@@ -343,13 +408,67 @@ package body SP.Help_Topics is
 
       SP.Help.Block("`set-context-width` sets the neighborhood size in lines above and below each match. Larger widths find terms that are farther apart but also make exclusions more powerful, because any excluded line inside the wider window kills the whole context.  ");
 
-      SP.Help.Block("`set-max-results` caps how many contexts are printed before the rest are omitted. The totals still reflect the full match set, so you can keep output short while watching counts fall. Omit the argument to remove the print cap.  ");
+      SP.Help.Plain("    3 <-----------------------------------+");
+      SP.Help.Plain("    2                                     |");
+      SP.Help.Plain("    1                                     |");
+      SP.Help.Plain("    + Target found with a find-* filter---+");
+      SP.Help.Plain("    1                                     |");
+      SP.Help.Plain("    2                                     |");
+      SP.Help.Plain("    3 <-----------------------------------+");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Remove context-width restrictions. This applies filters at the file level.");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    > set-context-width");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Sets a specific context width.");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    > set-context-width 3");
+      SP.Help.Plain("");
+
+      SP.Help.Block("`set-max-results` caps how many contexts are printed before the rest are omitted. The totals still reflect the full match set, so you can keep output short while watching counts fall. Omit the argument to remove the print cap.  Since searches are run in parallel, the result set will vary between queries if you exceed the maximum number of results.  ");
 
       SP.Help.Block("`enable-auto-search` reruns a context search after filter-changing commands and prints results using the current max-results setting. That matches the interactive style in the README, where each find or exclude immediately shows new Matching contexts counts.  ");
 
       SP.Help.Block("`disable-auto-search` restores manual mode, where you call `match-contexts` or `match-files` when you want output. Manual mode is quieter when building long filter stacks or running scripts.  ");
 
       SP.Help.Block("`enable-line-numbers` prefixes each printed line with its 1-based file line number.  ");
+
+      SP.Help.Plain("    With line numbers");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-contexts.ads");
+      SP.Help.Plain("       72");
+      SP.Help.Plain("       73      overriding");
+      SP.Help.Plain("       74      function ""=""(A, B : Context_Match) return Boolean with");
+      SP.Help.Plain("       75          Pre => Is_Valid (A) and then Is_Valid (B);");
+      SP.Help.Plain("       76");
+      SP.Help.Plain("       77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
+      SP.Help.Plain("       78");
+      SP.Help.Plain("       80");
+      SP.Help.Plain("       81  end SP.Contexts;");
+      SP.Help.Block("->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;  ");
+
+      SP.Help.Plain("       Without line numbers");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-contexts.ads");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("       overriding");
+      SP.Help.Plain("       function ""=""(A, B : Context_Match) return Boolean with");
+      SP.Help.Plain("           Pre => Is_Valid (A) and then Is_Valid (B);");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("       package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
+      SP.Help.Plain("");
+
+      SP.Help.Block("->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;  ");
+
+      SP.Help.Block("   end SP.Contexts;  ");
 
       SP.Help.Block("`disable-line-numbers` hides those numbers for denser output.  ");
 

@@ -1108,12 +1108,12 @@ begin
 
     -- Filters
 
-    Make_Command ("find-text", "Adds filter text.", Help_Topics.Path_Filters'Access, Find_Text_Exec'Access);
-    Make_Command ("exclude-text", "Adds text to exclude.", Help_Topics.Path_Filters'Access, Exclude_Text_Exec'Access);
-    Make_Command ("find-like", "Adds filter text (case insensitive).", Help_Topics.Path_Filters'Access, Find_Like_Exec'Access);
-    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topics.Path_Filters'Access, Exclude_Like_Exec'Access);
-    Make_Command ("find-regex", "Adds filter regex.", Help_Topics.Path_Filters'Access, Find_Regex_Exec'Access);
-    Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topics.Path_Filters'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("find-text", "Adds filter text.", Help_Topics.Line_Filters'Access, Find_Text_Exec'Access);
+    Make_Command ("exclude-text", "Adds text to exclude.", Help_Topics.Line_Filters'Access, Exclude_Text_Exec'Access);
+    Make_Command ("find-like", "Adds filter text (case insensitive).", Help_Topics.Line_Filters'Access, Find_Like_Exec'Access);
+    Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topics.Line_Filters'Access, Exclude_Like_Exec'Access);
+    Make_Command ("find-regex", "Adds filter regex.", Help_Topics.Line_Filters'Access, Find_Regex_Exec'Access);
+    Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topics.Line_Filters'Access, Exclude_Regex_Exec'Access);
 
     Make_Command ("reorder", "Reorder filters by index.", Help_Topics.Line_Filters'Access, Reorder_Exec'Access);
     Make_Command ("drop", "Drops the filters at the given indices.", Help_Topics.Line_Filters'Access, Drop_Exec'Access);

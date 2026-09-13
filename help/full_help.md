@@ -164,9 +164,62 @@ Each space-separated argument becomes its own filter entry. You can add several 
 
 `pop` removes only the most recently applied line filter. It is the quick undo when the last term was too aggressive or mistyped, as in the common fix-up cycle of apply, inspect counts, then `pop`.
 
+    Filters:
+    1      EXCLUDE : Case Insensitive Match ":"
+    2          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  EXCLUDE : Case Insensitive Match "HOLDER"
+    5                      EXCLUDE : Case Insensitive Match "RETURN STRING"
+
+    > pop
+
+    Filters:
+    1      EXCLUDE : Case Insensitive Match ":"
+    2          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  EXCLUDE : Case Insensitive Match "HOLDER"
+
 `drop` removes filters by 1-based index. With no arguments it behaves like `pop`. With several indices it drops those entries, processing from high to low so remaining indices stay valid.
 
+    Filters:
+    1      EXCLUDE : Case Insensitive Match ":"
+    2          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  KEEP : Case Insensitive Match "STRING"
+    5                      EXCLUDE : Case Insensitive Match "HOLDER"
+    6                          EXCLUDE : Case Insensitive Match "STRING_VECTORS"
+    7                              EXCLUDE : Case Insensitive Match "RETURN STRING"
+
+    > drop 4 6
+
+    Filters:
+    1      EXCLUDE : Case Insensitive Match ":"
+    2          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  EXCLUDE : Case Insensitive Match "HOLDER"
+    5                      EXCLUDE : Case Insensitive Match "RETURN STRING"
+
 `reorder` rebuilds the stack from a full list of existing indices. You must list every current index exactly once; use `drop` to delete filters and `reorder` only to rearrange what remains so later `pop` operations hit the filter you intend.
+
+    Filters:
+    1      KEEP : Case Insensitive Match "STRING"
+    2          EXCLUDE : Case Insensitive Match "HOLDER"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  EXCLUDE : Case Insensitive Match "STRING_VECTORS"
+    5                      EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    6                          EXCLUDE : Case Insensitive Match "RETURN STRING"
+    7                              EXCLUDE : Case Insensitive Match ":"
+
+    > reorder 7 5 3 1 2 4 6
+
+    Filters:
+    1      EXCLUDE : Case Insensitive Match ":"
+    2          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    3              EXCLUDE : Case Insensitive Match "SP.STRINGS"
+    4                  KEEP : Case Insensitive Match "STRING"
+    5                      EXCLUDE : Case Insensitive Match "HOLDER"
+    6                          EXCLUDE : Case Insensitive Match "STRING_VECTORS"
+    7                              EXCLUDE : Case Insensitive Match "RETURN STRING"
 
 `clear-line-filters` removes every line filter at once. Path filters and extension filters are left unchanged, so you can start a new content search over the same file subset.
 
@@ -206,6 +259,8 @@ Septum currently doesn't track updates to files or loaded directories.
     > add-dirs "C:\Program Files\Example\bin"
 
 `add-files` adds individual paths without treating their parent directory as a recursive search root. Prefer it for log files, single dumps, or a handful of targets you do not want to pull an entire tree for.
+
+    > add-files src/common/sp-cache.adb src/common/sp-cache.ads
 
 `list-dirs` prints the directory roots currently registered for recursive loading.
 
@@ -270,13 +325,58 @@ Command names resolve by unique prefix, so short forms such as match-c often exp
 
 `set-context-width` sets the neighborhood size in lines above and below each match. Larger widths find terms that are farther apart but also make exclusions more powerful, because any excluded line inside the wider window kills the whole context.
 
+    3 <-----------------------------------+
+    2                                     |
+    1                                     |
+    + Target found with a find-* filter---+
+    1                                     |
+    2                                     |
+    3 <-----------------------------------+
+
+    Remove context-width restrictions. This applies filters at the file level.
+
+    > set-context-width
+
+    Sets a specific context width.
+
+    > set-context-width 3
+
 `set-max-results` caps how many contexts are printed before the rest are omitted. The totals still reflect the full match set, so you can keep output short while watching counts fall. Omit the argument to remove the print cap.
+Since searches are run in parallel, the result set will vary between queries if you exceed the maximum number of results.
 
 `enable-auto-search` reruns a context search after filter-changing commands and prints results using the current max-results setting. That matches the interactive style in the README, where each find or exclude immediately shows new Matching contexts counts.
 
 `disable-auto-search` restores manual mode, where you call `match-contexts` or `match-files` when you want output. Manual mode is quieter when building long filter stacks or running scripts.
 
 `enable-line-numbers` prefixes each printed line with its 1-based file line number.
+
+    With line numbers
+
+    D:/dev/ada/septum/src/common/sp-contexts.ads
+       72
+       73      overriding
+       74      function "="(A, B : Context_Match) return Boolean with
+       75          Pre => Is_Valid (A) and then Is_Valid (B);
+       76
+       77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
+       78
+->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
+       80
+       81  end SP.Contexts;
+
+       Without line numbers
+
+    D:/dev/ada/septum/src/common/sp-contexts.ads
+
+       overriding
+       function "="(A, B : Context_Match) return Boolean with
+           Pre => Is_Valid (A) and then Is_Valid (B);
+
+       package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
+
+->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
+
+   end SP.Contexts;
 
 `disable-line-numbers` hides those numbers for denser output.
 
