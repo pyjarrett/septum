@@ -22,6 +22,7 @@ with SP.Config;
 with SP.File_System;
 with SP.Filters;
 with SP.Output;
+with SP.Time;
 with Trendy_Terminal.Histories;
 with Trendy_Terminal.IO.Line_Editors;
 with Trendy_Terminal.Lines.Line_Vectors;
@@ -42,6 +43,9 @@ package body SP.Interactive is
         Second_Col     : constant := 30;
     begin
         New_Line;
+        if SP.Searches.Num_Files (Srch) > 0 then
+            Put_Line ("Cache age: " & SP.Time.MM_SS (SP.Searches.Cache_Age (Srch)));
+        end if;
         Put ("Files:     " & SP.Searches.Num_Files (Srch)'Image);
         Set_Col (Second_Col);
         Put ("Extensions:   ");

@@ -13,6 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 -------------------------------------------------------------------------------
+with Ada.Real_Time;
 with Ada.Containers.Vectors;
 with Interfaces;
 
@@ -136,6 +137,8 @@ package SP.Searches is
 
     procedure Test (Srch : Search; Input : String);
 
+    function Cache_Age (Srch : Search) return Ada.Real_Time.Time_Span;
+
 private
 
     use SP.Filters;
@@ -177,6 +180,10 @@ private
 
         -- When not interactive should the program emit JSON?
         Enable_JSON_Output : Boolean := True;
+
+        -- Time of the oldest file loaded into cache. This should instead be per-file so updates can be faster,
+        -- but my typical usage is one-time load and then bulk refresh, so this matches what I need in practice.
+        Last_Reload : Ada.Real_Time.Time := Ada.Real_Time.Clock;
     end record;
 
 end SP.Searches;

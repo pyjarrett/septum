@@ -30,12 +30,20 @@ package body SP.Searches is
     use Ada.Strings.Unbounded;
     use SP.Output;
 
+    procedure Update_Cache_Age (Srch : in out Search) is
+    begin
+        if Srch.File_Cache.Num_Files = 0 then
+            Srch.Last_Reload := Ada.Real_Time.Clock;
+        end if;
+    end Update_Cache_Age;
+
     function Load_Directory (Srch : in out Search; Dir_Name : String) return Boolean is
         use Ada.Directories;
         Path_Exists    : constant Boolean := Exists (Dir_Name);
         Is_Directory   : constant Boolean := Path_Exists and then Kind (Dir_Name) = Directory;
     begin
         if Is_Directory then
+            Update_Cache_Age (Srch);
             return SP.Cache.Add_Directory_Recursively (Srch.File_Cache, Dir_Name);
         else
             SP.Output.Put_Line ("Cannot cache " & Dir_Name & ". It is not a directory.");
@@ -49,6 +57,7 @@ package body SP.Searches is
         -- TODO: The file cache should watch files to know when it needs a refresh such as examining last time modified
         -- timestamp.
         Srch.File_Cache.Clear;
+        Update_Cache_Age (Srch);
         for Dir_Name of Srch.Directories loop
             if not Load_Directory (Srch, To_String (Dir_Name)) then
                 Put_Line ("Did not finish loading directory: " & To_String (Dir_Name));
@@ -67,7 +76,8 @@ package body SP.Searches is
 
     procedure Unload_Working_Set (Srch : in out Search) is
     begin
-      Srch.File_Cache.Clear;
+        Srch.File_Cache.Clear;
+        Update_Cache_Age (Srch);
     end Unload_Working_Set;
 
     function Add_File (Srch : in out Search; File_Name : String) return Boolean is
@@ -78,6 +88,7 @@ package body SP.Searches is
     begin
         if Path_Exists and then Is_File and then not Srch.Files.Contains (Unbounded_Name) then
             Srch.Files.Insert (Unbounded_Name);
+            Update_Cache_Age (Srch);
             if SP.Cache.Add_File (Srch.File_Cache, File_Name) then
                 SP.Output.Put_Line (SP.Output.UI, "Added " & File_Name & " to search.");
                 return True;
@@ -753,5 +764,11 @@ package body SP.Searches is
         end if;
         New_Line;
     end Test;
+    
+    function Cache_Age (Srch : Search) return Ada.Real_Time.Time_Span is
+        use type Ada.Real_Time.Time;
+    begin
+        return Ada.Real_Time.Clock - Srch.Last_Reload;
+    end Cache_Age;
 
 end SP.Searches;
