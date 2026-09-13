@@ -64,6 +64,9 @@ package SP.Searches is
 
     procedure Drop_Filter (Srch : in out Search; Index : Positive);
 
+    procedure Push_Line_Filter (Srch : in out Search; F : Filters.Filter_Ptr)
+    with Pre => F.Is_Valid;
+
     procedure Pop_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 

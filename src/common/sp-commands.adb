@@ -23,6 +23,7 @@ with AnsiAda;
 with SP.Config;
 with SP.Contexts;
 with SP.File_System;
+with SP.Filters;
 with SP.Help_Topics;
 with SP.Platform;
 with SP.Output;
@@ -687,6 +688,44 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    function Find_Any_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        F : Filters.Filter_List.Vector;
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide filter terms to match.");
+            return Command_Failed;
+        end if;
+
+        for Word of Command_Line loop
+            F.Append (Filters.Find_Text (To_String (Word)));
+        end loop;
+        SP.Searches.Push_Line_Filter (Srch, Filters.Find_Any (F));
+
+        Search_Updated (Srch);
+        return Command_Success;
+    end Find_Any_Text_Exec;
+
+    ----------------------------------------------------------------------------
+
+    function Find_Any_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        F : Filters.Filter_List.Vector;
+    begin
+        if Command_Line.Is_Empty then
+            Put_Line ("Must provide filter terms to match.");
+            return Command_Failed;
+        end if;
+
+        for Word of Command_Line loop
+            F.Append (Filters.Find_Like (To_String (Word)));
+        end loop;
+        SP.Searches.Push_Line_Filter (Srch, Filters.Find_Any (F));
+
+        Search_Updated (Srch);
+        return Command_Success;
+    end Find_Any_Like_Exec;
+
+    ----------------------------------------------------------------------------
+
     function List_Line_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Filter_Names : constant String_Vectors.Vector := SP.Searches.List_Filter_Names (Srch);
     begin
@@ -1114,6 +1153,8 @@ begin
     Make_Command ("exclude-like", "Adds text to exclude (case insensitive).", Help_Topics.Line_Filters'Access, Exclude_Like_Exec'Access);
     Make_Command ("find-regex", "Adds filter regex.", Help_Topics.Line_Filters'Access, Find_Regex_Exec'Access);
     Make_Command ("exclude-regex", "Adds regex to exclude.", Help_Topics.Line_Filters'Access, Exclude_Regex_Exec'Access);
+    Make_Command ("find-any-text", "Filter text, matching any term.", Help_Topics.Line_Filters'Access, Find_Any_Text_Exec'Access);
+    Make_Command ("find-any-like", "Filter text, matching any term (case insensitive).", Help_Topics.Line_Filters'Access, Find_Any_Like_Exec'Access);
 
     Make_Command ("reorder", "Reorder filters by index.", Help_Topics.Line_Filters'Access, Reorder_Exec'Access);
     Make_Command ("drop", "Drops the filters at the given indices.", Help_Topics.Line_Filters'Access, Drop_Exec'Access);

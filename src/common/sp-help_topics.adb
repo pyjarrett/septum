@@ -188,6 +188,10 @@ package body SP.Help_Topics is
       SP.Help.Plain("    > find-like make");
       SP.Help.Plain("");
 
+      SP.Help.Block("`find-any-like` is like `find-like`, except the filter will match if ANY term is matched.  ");
+
+      SP.Help.Block("`find-any-text` is like `find-text`, except the filter will match if ANY term is matched.  ");
+
       SP.Help.Block("`exclude-text` adds a case-sensitive exclusion. Any context whose line range still contains a matching line is discarded entirely, even if that line is only in the surrounding neighborhood of another match.  ");
 
       SP.Help.Plain("    > exclude-text alloca alloc");

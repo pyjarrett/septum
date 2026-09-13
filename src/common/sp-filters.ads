@@ -49,7 +49,6 @@ is
     package Filter_List is new Ada.Containers.Vectors
         (Index_Type => Positive, Element_Type => Filter_Ptr, "=" => Pointers."=");
 
-
     function Find_Text (Text : String) return Filter_Ptr;
     function Exclude_Text (Text : String) return Filter_Ptr;
 
@@ -60,6 +59,9 @@ is
     function Exclude_Regex (Text : String) return Filter_Ptr;
 
     function Is_Valid_Regex (S : String) return Boolean;
+
+    function Find_Any (Filters : Filter_List.Vector) return Filter_Ptr
+    with Pre => not Filters.Is_Empty and then (for all F of Filters => F.Is_Valid);
 
     -- Looks for a match in any of the given lines.
     function Matches_File (F : Filter'Class; Lines : String_Vectors.Vector) return Boolean;
@@ -83,6 +85,10 @@ private
         Regex : Rc_Regex.Arc;
     end record;
 
+    type Any_Filter is new Filter with record
+        Filters : Filter_List.Vector;
+    end record;
+
     overriding function Image (F : Case_Sensitive_Match_Filter) return String;
     overriding function Matches_Line (F : Case_Sensitive_Match_Filter; Str : String) return Boolean;
 
@@ -91,5 +97,8 @@ private
 
     overriding function Image (F : Regex_Filter) return String;
     overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean;
+
+    overriding function Image (F : Any_Filter) return String;
+    overriding function Matches_Line (F : Any_Filter; Str : String) return Boolean;
 
 end SP.Filters;

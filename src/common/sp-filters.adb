@@ -91,6 +91,16 @@ package body SP.Filters is
 
     ----------------------------------------------------------------------------
 
+    function Find_Any (Filters : Filter_List.Vector) return Filter_Ptr is
+    begin
+        return Pointers.Make (new Any_Filter' (
+            Action => Keep,
+            Filters => Filters
+        ));
+    end Find_Any;
+
+    ----------------------------------------------------------------------------
+
     overriding function Image (F : Case_Sensitive_Match_Filter) return String is
         use Ada.Characters;
     begin
@@ -126,6 +136,30 @@ package body SP.Filters is
     overriding function Matches_Line (F : Regex_Filter; Str : String) return Boolean is
     begin
         return GNAT.Regpat.Match (F.Regex.Get, Str);
+    end Matches_Line;
+
+    ----------------------------------------------------------------------------
+
+    overriding function Image (F : Any_Filter) return String is
+        Temp : ASU.Unbounded_String;
+    begin
+        for Elem of F.Filters loop
+            if Temp /= ASU.Null_Unbounded_String then
+                ASU.Append (Temp, " OR ");
+            end if;
+            ASU.Append (Temp, "(" & Image (Elem.Get) & ")");
+        end loop;
+        return ASU.To_String (Temp);
+    end Image;
+
+    overriding function Matches_Line (F : Any_Filter; Str : String) return Boolean is
+    begin
+        for Elem of F.Filters loop
+            if Matches_Line (Elem.Get, Str) then
+                return True;
+            end if;
+        end loop;
+        return False;
     end Matches_Line;
 
     ----------------------------------------------------------------------------

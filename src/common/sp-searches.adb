@@ -238,6 +238,11 @@ package body SP.Searches is
         end if;
     end Drop_Filter;
 
+    procedure Push_Line_Filter (Srch : in out Search; F : Filters.Filter_Ptr) is
+    begin
+        Srch.Line_Filters.Append (F);
+    end Push_Line_Filter;
+
     procedure Pop_Filter (Srch : in out Search) is
     begin
         if Srch.Line_Filters.Is_Empty then

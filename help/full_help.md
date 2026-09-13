@@ -148,6 +148,10 @@ Each space-separated argument becomes its own filter entry. You can add several 
 
     > find-like make
 
+`find-any-like` is like `find-like`, except the filter will match if ANY term is matched.
+
+`find-any-text` is like `find-text`, except the filter will match if ANY term is matched.
+
 `exclude-text` adds a case-sensitive exclusion. Any context whose line range still contains a matching line is discarded entirely, even if that line is only in the surrounding neighborhood of another match.
 
     > exclude-text alloca alloc
