@@ -24,8 +24,8 @@ Example:
 
     ... other results ...
 
-    Matching contexts:  1063
-    Matching files: 118
+    Matching contexts:  1043
+    Matching files: 120
 
 I don't want Unbounded strings, so exclude those from results.
 
@@ -43,8 +43,8 @@ I don't want Unbounded strings, so exclude those from results.
 
     ... a bunch of other results ...
 
-    Matching contexts:  669
-    Matching files: 111
+    Matching contexts:  552
+    Matching files: 110
 
 I also got a bunch of results related to String_Holders, SP.Strings,
 Ada.Strings, String_Vectors and functions which return Strings, and string
@@ -53,11 +53,11 @@ parameters to subprograms but I don't want those either.
 Also, it looks like the project has a linux specific folder and some other
 projects I don't want, so ignore those in the results.
 
-    > exclude-like Holder SP.Strings String_Vectors ": String" "Ada.Strings" "return string" : String
+    > exclude-like Holder SP.Strings String_Vectors Ada.Strings "return string" : String
     > exclude-path linux ada/trendy_test ada/dir_iterators ada/trendy_terminal obj/
 
-    Files:      895              Extensions:   Any
-    Path Filters: None
+    Matching contexts:  0
+    Matching files: 0
 
     Distance:   3                Max Results:  50
     Filters:
@@ -66,50 +66,46 @@ projects I don't want, so ignore those in the results.
     3              EXCLUDE : Case Insensitive Match "HOLDER"
     4                  EXCLUDE : Case Insensitive Match "SP.STRINGS"
     5                      EXCLUDE : Case Insensitive Match "STRING_VECTORS"
-    6                          EXCLUDE : Case Insensitive Match "RETURN STRING"
-    7                              EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    6                          EXCLUDE : Case Insensitive Match "ADA.STRINGS"
+    7                              EXCLUDE : Case Insensitive Match "RETURN STRING"
     8                                  EXCLUDE : Case Insensitive Match ":"
     9                                      EXCLUDE : Case Insensitive Match "STRING"
-
 
 Oops looks like I forgot to quote ": String" for parameters, let's redo that.
 
     > drop 8 9
     > exclude-like ": String"
 
-    Matching contexts:  67
-    Matching files: 14
+    Matching contexts:  44
+    Matching files: 10
 
 That's more reasonable. What files is it in?
 
     > match-f
     Resolved to: match-files
 
-
     D:/dev/ada/septum/src/common/sp-cache.adb
-    D:/dev/ada/septum/src/common/sp-cache.ads
     D:/dev/ada/septum/src/common/sp-commands.adb
     D:/dev/ada/septum/src/common/sp-config.adb
-    D:/dev/ada/septum/src/common/sp-config.ads
-    D:/dev/ada/septum/src/common/sp-file_system.adb
-    D:/dev/ada/septum/src/common/sp-filters.adb
+    D:/dev/ada/septum/src/common/sp-help_topics.adb
     D:/dev/ada/septum/src/common/sp-interactive.adb
     D:/dev/ada/septum/src/common/sp-output.adb
     D:/dev/ada/septum/src/common/sp-searches.adb
     D:/dev/ada/septum/src/common/sp-strings.adb
-    D:/dev/ada/septum/src/common/sp-strings.ads
     D:/dev/ada/septum/src/common/sp.ads
     D:/dev/ada/septum/src/entry/make_septum_help.adb
 
-    Matching files: 14
+    Matching files: 10
 
 We can abbreviate commands with unambiguous prefixes, so
 let's shorten `match-contexts` to `match-c`.
 
     > match-c
 
-    Matching contexts:  653
-    Matching files: 111
+    ... our results ...
+
+    Matching contexts:  44
+    Matching files: 10
 
 # Usage
 

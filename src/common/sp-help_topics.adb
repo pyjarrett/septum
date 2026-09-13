@@ -33,8 +33,8 @@ package body SP.Help_Topics is
       SP.Help.Plain("    ... other results ...");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Matching contexts:  1063");
-      SP.Help.Plain("    Matching files: 118");
+      SP.Help.Plain("    Matching contexts:  1043");
+      SP.Help.Plain("    Matching files: 120");
       SP.Help.Plain("");
 
       SP.Help.Block("I don't want Unbounded strings, so exclude those from results.  ");
@@ -56,20 +56,20 @@ package body SP.Help_Topics is
       SP.Help.Plain("    ... a bunch of other results ...");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Matching contexts:  669");
-      SP.Help.Plain("    Matching files: 111");
+      SP.Help.Plain("    Matching contexts:  552");
+      SP.Help.Plain("    Matching files: 110");
       SP.Help.Plain("");
 
       SP.Help.Block("I also got a bunch of results related to String_Holders, SP.Strings,  Ada.Strings, String_Vectors and functions which return Strings, and string  parameters to subprograms but I don't want those either.  ");
 
       SP.Help.Block("Also, it looks like the project has a linux specific folder and some other  projects I don't want, so ignore those in the results.  ");
 
-      SP.Help.Plain("    > exclude-like Holder SP.Strings String_Vectors "": String"" ""Ada.Strings"" ""return string"" : String");
+      SP.Help.Plain("    > exclude-like Holder SP.Strings String_Vectors Ada.Strings ""return string"" : String");
       SP.Help.Plain("    > exclude-path linux ada/trendy_test ada/dir_iterators ada/trendy_terminal obj/");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Files:      895              Extensions:   Any");
-      SP.Help.Plain("    Path Filters: None");
+      SP.Help.Plain("    Matching contexts:  0");
+      SP.Help.Plain("    Matching files: 0");
       SP.Help.Plain("");
 
       SP.Help.Plain("    Distance:   3                Max Results:  50");
@@ -79,12 +79,10 @@ package body SP.Help_Topics is
       SP.Help.Plain("    3              EXCLUDE : Case Insensitive Match ""HOLDER""");
       SP.Help.Plain("    4                  EXCLUDE : Case Insensitive Match ""SP.STRINGS""");
       SP.Help.Plain("    5                      EXCLUDE : Case Insensitive Match ""STRING_VECTORS""");
-      SP.Help.Plain("    6                          EXCLUDE : Case Insensitive Match ""RETURN STRING""");
-      SP.Help.Plain("    7                              EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    6                          EXCLUDE : Case Insensitive Match ""ADA.STRINGS""");
+      SP.Help.Plain("    7                              EXCLUDE : Case Insensitive Match ""RETURN STRING""");
       SP.Help.Plain("    8                                  EXCLUDE : Case Insensitive Match "":""");
       SP.Help.Plain("    9                                      EXCLUDE : Case Insensitive Match ""STRING""");
-      SP.Help.Plain("");
-
       SP.Help.Plain("");
 
       SP.Help.Block("Oops looks like I forgot to quote "": String"" for parameters, let's redo that.  ");
@@ -93,8 +91,8 @@ package body SP.Help_Topics is
       SP.Help.Plain("    > exclude-like "": String""");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Matching contexts:  67");
-      SP.Help.Plain("    Matching files: 14");
+      SP.Help.Plain("    Matching contexts:  44");
+      SP.Help.Plain("    Matching files: 10");
       SP.Help.Plain("");
 
       SP.Help.Block("That's more reasonable. What files is it in?  ");
@@ -103,25 +101,19 @@ package body SP.Help_Topics is
       SP.Help.Plain("    Resolved to: match-files");
       SP.Help.Plain("");
 
-      SP.Help.Plain("");
-
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-cache.adb");
-      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-cache.ads");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-commands.adb");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-config.adb");
-      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-config.ads");
-      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-file_system.adb");
-      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-filters.adb");
+      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-help_topics.adb");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-interactive.adb");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-output.adb");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-searches.adb");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-strings.adb");
-      SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-strings.ads");
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp.ads");
       SP.Help.Plain("    D:/dev/ada/septum/src/entry/make_septum_help.adb");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Matching files: 14");
+      SP.Help.Plain("    Matching files: 10");
       SP.Help.Plain("");
 
       SP.Help.Block("We can abbreviate commands with unambiguous prefixes, so  let's shorten `match-contexts` to `match-c`.  ");
@@ -129,8 +121,11 @@ package body SP.Help_Topics is
       SP.Help.Plain("    > match-c");
       SP.Help.Plain("");
 
-      SP.Help.Plain("    Matching contexts:  653");
-      SP.Help.Plain("    Matching files: 111");
+      SP.Help.Plain("    ... our results ...");
+      SP.Help.Plain("");
+
+      SP.Help.Plain("    Matching contexts:  44");
+      SP.Help.Plain("    Matching files: 10");
       SP.Help.Plain("");
 
    end About;
