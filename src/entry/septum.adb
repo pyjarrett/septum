@@ -38,7 +38,9 @@ procedure Septum is
         Put_Line ("   septum                       run interactive search mode");
         Put_Line ("   septum init                  creates config directory with default config");
         Put_Line ("   septum help                  print this usage information");
+        Put_Line ("   septum --help");
         Put_Line ("   septum version               print program version");
+        Put_Line ("   septum --version");
         Put_Line ("   septum run                   run command files");
         Put_Line ("        [--no-config]");
         Put_Line ("        [--script | --tool]");
@@ -77,8 +79,8 @@ procedure Septum is
     -- Config files run like Scripting mode, except under the same interactivity
     -- setting of the parent call.
     procedure Execute_Run is
-        Srch : SP.Searches.Search;
-        Result : SP.Commands.Command_Result;
+        Srch       : SP.Searches.Search;
+        Result     : SP.Commands.Command_Result;
         Use_Config : Boolean := True;
         use type SP.User;
         use type SP.Commands.Command_Result;
@@ -158,23 +160,33 @@ begin
         return;
     end if;
 
+    declare
+        First_Arg : constant String := Ada.Command_Line.Argument (1);
     begin
-        Command := Commands'Value (Ada.Command_Line.Argument (1));
+        Command := Commands'Value (First_Arg);
     exception
         when Constraint_Error =>
-            Put_Line ("Unrecognized command line arguments.");
-            New_Line;
-            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+
+            if First_Arg = "--help" then
+                Command := Help;
+            elsif First_Arg = "--version" then
+                Command := Version;
+            else
+                Put_Line ("Unrecognized command line arguments.");
+                New_Line;
+                Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+            end if;
     end;
 
     case Command is
         -- Create a local configuration file in the current directory.
-        when Init =>
+
+        when Init    =>
             if Has_Num_Command_Arguments (0) then
                 SP.Config.Create_Local_Config;
             end if;
 
-        when Help =>
+        when Help    =>
             if Has_Num_Command_Arguments (0) then
                 Print_Usage;
             end if;
@@ -184,7 +196,7 @@ begin
                 Print_Version;
             end if;
 
-        when Run =>
+        when Run     =>
             Execute_Run;
     end case;
 
