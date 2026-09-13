@@ -175,6 +175,14 @@ alr build --release
 
 4. Executable should be at `bin/septum(.exe)`
 
+## Generated Help
+
+The in-program generated help is generated from `help/`. To regenerate help docs, use this:
+
+```bash
+alr run make_septum_help --args="--output src/common help/full_help.md"
+```
+
 ## Parallel development with other crates
 
 Septum development between releases often coincides with additional development
