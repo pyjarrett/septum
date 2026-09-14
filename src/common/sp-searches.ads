@@ -47,21 +47,6 @@ package SP.Searches is
     procedure Clear_Extensions (Srch : in out Search);
     function List_Extensions (Srch : in Search) return String_Vectors.Vector;
 
-    procedure Find_Path (Srch : in out Search; Path : String);
-    procedure Exclude_Path (Srch : in out Search; Path : String);
-
-    procedure Find_Text (Srch : in out Search; Text : String);
-
-    procedure Exclude_Text (Srch : in out Search; Text : String);
-
-    procedure Find_Like (Srch : in out Search; Text : String);
-
-    procedure Exclude_Like (Srch : in out Search; Text : String);
-
-    procedure Find_Regex (Srch : in out Search; Text : String);
-
-    procedure Exclude_Regex (Srch : in out Search; Text : String);
-
     procedure Drop_Filter (Srch : in out Search; Index : Positive);
 
     procedure Push_Line_Filter (Srch : in out Search; F : Filters.Filter_Ptr)
@@ -77,6 +62,9 @@ package SP.Searches is
 
     procedure Clear_Filters (Srch : in out Search);
     procedure Clear_Path_Filters (Srch : in out Search);
+
+    procedure Push_Path_Filter (Srch : in out Search; F : Filters.Filter_Ptr)
+    with Pre => F.Is_Valid;
 
     No_Context_Width : constant := Natural'Last;
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);

@@ -540,7 +540,7 @@ package body SP.Commands is
     function Find_Path_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Path (Srch, To_String (Word));
+            SP.Searches.Push_Path_Filter (Srch, Filters.Find_Text (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -552,7 +552,7 @@ package body SP.Commands is
     function Exclude_Paths_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Path (Srch, To_String (Word));
+            SP.Searches.Push_Path_Filter (Srch, Filters.Exclude_Text (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -619,7 +619,7 @@ package body SP.Commands is
     function Find_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Text (Srch, To_String (Word));
+            SP.Searches.Push_Line_Filter (Srch, Filters.Find_Text (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -631,7 +631,7 @@ package body SP.Commands is
     function Exclude_Text_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Text (Srch, To_String (Word));
+            SP.Searches.Push_Line_Filter (Srch, Filters.Exclude_Text (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -643,7 +643,7 @@ package body SP.Commands is
     function Find_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Like (Srch, To_String (Word));
+            SP.Searches.Push_Line_Filter (Srch, Filters.Find_Like (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -655,7 +655,7 @@ package body SP.Commands is
     function Exclude_Like_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Like (Srch, To_String (Word));
+            SP.Searches.Push_Line_Filter (Srch, Filters.Exclude_Like (To_String (Word)));
         end loop;
 
         Search_Updated (Srch);
@@ -667,7 +667,13 @@ package body SP.Commands is
     function Find_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Find_Regex (Srch, To_String (Word));
+            declare
+                F : constant Filters.Filter_Ptr := Filters.Find_Regex (To_String (Word));
+            begin
+                if F.Is_Valid then
+                    SP.Searches.Push_Line_Filter (Srch, F);
+                end if;
+            end;
         end loop;
 
         Search_Updated (Srch);
@@ -679,7 +685,13 @@ package body SP.Commands is
     function Exclude_Regex_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         for Word of Command_Line loop
-            SP.Searches.Exclude_Regex (Srch, To_String (Word));
+            declare
+                F : constant Filters.Filter_Ptr := Filters.Exclude_Regex (To_String (Word));
+            begin
+                if F.Is_Valid then
+                    SP.Searches.Push_Line_Filter (Srch, F);
+                end if;
+            end;
         end loop;
 
         Search_Updated (Srch);
