@@ -14,11 +14,11 @@ Example:
     > match-contexts
 
     D:/dev/ada/dir_iterators/src/dir_iterators-recursive.ads
-        57      end record;
-        58
-        59      -- The list of unprocessed directories needs to be stored.
+           57      end record;
+           58
+           59      -- The list of unprocessed directories needs to be stored.
     ->     60      package String_Vectors is new Ada.Containers.Vectors
-        61         (Index_Type   => Positive,
+           61         (Index_Type   => Positive,
     ->     62          Element_Type => Ada.Strings.Unbounded.Unbounded_String,
     ->     63          "="          => Ada.Strings.Unbounded."=");
 
@@ -33,13 +33,13 @@ I don't want Unbounded strings, so exclude those from results.
     > match-contexts
 
     D:/dev/ada/septum/src/linux/sp-platform.adb
-        11              if Env.Exists ("XDG_CONFIG_HOME") then
-    ->     12                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME")));
-        13              elsif Env.Exists ("HOME") then
-    ->     14                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config"));
-        15              end if;
-        16          end return;
-        17      end Global_Config_Dir;
+            11              if Env.Exists ("XDG_CONFIG_HOME") then
+     ->     12                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("XDG_CONFIG_HOME")));
+            13              elsif Env.Exists ("HOME") then
+     ->     14                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value ("HOME") & "/.config"));
+            15              end if;
+            16          end return;
+            17      end Global_Config_Dir;
 
     ... a bunch of other results ...
 
@@ -357,28 +357,28 @@ Since searches are run in parallel, the result set will vary between queries if 
     With line numbers
 
     D:/dev/ada/septum/src/common/sp-contexts.ads
-       72
-       73      overriding
-       74      function "="(A, B : Context_Match) return Boolean with
-       75          Pre => Is_Valid (A) and then Is_Valid (B);
-       76
-       77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
-       78
-->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
-       80
-       81  end SP.Contexts;
+           72
+           73      overriding
+           74      function "="(A, B : Context_Match) return Boolean with
+           75          Pre => Is_Valid (A) and then Is_Valid (B);
+           76
+           77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
+           78
+    ->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
+           80
+           81  end SP.Contexts;
 
-       Without line numbers
+        Without line numbers
 
     D:/dev/ada/septum/src/common/sp-contexts.ads
 
-       overriding
-       function "="(A, B : Context_Match) return Boolean with
-           Pre => Is_Valid (A) and then Is_Valid (B);
+        overriding
+        function "="(A, B : Context_Match) return Boolean with
+            Pre => Is_Valid (A) and then Is_Valid (B);
 
-       package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
+        package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);
 
-->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
+    ->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;
 
    end SP.Contexts;
 

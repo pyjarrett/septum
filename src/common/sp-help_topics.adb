@@ -21,11 +21,11 @@ package body SP.Help_Topics is
       SP.Help.Plain("");
 
       SP.Help.Plain("    D:/dev/ada/dir_iterators/src/dir_iterators-recursive.ads");
-      SP.Help.Plain("        57      end record;");
-      SP.Help.Plain("        58");
-      SP.Help.Plain("        59      -- The list of unprocessed directories needs to be stored.");
+      SP.Help.Plain("           57      end record;");
+      SP.Help.Plain("           58");
+      SP.Help.Plain("           59      -- The list of unprocessed directories needs to be stored.");
       SP.Help.Plain("    ->     60      package String_Vectors is new Ada.Containers.Vectors");
-      SP.Help.Plain("        61         (Index_Type   => Positive,");
+      SP.Help.Plain("           61         (Index_Type   => Positive,");
       SP.Help.Plain("    ->     62          Element_Type => Ada.Strings.Unbounded.Unbounded_String,");
       SP.Help.Plain("    ->     63          ""=""          => Ada.Strings.Unbounded.""="");");
       SP.Help.Plain("");
@@ -44,13 +44,13 @@ package body SP.Help_Topics is
       SP.Help.Plain("");
 
       SP.Help.Plain("    D:/dev/ada/septum/src/linux/sp-platform.adb");
-      SP.Help.Plain("        11              if Env.Exists (""XDG_CONFIG_HOME"") then");
-      SP.Help.Plain("    ->     12                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value (""XDG_CONFIG_HOME"")));");
-      SP.Help.Plain("        13              elsif Env.Exists (""HOME"") then");
-      SP.Help.Plain("    ->     14                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value (""HOME"") & ""/.config""));");
-      SP.Help.Plain("        15              end if;");
-      SP.Help.Plain("        16          end return;");
-      SP.Help.Plain("        17      end Global_Config_Dir;");
+      SP.Help.Plain("            11              if Env.Exists (""XDG_CONFIG_HOME"") then");
+      SP.Help.Plain("     ->     12                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value (""XDG_CONFIG_HOME"")));");
+      SP.Help.Plain("            13              elsif Env.Exists (""HOME"") then");
+      SP.Help.Plain("     ->     14                  S := SP.Strings.String_Holders.To_Holder (Ada.Directories.Full_Name (Env.Value (""HOME"") & ""/.config""));");
+      SP.Help.Plain("            15              end if;");
+      SP.Help.Plain("            16          end return;");
+      SP.Help.Plain("            17      end Global_Config_Dir;");
       SP.Help.Plain("");
 
       SP.Help.Plain("    ... a bunch of other results ...");
@@ -445,32 +445,34 @@ package body SP.Help_Topics is
       SP.Help.Plain("");
 
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-contexts.ads");
-      SP.Help.Plain("       72");
-      SP.Help.Plain("       73      overriding");
-      SP.Help.Plain("       74      function ""=""(A, B : Context_Match) return Boolean with");
-      SP.Help.Plain("       75          Pre => Is_Valid (A) and then Is_Valid (B);");
-      SP.Help.Plain("       76");
-      SP.Help.Plain("       77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
-      SP.Help.Plain("       78");
-      SP.Help.Plain("       80");
-      SP.Help.Plain("       81  end SP.Contexts;");
-      SP.Help.Block("->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;  ");
+      SP.Help.Plain("           72");
+      SP.Help.Plain("           73      overriding");
+      SP.Help.Plain("           74      function ""=""(A, B : Context_Match) return Boolean with");
+      SP.Help.Plain("           75          Pre => Is_Valid (A) and then Is_Valid (B);");
+      SP.Help.Plain("           76");
+      SP.Help.Plain("           77      package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
+      SP.Help.Plain("           78");
+      SP.Help.Plain("    ->     79      function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;");
+      SP.Help.Plain("           80");
+      SP.Help.Plain("           81  end SP.Contexts;");
+      SP.Help.Plain("");
 
-      SP.Help.Plain("       Without line numbers");
+      SP.Help.Plain("        Without line numbers");
       SP.Help.Plain("");
 
       SP.Help.Plain("    D:/dev/ada/septum/src/common/sp-contexts.ads");
       SP.Help.Plain("");
 
-      SP.Help.Plain("       overriding");
-      SP.Help.Plain("       function ""=""(A, B : Context_Match) return Boolean with");
-      SP.Help.Plain("           Pre => Is_Valid (A) and then Is_Valid (B);");
+      SP.Help.Plain("        overriding");
+      SP.Help.Plain("        function ""=""(A, B : Context_Match) return Boolean with");
+      SP.Help.Plain("            Pre => Is_Valid (A) and then Is_Valid (B);");
       SP.Help.Plain("");
 
-      SP.Help.Plain("       package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
+      SP.Help.Plain("        package Context_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Context_Match);");
       SP.Help.Plain("");
 
-      SP.Help.Block("->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;  ");
+      SP.Help.Plain("    ->     function Files_In (V : Context_Vectors.Vector) return SP.Strings.String_Sets.Set;");
+      SP.Help.Plain("");
 
       SP.Help.Block("   end SP.Contexts;  ");
 
