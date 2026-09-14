@@ -47,20 +47,20 @@ package SP.Searches is
     procedure Clear_Extensions (Srch : in out Search);
     function List_Extensions (Srch : in Search) return String_Vectors.Vector;
 
-    procedure Drop_Filter (Srch : in out Search; Index : Positive);
+    procedure Drop_Line_Filter (Srch : in out Search; Index : Positive);
 
     procedure Push_Line_Filter (Srch : in out Search; F : Filters.Filter_Ptr)
     with Pre => F.Is_Valid;
 
-    procedure Pop_Filter (Srch : in out Search);
+    procedure Pop_Line_Filter (Srch : in out Search);
     -- Undoes the last search operations.
 
-    procedure Reorder_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector)
+    procedure Reorder_Line_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector)
         with Pre => (for all Index of Indices => Natural (Index) <= Num_Filters (Srch))
             and then (Natural (Indices.Length) = Num_Filters (Srch))
             and then (for all I in 1 .. Num_Filters (Srch) => Indices.Contains (I));
 
-    procedure Clear_Filters (Srch : in out Search);
+    procedure Clear_Line_Filters (Srch : in out Search);
     procedure Clear_Path_Filters (Srch : in out Search);
 
     procedure Push_Path_Filter (Srch : in out Search; F : Filters.Filter_Ptr)

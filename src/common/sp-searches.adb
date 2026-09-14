@@ -179,7 +179,7 @@ package body SP.Searches is
         end return;
     end List_Extensions;
 
-    procedure Drop_Filter (Srch : in out Search; Index : Positive) is
+    procedure Drop_Line_Filter (Srch : in out Search; Index : Positive) is
         Filter_Being_Dropped : constant Filter_Ptr :=
             (if Natural (Index) > Natural (Srch.Line_Filters.Length)
                 then Pointers.Make_Null else Srch.Line_Filters.Constant_Reference (Index));
@@ -190,23 +190,23 @@ package body SP.Searches is
             SP.Output.Put_Line ("Dropping filter: " & Image (Filter_Being_Dropped.Get));
             Srch.Line_Filters.Delete (Index);
         end if;
-    end Drop_Filter;
+    end Drop_Line_Filter;
 
     procedure Push_Line_Filter (Srch : in out Search; F : Filters.Filter_Ptr) is
     begin
         Srch.Line_Filters.Append (F);
     end Push_Line_Filter;
 
-    procedure Pop_Filter (Srch : in out Search) is
+    procedure Pop_Line_Filter (Srch : in out Search) is
     begin
         if Srch.Line_Filters.Is_Empty then
             SP.Output.Put_Line ("There are no filters to pop.");
         else
-            Drop_Filter (Srch, Positive (Srch.Line_Filters.Length));
+            Drop_Line_Filter (Srch, Positive (Srch.Line_Filters.Length));
         end if;
-    end Pop_Filter;
+    end Pop_Line_Filter;
 
-    procedure Reorder_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector) is
+    procedure Reorder_Line_Filters (Srch : in out Search; Indices : Positive_Vectors.Vector) is
         New_Filters : Filter_List.Vector := Filter_List.Empty_Vector;
     begin
         for Index of Indices loop
@@ -214,12 +214,12 @@ package body SP.Searches is
         end loop;
         Srch.Line_Filters.Move (New_Filters);
         pragma Unreferenced (New_Filters);
-    end Reorder_Filters;
+    end Reorder_Line_Filters;
 
-    procedure Clear_Filters (Srch : in out Search) is
+    procedure Clear_Line_Filters (Srch : in out Search) is
     begin
         Srch.Line_Filters.Clear;
-    end Clear_Filters;
+    end Clear_Line_Filters;
 
     procedure Clear_Path_Filters (Srch : in out Search) is
     begin

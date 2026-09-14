@@ -817,7 +817,7 @@ package body SP.Commands is
                 return Command_Failed;
             end if;
 
-            SP.Searches.Reorder_Filters (Srch, Indices);
+            SP.Searches.Reorder_Line_Filters (Srch, Indices);
             return Command_Success;
         end;
     end Reorder_Exec;
@@ -827,7 +827,7 @@ package body SP.Commands is
     function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if Command_Line.Is_Empty then
-            SP.Searches.Pop_Filter (Srch);
+            SP.Searches.Pop_Line_Filter (Srch);
             Search_Updated (Srch);
             return Command_Success;
         end if;
@@ -859,7 +859,7 @@ package body SP.Commands is
             -- the interface of SP.Searches simple.
             Positive_Vector_Sorting.Sort (Indices);
             for I of Indices loop
-                SP.Searches.Drop_Filter (Srch, I);
+                SP.Searches.Drop_Line_Filter (Srch, I);
             end loop;
             Search_Updated (Srch);
             return Command_Success;
@@ -874,7 +874,7 @@ package body SP.Commands is
             Put_Line ("Ignoring unnecessary command line parameters.");
             return Command_Failed;
         end if;
-        SP.Searches.Pop_Filter (Srch);
+        SP.Searches.Pop_Line_Filter (Srch);
 
         Search_Updated (Srch);
         return Command_Success;
@@ -890,7 +890,7 @@ package body SP.Commands is
         end if;
 
         pragma Unreferenced (Command_Line);
-        SP.Searches.Clear_Filters (Srch);
+        SP.Searches.Clear_Line_Filters (Srch);
         return Command_Success;
     end Clear_Line_Filters_Exec;
 
