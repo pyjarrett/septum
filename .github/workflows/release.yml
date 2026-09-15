@@ -41,7 +41,7 @@ jobs:
       - name: Setup Alire
         uses: alire-project/setup-alire@1ff7d9224297858cc9ecce29b08bc6109f93e49a
         with:
-          version: 2.1.0
+          version: 2.1.1
 
       - name: Build project
         working-directory: septum
