@@ -824,7 +824,43 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    function Verify_Positive_Set (
+        User_Input : in     String_Vectors.Vector;
+        Indices    : in out SP.Searches.Positive_Vectors.Vector;
+        Max_Value  : Positive)
+    return Boolean
+        with Pre => Natural (User_Input.Length) > 0
+    is
+        package Positive_Vector_Sorting is new SP.Searches.Positive_Vectors.Generic_Sorting ("<" => ">");
+        Index      : Positive := Positive'Last;
+        use type Ada.Containers.Count_Type;
+    begin
+        for Index_String of User_Input loop
+            if Try_Parse (ASU.To_String (Index_String), Index) then
+                if Natural (Index) > Max_Value then
+                    Put_Line ("Filter index out of range:" & Index'Image);
+                else
+                    Indices.Append (Index);
+                end if;
+            else
+                Put_Line (Index_String & " is not an index.");
+            end if;
+        end loop;
+
+        -- Prefer to not alter anything if the parameters are borked.
+        if Indices.Length /= User_Input.Length then
+            -- Wait until exiting here so all bad parameters get reported.
+            return False;
+        end if;
+
+        -- Drop filters in reverse order to preserve semantics while keeping
+        -- the interface of SP.Searches simple.
+        Positive_Vector_Sorting.Sort (Indices);
+        return True;
+    end Verify_Positive_Set;
+
     function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        Indices : SP.Searches.Positive_Vectors.Vector;
     begin
         if Command_Line.Is_Empty then
             SP.Searches.Pop_Line_Filter (Srch);
@@ -832,38 +868,15 @@ package body SP.Commands is
             return Command_Success;
         end if;
 
-        declare
-            package Positive_Vector_Sorting is new SP.Searches.Positive_Vectors.Generic_Sorting ("<" => ">");
-            Index   : Positive := Positive'Last;
-            Indices : SP.Searches.Positive_Vectors.Vector;
-            use type Ada.Containers.Count_Type;
-        begin
-            for Index_String of Command_Line loop
-                if Try_Parse (ASU.To_String (Index_String), Index) then
-                    if Natural (Index) > SP.Searches.Num_Filters (Srch) then
-                        Put_Line ("Filter index out of range:" & Index'Image);
-                    else
-                        Indices.Append (Index);
-                    end if;
-                else
-                    Put_Line (Index_String & " is not an index.");
-                end if;
-            end loop;
+        if not Verify_Positive_Set (Command_Line, Indices, Positive (Sp.Searches.Num_Filters (Srch))) then
+            return Command_Failed;
+        end if;
 
-            -- Prefer to not alter anything if the parameters are borked.
-            if Indices.Length /= Command_Line.Length then
-                return Command_Failed;
-            end if;
-
-            -- Drop filters in reverse order to preserve semantics while keeping
-            -- the interface of SP.Searches simple.
-            Positive_Vector_Sorting.Sort (Indices);
-            for I of Indices loop
-                SP.Searches.Drop_Line_Filter (Srch, I);
-            end loop;
-            Search_Updated (Srch);
-            return Command_Success;
-        end;
+        for I of Indices loop
+            SP.Searches.Drop_Line_Filter (Srch, I);
+        end loop;
+        Search_Updated (Srch);
+        return Command_Success;
     end Drop_Exec;
 
     ----------------------------------------------------------------------------
