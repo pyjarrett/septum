@@ -31,8 +31,62 @@ with SP.Output;
 package body SP.Commands is
     pragma Assertion_Policy (Pre => Check, Post => Check);
 
+    use type Ada.Containers.Count_Type;
     use Ada.Strings.Unbounded;
     use SP.Output;
+    package Reverse_Sorting is new SP.Searches.Positive_Vectors.Generic_Sorting ("<" => ">");
+
+    package Helpers is
+        function Try_Parse (Str : String; Value : in out Positive) return Boolean;
+
+        function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector)
+        return SP.Searches.Positive_Vectors.Vector;
+
+        function Parse (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector)
+        return Boolean
+            with Post => (if Parse'Result then Command_Line.Length = Result.Length);
+    end Helpers;
+
+    package body Helpers is
+        function Try_Parse (Str : String; Value : in out Positive) return Boolean is
+        begin
+            Value := Positive'Value (Str);
+            return True;
+        exception
+            when Constraint_Error =>
+                return False;
+        end Try_Parse;
+
+        function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
+            Index : Positive := Positive'Last;
+        begin
+            return Indices : SP.Searches.Positive_Vectors.Vector do
+                for Index_String of Command_Line loop
+                    if Try_Parse (ASU.To_String (Index_String), Index) then
+                        Indices.Append (Index);
+                    else
+                        Put_Line (Index_String & " is not an index");
+                    end if;
+                end loop;
+            end return;
+        end Parse_Positive_Vector;
+
+        function Parse (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector) return Boolean is
+            Value : Positive := Positive'Last;
+        begin
+            Result.Clear;
+            for Index_String of Command_Line loop
+                if Try_Parse (ASU.To_String (Index_String), Value) then
+                    Result.Append (Value);
+                else
+                    Put_Line ("Not a valid index: " & Index_String);
+                    return False;
+                end if;
+            end loop;
+            return True;
+        end Parse;
+    end Helpers;
+    use Helpers;
 
     type Help_Proc is not null access procedure;
     -- Prints a detailed help description for a command.
@@ -94,15 +148,6 @@ package body SP.Commands is
     end Target_Command;
 
     function Is_Like_Command (S : String) return Boolean is (Target_Command (To_Unbounded_String (S)) /= Null_Unbounded_String);
-
-    function Try_Parse (Str : String; Value : in out Positive) return Boolean is
-    begin
-        Value := Positive'Value (Str);
-        return True;
-    exception
-        when Constraint_Error =>
-            return False;
-    end Try_Parse;
 
     function Execute (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Command_Name : constant Unbounded_String :=
@@ -768,20 +813,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
-        Index : Positive := Positive'Last;
-    begin
-        return Indices : SP.Searches.Positive_Vectors.Vector do
-            for Index_String of Command_Line loop
-                if Try_Parse (ASU.To_String (Index_String), Index) then
-                    Indices.Append (Index);
-                else
-                    Put_Line (Index_String & " is not an index");
-                end if;
-            end loop;
-        end return;
-    end Parse_Positive_Vector;
-
     function Reorder_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if SP.Searches.Num_Filters (Srch) = 0 then
@@ -797,7 +828,6 @@ package body SP.Commands is
         declare
             Indices : constant SP.Searches.Positive_Vectors.Vector := Parse_Positive_Vector (Command_Line);
             Max_Filter_Index : constant Natural := SP.Searches.Num_Filters (Srch);
-            use type Ada.Containers.Count_Type;
         begin
 
             -- Prefer to not alter anything if the parameters are borked.
@@ -824,41 +854,6 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
-    function Verify_Positive_Set (
-        User_Input : in     String_Vectors.Vector;
-        Indices    : in out SP.Searches.Positive_Vectors.Vector;
-        Max_Value  : Positive)
-    return Boolean
-        with Pre => Natural (User_Input.Length) > 0
-    is
-        package Positive_Vector_Sorting is new SP.Searches.Positive_Vectors.Generic_Sorting ("<" => ">");
-        Index      : Positive := Positive'Last;
-        use type Ada.Containers.Count_Type;
-    begin
-        for Index_String of User_Input loop
-            if Try_Parse (ASU.To_String (Index_String), Index) then
-                if Natural (Index) > Max_Value then
-                    Put_Line ("Filter index out of range:" & Index'Image);
-                else
-                    Indices.Append (Index);
-                end if;
-            else
-                Put_Line (Index_String & " is not an index.");
-            end if;
-        end loop;
-
-        -- Prefer to not alter anything if the parameters are borked.
-        if Indices.Length /= User_Input.Length then
-            -- Wait until exiting here so all bad parameters get reported.
-            return False;
-        end if;
-
-        -- Drop filters in reverse order to preserve semantics while keeping
-        -- the interface of SP.Searches simple.
-        Positive_Vector_Sorting.Sort (Indices);
-        return True;
-    end Verify_Positive_Set;
-
     function Drop_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Indices : SP.Searches.Positive_Vectors.Vector;
     begin
@@ -868,9 +863,11 @@ package body SP.Commands is
             return Command_Success;
         end if;
 
-        if not Verify_Positive_Set (Command_Line, Indices, Positive (Sp.Searches.Num_Filters (Srch))) then
+        if not Parse (Command_Line, Indices) then
             return Command_Failed;
         end if;
+
+        Reverse_Sorting.Sort (Indices);
 
         for I of Indices loop
             SP.Searches.Drop_Line_Filter (Srch, I);

@@ -9,6 +9,7 @@
     "command": "match-files",
     "results": [
         docs/tests/basic_command_line.md,
+        docs/tests/filters.md,
         docs/tests/searches.md
     ]
 }
