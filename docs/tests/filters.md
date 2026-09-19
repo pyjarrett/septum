@@ -40,7 +40,7 @@ Drop indices must be valid line filter indices.
 Command failed: drop 5
 ```
 
-### Scenario : Dropping a non-existent path filter
+### Scenario : Dropping a non-existent line filter
   - When I run `bin/septum run --no-config --script examples/drop_line_filters_fail.septum`
   - Then I get
 ```
@@ -95,4 +95,63 @@ KEEP : Case Sensitive Match ".cpp"
  > drop-path-filters
 
 Dropping filter: Case Sensitive Match ".cpp"
+```
+
+### Scenario : Popping path filters
+  - When I run `bin/septum run --no-config --script examples/pop_path_filters.septum`
+  - Then I get
+
+```
+Loading commands from: D:\dev\ada\septum\examples\pop_path_filters.septum
+
+ > exclude-path .git .config temp
+
+
+ > find-path .cpp
+
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+EXCLUDE : Case Sensitive Match ".config"
+EXCLUDE : Case Sensitive Match "temp"
+KEEP : Case Sensitive Match ".cpp"
+
+ > pop-path-filters
+
+Dropping filter: Case Sensitive Match ".cpp"
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+EXCLUDE : Case Sensitive Match ".config"
+EXCLUDE : Case Sensitive Match "temp"
+
+ > pop-path-filters
+
+Dropping filter: Case Sensitive Match "temp"
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+EXCLUDE : Case Sensitive Match ".config"
+
+ > pop-path-filters
+
+Dropping filter: Case Sensitive Match ".config"
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+
+ > pop-path-filters
+
+Dropping filter: Case Sensitive Match ".git"
+
+ > list-path-filters
+
+
+ > pop-path-filters
+
+There are no filters to pop.
 ```
