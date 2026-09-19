@@ -39,12 +39,9 @@ package body SP.Commands is
     package Helpers is
         function Try_Parse (Str : String; Value : in out Positive) return Boolean;
 
-        function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector)
-        return SP.Searches.Positive_Vectors.Vector;
-
-        function Parse (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector)
+        function Parse_Unique (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector)
         return Boolean
-            with Post => (if Parse'Result then Command_Line.Length = Result.Length);
+            with Post => (if Parse_Unique'Result then Command_Line.Length = Result.Length);
     end Helpers;
 
     package body Helpers is
@@ -57,26 +54,16 @@ package body SP.Commands is
                 return False;
         end Try_Parse;
 
-        function Parse_Positive_Vector (Command_Line : in String_Vectors.Vector) return SP.Searches.Positive_Vectors.Vector is
-            Index : Positive := Positive'Last;
-        begin
-            return Indices : SP.Searches.Positive_Vectors.Vector do
-                for Index_String of Command_Line loop
-                    if Try_Parse (ASU.To_String (Index_String), Index) then
-                        Indices.Append (Index);
-                    else
-                        Put_Line (Index_String & " is not an index");
-                    end if;
-                end loop;
-            end return;
-        end Parse_Positive_Vector;
-
-        function Parse (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector) return Boolean is
+        function Parse_Unique (Command_Line : String_Vectors.Vector; Result : in out SP.Searches.Positive_Vectors.Vector) return Boolean is
             Value : Positive := Positive'Last;
         begin
             Result.Clear;
             for Index_String of Command_Line loop
                 if Try_Parse (ASU.To_String (Index_String), Value) then
+                    if Result.Contains (Value) then
+                        Put_Line ("Index appears multiple times: " & Value'Image);
+                        return False;
+                    end if;
                     Result.Append (Value);
                 else
                     Put_Line ("Not a valid index: " & Index_String);
@@ -84,7 +71,7 @@ package body SP.Commands is
                 end if;
             end loop;
             return True;
-        end Parse;
+        end Parse_Unique;
     end Helpers;
     use Helpers;
 
@@ -822,7 +809,7 @@ package body SP.Commands is
             return Command_Success;
         end if;
 
-        if not Parse (Command_Line, Indices) then
+        if not Parse_Unique (Command_Line, Indices) then
             return Command_Failed;
         end if;
 
@@ -871,9 +858,12 @@ package body SP.Commands is
         end if;
 
         declare
-            Indices : constant SP.Searches.Positive_Vectors.Vector := Parse_Positive_Vector (Command_Line);
+            Indices : SP.Searches.Positive_Vectors.Vector;
             Max_Filter_Index : constant Natural := SP.Searches.Num_Filters (Srch);
         begin
+            if not Parse_Unique (Command_Line, Indices) then
+                return Command_Failed;
+            end if;
 
             -- Prefer to not alter anything if the parameters are borked.
             if Indices.Length /= Command_Line.Length then
@@ -908,7 +898,7 @@ package body SP.Commands is
             return Command_Success;
         end if;
 
-        if not Parse (Command_Line, Indices) then
+        if not Parse_Unique (Command_Line, Indices) then
             return Command_Failed;
         end if;
 

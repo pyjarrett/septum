@@ -1,5 +1,37 @@
 ## Feature : Filters
 
+### Scenario : Reordering filters
+  - When I run `bin/septum run --no-config --script examples/reorder_filters.septum`
+  - Then I get
+```
+Loading commands from: D:\dev\ada\septum\examples\reorder_filters.septum
+
+ > find-like string unbounded return function
+
+
+ > list-line-filters
+
+KEEP : Case Insensitive Match "STRING"
+KEEP : Case Insensitive Match "UNBOUNDED"
+KEEP : Case Insensitive Match "RETURN"
+KEEP : Case Insensitive Match "FUNCTION"
+
+ > reorder 4 3 1 2
+
+
+ > list-line-filters
+
+KEEP : Case Insensitive Match "FUNCTION"
+KEEP : Case Insensitive Match "RETURN"
+KEEP : Case Insensitive Match "STRING"
+KEEP : Case Insensitive Match "UNBOUNDED"
+
+ > reorder 3 3 3 3
+
+Index appears multiple times:  3
+Command failed: reorder 3 3 3 3
+```
+
 ### Scenario : Dropping line filters
   - When I run `bin/septum run --no-config --script examples/drop_line_filters.septum`
   - Then I get
