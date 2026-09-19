@@ -1,0 +1,7 @@
+exclude-path .git .config temp/
+find-path .cpp
+list-path-filters
+drop-path-filters 2 3
+list-path-filters
+drop-path-filters
+

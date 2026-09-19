@@ -66,6 +66,10 @@ package SP.Searches is
     procedure Push_Path_Filter (Srch : in out Search; F : Filters.Filter_Ptr)
     with Pre => F.Is_Valid;
 
+    procedure Pop_Path_Filter (Srch : in out Search);
+
+    procedure Drop_Path_Filter (Srch : in out Search; Index : Positive);
+
     No_Context_Width : constant := Natural'Last;
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural);
     function Get_Context_Width (Srch : in Search) return Natural;

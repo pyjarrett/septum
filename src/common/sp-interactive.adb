@@ -64,9 +64,10 @@ package body SP.Interactive is
             Put ("None");
         end if;
         New_Line;
-        for Filter of Path_Filters loop
+        for Index in 1 .. Path_Filters.Length loop
+            Put ("  " & Ada.Strings.Fixed.Trim (Index'Image, Ada.Strings.Left));
             Set_Col (6);
-            Put_Line (Filter);
+            Put_Line (Path_Filters.Constant_Reference ((Integer (Index))));
         end loop;
 
         New_Line;

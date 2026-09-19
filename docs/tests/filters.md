@@ -45,3 +45,38 @@ Dropping filter: Case Insensitive Match "FUNCTION"
 
 KEEP : Case Insensitive Match "STRING"
 ```
+
+### Scenario : Dropping path filters
+  - When I run `bin/septum run --no-config --script examples/drop_path_filters.septum`
+  - Then I get
+
+```
+Loading commands from: D:\dev\ada\septum\examples\drop_path_filters.septum
+
+ > exclude-path .git .config temp/
+
+
+ > find-path .cpp
+
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+EXCLUDE : Case Sensitive Match ".config"
+EXCLUDE : Case Sensitive Match "temp/"
+KEEP : Case Sensitive Match ".cpp"
+
+ > drop-path-filters 2 3
+
+Dropping filter: Case Sensitive Match "temp/"
+Dropping filter: Case Sensitive Match ".config"
+
+ > list-path-filters
+
+EXCLUDE : Case Sensitive Match ".git"
+KEEP : Case Sensitive Match ".cpp"
+
+ > drop-path-filters
+
+Dropping filter: Case Sensitive Match ".cpp"
+```

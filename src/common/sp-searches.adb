@@ -231,6 +231,28 @@ package body SP.Searches is
         Srch.Path_Filters.Append (F);
     end Push_Path_Filter;
 
+    procedure Pop_Path_Filter (Srch : in out Search) is
+    begin
+        if Srch.Path_Filters.Is_Empty then
+            SP.Output.Put_Line ("There are no filters to pop.");
+        else
+            Drop_Path_Filter (Srch, Positive (Srch.Path_Filters.Length));
+        end if;
+    end Pop_Path_Filter;
+
+    procedure Drop_Path_Filter (Srch : in out Search; Index : Positive) is
+        Filter_Being_Dropped : constant Filter_Ptr :=
+            (if Natural (Index) > Natural (Srch.Path_Filters.Length)
+                then Pointers.Make_Null else Srch.Path_Filters.Constant_Reference (Index));
+    begin
+        if not Filter_Being_Dropped.Is_Valid then
+            SP.Output.Put_Line ("No filter exists at that index to drop.");
+        else
+            SP.Output.Put_Line ("Dropping filter: " & Image (Filter_Being_Dropped.Get));
+            Srch.Path_Filters.Delete (Index);
+        end if;
+    end Drop_Path_Filter;
+
     procedure Set_Context_Width (Srch : in out Search; Context_Width : Natural) is
     begin
         Srch.Context_Width := Context_Width;

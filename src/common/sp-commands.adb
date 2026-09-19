@@ -813,6 +813,30 @@ package body SP.Commands is
 
     ----------------------------------------------------------------------------
 
+    function Drop_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+        Indices : SP.Searches.Positive_Vectors.Vector;
+    begin
+        if Command_Line.Is_Empty then
+            SP.Searches.Pop_Path_Filter (Srch);
+            Search_Updated (Srch);
+            return Command_Success;
+        end if;
+
+        if not Parse (Command_Line, Indices) then
+            return Command_Failed;
+        end if;
+
+        Reverse_Sorting.Sort (Indices);
+
+        for I of Indices loop
+            SP.Searches.Drop_Path_Filter (Srch, I);
+        end loop;
+        Search_Updated (Srch);
+        return Command_Success;
+    end Drop_Path_Filters_Exec;
+
+    ----------------------------------------------------------------------------
+
     function Reorder_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
     begin
         if SP.Searches.Num_Filters (Srch) = 0 then
@@ -1217,6 +1241,7 @@ begin
     Make_Command ("exclude-path", "Exclude paths containing this from the search", Help_Topics.Path_Filters'Access, Exclude_Paths_Exec'Access);
     Make_Command ("clear-path-filters", "Pops all filters.", Help_Topics.Path_Filters'Access, Clear_Path_Filters_Exec'Access);
     Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topics.Path_Filters'Access, List_Path_Filters_Exec'Access);
+    Make_Command ("drop-path-filters", "Drops one or multiple path filters.", Help_Topics.Path_Filters'Access, Drop_Path_Filters_Exec'Access);
 
     Make_Command ("only-exts", "Adds extensions to find results in.", Help_Topics.Path_Filters'Access, Add_Extensions_Exec'Access);
     Make_Command
