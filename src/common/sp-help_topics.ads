@@ -19,7 +19,4 @@ package SP.Help_Topics is
 
     Topics : String_Maps.Map;
 
-    --  TODO:
-    --  procedure Find_Related (Term : String);
-
 end SP.Help_Topics;

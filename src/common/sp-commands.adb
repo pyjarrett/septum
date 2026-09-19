@@ -336,7 +336,7 @@ package body SP.Commands is
         end loop;
 
         New_Line;
-        Put_Line ("Topics:");
+        Put_Line ("Topics: (view with `help TOPIC`)");
         for Topic in Help_Topics.Topics.Iterate loop
             Put ("    ");
             Put_Line (Help_Topics.String_Maps.Key (Topic));

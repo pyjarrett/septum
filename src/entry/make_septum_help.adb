@@ -1,3 +1,4 @@
+with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Strings.Equal_Case_Insensitive;
@@ -166,7 +167,7 @@ procedure Make_Septum_Help is
                     Ada.Text_IO.Put_Line
                        (Self.Target.all,
                         "   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("""
-                        & Topic
+                        & Ada.Characters.Handling.To_Lower (Topic)
                         & """), "
                         & Topic
                         & "'Access"

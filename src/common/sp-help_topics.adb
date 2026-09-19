@@ -381,6 +381,10 @@ package body SP.Help_Topics is
 
       SP.Help.Block("`clear-path-filters` removes all path keep and exclude filters so every extension-eligible cached file is a candidate again.  ");
 
+      SP.Help.Block("`drop-path-filters` removes path filters by their index.  ");
+
+      SP.Help.Block("`pop-path-filters` removes the most recently added path filter.  ");
+
       SP.Help.Block("`only-exts` restricts candidates to files with the listed extensions. Extensions are compared without inventing a leading dot if you omit it the same way the path is stored; list what `list-exts` shows after you set them. Until you call `only-exts`, extension filtering is open and all extensions are eligible.  ");
 
       SP.Help.Block("`remove-exts` removes individual extensions from the allow-list built by `only-exts`.  ");
@@ -489,11 +493,11 @@ package body SP.Help_Topics is
 
 begin
 
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("About"), About'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("File_Cache"), File_Cache'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Line_Filters"), Line_Filters'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Path_Filters"), Path_Filters'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Results"), Results'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("Usage"), Usage'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("about"), About'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("file_cache"), File_Cache'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("line_filters"), Line_Filters'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("path_filters"), Path_Filters'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("results"), Results'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("usage"), Usage'Access);
 
 end SP.Help_Topics;
