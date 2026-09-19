@@ -306,6 +306,8 @@ package body SP.Searches is
         end return;
     end Path_Filter_Names;
 
+    function Num_Path_Filters (Srch : Search) return Natural is (Integer (Srch.Path_Filters.Length));
+
     function Matching_Contexts
         (File_Name : ASU.Unbounded_String; Num_Lines : Natural; Lines : SP.Contexts.Line_Matches.Set; Context_Width : Natural)
          return SP.Contexts.Context_Vectors.Vector is

@@ -1,8 +1,7 @@
 find-like string unbounded return function
 list-line-filters
-drop 5
-list-line-filters
 drop 2 3
 list-line-filters
 drop
 list-line-filters
+drop 5

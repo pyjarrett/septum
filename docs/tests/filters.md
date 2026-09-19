@@ -16,17 +16,6 @@ KEEP : Case Insensitive Match "UNBOUNDED"
 KEEP : Case Insensitive Match "RETURN"
 KEEP : Case Insensitive Match "FUNCTION"
 
- > drop 5
-
-No filter exists at that index to drop.
-
- > list-line-filters
-
-KEEP : Case Insensitive Match "STRING"
-KEEP : Case Insensitive Match "UNBOUNDED"
-KEEP : Case Insensitive Match "RETURN"
-KEEP : Case Insensitive Match "FUNCTION"
-
  > drop 2 3
 
 Dropping filter: Case Insensitive Match "RETURN"
@@ -44,6 +33,33 @@ Dropping filter: Case Insensitive Match "FUNCTION"
  > list-line-filters
 
 KEEP : Case Insensitive Match "STRING"
+
+ > drop 5
+
+Drop indices must be valid line filter indices.
+Command failed: drop 5
+```
+
+### Scenario : Dropping a non-existent path filter
+  - When I run `bin/septum run --no-config --script examples/drop_line_filters_fail.septum`
+  - Then I get
+```
+Loading commands from: D:\dev\ada\septum\examples\drop_line_filters_fail.septum
+
+ > find-like string unbounded return function
+
+
+ > list-line-filters
+
+KEEP : Case Insensitive Match "STRING"
+KEEP : Case Insensitive Match "UNBOUNDED"
+KEEP : Case Insensitive Match "RETURN"
+KEEP : Case Insensitive Match "FUNCTION"
+
+ > drop 2 3 5
+
+Drop indices must be valid line filter indices.
+Command failed: drop 2 3 5
 ```
 
 ### Scenario : Dropping path filters

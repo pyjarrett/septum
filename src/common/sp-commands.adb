@@ -826,6 +826,13 @@ package body SP.Commands is
             return Command_Failed;
         end if;
 
+        for I of Indices loop
+            if I > Searches.Num_Path_Filters (Srch) then
+                Put_Line ("Drop indices must be valid path filter indices.");
+                return Command_Failed;
+            end if;
+        end loop;
+
         Reverse_Sorting.Sort (Indices);
 
         for I of Indices loop
@@ -834,6 +841,20 @@ package body SP.Commands is
         Search_Updated (Srch);
         return Command_Success;
     end Drop_Path_Filters_Exec;
+
+    ----------------------------------------------------------------------------
+
+    function Pop_Path_Filters_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
+    begin
+        if not Command_Line.Is_Empty then
+            Put_Line ("Ignoring unnecessary command line parameters.");
+            return Command_Failed;
+        end if;
+        SP.Searches.Pop_Path_Filter (Srch);
+
+        Search_Updated (Srch);
+        return Command_Success;
+    end Pop_Path_Filters_Exec;
 
     ----------------------------------------------------------------------------
 
@@ -890,6 +911,13 @@ package body SP.Commands is
         if not Parse (Command_Line, Indices) then
             return Command_Failed;
         end if;
+
+        for I of Indices loop
+            if I > Searches.Num_Filters (Srch) then
+                Put_Line ("Drop indices must be valid line filter indices.");
+                return Command_Failed;
+            end if;
+        end loop;
 
         Reverse_Sorting.Sort (Indices);
 
@@ -1242,6 +1270,7 @@ begin
     Make_Command ("clear-path-filters", "Pops all filters.", Help_Topics.Path_Filters'Access, Clear_Path_Filters_Exec'Access);
     Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topics.Path_Filters'Access, List_Path_Filters_Exec'Access);
     Make_Command ("drop-path-filters", "Drops one or multiple path filters.", Help_Topics.Path_Filters'Access, Drop_Path_Filters_Exec'Access);
+    Make_Command ("pop-path-filters", "Pops the most recent path filter.", Help_Topics.Path_Filters'Access, Pop_Path_Filters_Exec'Access);
 
     Make_Command ("only-exts", "Adds extensions to find results in.", Help_Topics.Path_Filters'Access, Add_Extensions_Exec'Access);
     Make_Command

@@ -90,6 +90,7 @@ package SP.Searches is
     function Num_Filters (Srch : in Search) return Natural;
 
     function Path_Filter_Names (Srch : Search) return String_Vectors.Vector;
+    function Num_Path_Filters (Srch : in Search) return Natural;
 
     function Files_To_Search (Srch : in Search) return String_Vectors.Vector;
 

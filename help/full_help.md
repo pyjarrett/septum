@@ -305,6 +305,10 @@ With no find-path filters active, every cached file whose extension is allowed i
 
 `clear-path-filters` removes all path keep and exclude filters so every extension-eligible cached file is a candidate again.
 
+`drop-path-filters` removes path filters by their index.
+
+`pop-path-filters` removes the most recently added path filter.
+
 `only-exts` restricts candidates to files with the listed extensions. Extensions are compared without inventing a leading dot if you omit it the same way the path is stored; list what `list-exts` shows after you set them. Until you call `only-exts`, extension filtering is open and all extensions are eligible.
 
 `remove-exts` removes individual extensions from the allow-list built by `only-exts`.
