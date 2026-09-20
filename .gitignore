@@ -22,4 +22,10 @@ choco/
 
 # Development files
 .clang-format
-.septum/obj/
+.septum/
+.vscode/
+.septum/
+bbt_out/
+scripts/
+releases/
+integration_test_results.md
