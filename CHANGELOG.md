@@ -15,7 +15,7 @@ Types of changes:
 - 💥 `Security` in case of vulnerabilities.
 - 🧪 `Experimental` for things which are available, but not fully cooked yet.
 
-## [0.4.0]
+## [1.0.0]
 
 - ✅ Added `find-any-like`, an OR'd version of `find-like`.
 - ✅ Added `find-any-text`, an OR'd version of `find-text`.

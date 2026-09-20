@@ -1,11 +1,11 @@
 package SP
-    with Preelaborate
+   with Preelaborate
 is
 
-   Version : constant String := "0.4.0-dev";
+    Version : constant String := "1.0.0-dev";
 
-   type User is (Human, Script);
+    type User is (Human, Script);
 
-   Current_User : User := Human;
+    Current_User : User := Human;
 
 end SP;
