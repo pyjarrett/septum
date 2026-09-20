@@ -116,9 +116,9 @@ RunProcess(
     "--keep_going",
     "--tmp_dir",
     "bbt_out",
-    "--output",
+    "--index",
     "integration_test_results.md"
 );
 
-Directory.SetCurrentDirectory ("tests");
+Directory.SetCurrentDirectory("tests");
 RunProcess("alr", "run");
