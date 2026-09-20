@@ -1,5 +1,5 @@
 exclude-path .git .config temp
-find-path .cpp
+find-any-path .cpp
 list-path-filters
 pop-path-filters
 list-path-filters

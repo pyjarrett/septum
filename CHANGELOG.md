@@ -19,6 +19,7 @@ Types of changes:
 
 - ✅ Added `find-any-like`, an OR'd version of `find-like`.
 - ✅ Added `find-any-text`, an OR'd version of `find-text`.
+- 🔄 Changed `find-path` to `find-any-path` to be consistent with line filter conventions.
 - ✅ Added `drop-path-filters`, a path filter version of `drop`.
 - ✅ Added `pop-path-filters`, a path filter version of `pop`.
 - ✅ Added requested `--version` and `--help` options.

@@ -16,8 +16,6 @@
 
  > add-dirs docs/tests
 
-Loading with 32 tasks.
-
 
 Added docs/tests to search path.
 

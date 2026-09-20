@@ -1226,7 +1226,7 @@ begin
 
     -- Path Filtering
 
-    Make_Command ("find-path", "Only look in paths containing this.", Help_Topics.Path_Filters'Access, Find_Path_Exec'Access);
+    Make_Command ("find-any-path", "Only look in paths containing this.", Help_Topics.Path_Filters'Access, Find_Path_Exec'Access);
     Make_Command ("exclude-path", "Exclude paths containing this from the search", Help_Topics.Path_Filters'Access, Exclude_Paths_Exec'Access);
     Make_Command ("clear-path-filters", "Pops all filters.", Help_Topics.Path_Filters'Access, Clear_Path_Filters_Exec'Access);
     Make_Command ("list-path-filters", "Lists all applied path filters.", Help_Topics.Path_Filters'Access, List_Path_Filters_Exec'Access);

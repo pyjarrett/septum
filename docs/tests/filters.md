@@ -100,7 +100,7 @@ Command failed: drop 2 3 5
  > exclude-path .git .config temp/
 
 
- > find-path .cpp
+ > find-any-path .cpp
 
 
  > list-path-filters
@@ -134,7 +134,7 @@ Dropping filter: Case Sensitive Match ".cpp"
  > exclude-path .git .config temp
 
 
- > find-path .cpp
+ > find-any-path .cpp
 
 
  > list-path-filters

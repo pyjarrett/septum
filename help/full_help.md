@@ -113,6 +113,18 @@ let's shorten `match-contexts` to `match-c`.
 
 Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present.
 
+This is an example `.septum/config`
+
+    enable-line-numbers
+    enable-line-colors
+    enable-auto-search
+    enable-timing
+    set-max-results 50
+    add-dirs D:/dev/ada/septum/src
+    add-dirs D:/dev/ada/trendy_terminal
+    add-dirs D:/dev/ada/trendy_test
+    add-dirs D:/dev/ada/dir_iterators
+
 Create a starter local config with `septum init`. In config and script files, blank lines and lines whose first non-empty character starts a `#` comment are ignored, so you can document shared setups.
 
 Partial command matching applies everywhere: type a unique prefix and Septum resolves it to the full command name before running. Ambiguous prefixes are rejected rather than guessed. That same resolution is what lets abbreviated match and filter commands feel short in daily use.
@@ -140,7 +152,7 @@ An example session might look like this:
 
 `septum run [--no-config] FILE...` runs Septum with commands from scripts "as-if" a human were running them.
 
-Use `--no-config` to ignore default environment config files with the `run` subcommand`
+Use `--no-config` to ignore default environment config files with the `run` subcommand.
 
 # Line Filters
 
@@ -169,6 +181,7 @@ Each space-separated argument becomes its own filter entry. You can add several 
     > exclude-like Destroy
 
 `find-regex` keeps contexts that match a regular expression. Invalid patterns fail that filter rather than being accepted silently.
+The TTY will turn green when the regex is valid, and red when invalid.
 
 `exclude-regex` excludes contexts that match a regular expression, using the same full-context exclusion rule as the text excludes.
 
@@ -292,7 +305,7 @@ Septum currently doesn't track updates to files or loaded directories.
 
 The cache does not watch the filesystem. After edits, rebases, or generated-file updates, run `reload` to reread every currently loaded path from disk while keeping the same roots and direct-file list.
 
-`unload` empties the in-memory text without exiting the session. Use it when a huge load is contending with other work, then `reload` when you need search again. Unloading does not forget your filter stack or settings.
+`unload` empties the in-memory text without exiting the session. Use it when memory usage is contending with other work, then `reload` when you need search again. Unloading does not forget your filter stack or settings.
 
     ... drop file cache to do something memory intensive
     > unload
@@ -303,9 +316,10 @@ The cache does not watch the filesystem. After edits, rebases, or generated-file
 
 Path filters shrink the set of cached files considered for matching. They do not unload files from memory; they only decide eligibility at search time. Extension filters work the same way and can be combined with path fragment filters.
 
-With no find-path filters active, every cached file whose extension is allowed is a candidate, and `exclude-path` is enough to carve out noise such as dependency or build trees. Once any `find-path` filter exists, the default flips: a file must match at least one find-path filter to stay in, then exclude-path filters can still drop it. Matching is against the full path string as stored in the cache, so directory names, separators, and file names all participate as ordinary text fragments.
+With no `find-any-path` filters active, every cached file whose extension is allowed is a candidate, and `exclude-path` is enough to carve out noise such as dependency or build trees. Once any `find-any-path` filter exists, the default flips: a file must match at least one find-any-path filter to stay in, then exclude-path filters can still drop it. Matching is against the full path string as stored in the cache, so directory names, separators, and file names all participate as ordinary text fragments.
 
-`find-path` keeps only paths containing the given fragments. Each argument becomes its own path keep filter. After the first find-path, files outside those fragments stop appearing in `match-contexts` and `match-files` even though they remain cached.
+`find-any-path` keeps only paths containing the given fragments. Each argument becomes its own path keep filter. All files are searched
+until the first find-any-path is applied, then any files not matching a path filter are skipped in `match-contexts` and `match-files` even though they remain cached.
 
 `exclude-path` drops paths containing the given fragments. A single well-chosen segment often removes an entire subtree. When both keep and exclude path filters match, exclusion wins for that path.
 
@@ -325,7 +339,7 @@ With no find-path filters active, every cached file whose extension is allowed i
 
 `clear-exts` clears the extension allow-list entirely, restoring the default that every extension may participate.
 
-A practical workflow is to load broadly with `add-dirs`, confirm size with `stats` and `list-files`, then use `exclude-path` or `find-path` and `only-exts` until `match-files` shows a plausible set before refining line filters.
+A practical workflow is to load broadly with `add-dirs`, confirm size with `stats` and `list-files`, then use `exclude-path` or `find-any-path` and `only-exts` until `match-files` shows a plausible set before refining line filters.
 
 # Results
 
