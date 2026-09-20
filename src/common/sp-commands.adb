@@ -999,45 +999,18 @@ package body SP.Commands is
     function Match_Files_Exec (Srch : in out SP.Searches.Search; Command_Line : in String_Vectors.Vector) return Command_Result is
         Contexts : constant SP.Contexts.Context_Vectors.Vector := SP.Searches.Matching_Contexts (Srch);
         Files : constant String_Sets.Set := SP.Contexts.Files_In (Contexts);
-        Needs_Comma : Boolean := False;
     begin
         if not Command_Line.Is_Empty then
             Put_Line ("Ignoring unnecessary command line parameters.");
             return Command_Failed;
         end if;
 
-        if SP.Output.Is_Pipeline then
-            Start_Pipeline_Result;
-            Put_Line ("{");
-                Put ("    ");
-                Put_JSON_Key_Value ("command", "match-files");
-                Put_Line (",");
-                Put ("    ""results"": [");
-                for File of Files loop
-                    if Needs_Comma then
-                        Put_Line (",");
-                    else
-                        New_Line;
-                    end if;
-                    Put ("        ");
-                    Put (File);
-                    Needs_Comma := True;
-                end loop;
-
-                if Needs_Comma then
-                    New_Line;
-                    Put ("    ");
-                end if;
-                Put_Line ("]");
-            Put ("}");
-        else
-            SP.Output.New_Line (SP.Output.Data);
-            for File of Files loop
-                SP.Output.Put_Line (File);
-            end loop;
-            SP.Output.New_Line (SP.Output.Data);
-            SP.Output.Put_Line (SP.Output.Data, "Matching files:" & Files.Length'Image);
-        end if;
+        SP.Output.New_Line (SP.Output.Data);
+        for File of Files loop
+            SP.Output.Put_Line (File);
+        end loop;
+        SP.Output.New_Line (SP.Output.Data);
+        SP.Output.Put_Line (SP.Output.Data, "Matching files:" & Files.Length'Image);
 
         return Command_Success;
     end Match_Files_Exec;

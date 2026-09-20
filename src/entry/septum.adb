@@ -43,8 +43,7 @@ procedure Septum is
         Put_Line ("   septum --version");
         Put_Line ("   septum run                   run command files");
         Put_Line ("        [--no-config]");
-        Put_Line ("        [--script | --tool]");
-        Put_Line ("        [file]...");
+        Put_Line ("        FILE...");
     end Print_Usage;
 
     procedure Print_Version is
@@ -66,23 +65,12 @@ procedure Septum is
         return True;
     end Has_Num_Command_Arguments;
 
-    -- The idea of run is to be able to run searches and produce output for LLM
-    -- tool calls.
-    --
-    -- For testing, it's useful to run septum as if it were running, but without
-    -- interactive UI elements.
-    --
-    -- This results in two similar, but different modes.
-    -- 1. Tool - outputs JSON output for consumption by LLMs, non-interactively.
-    -- 2. Scripted - running "as-if" a human, but non-interactively.
-    --
-    -- Config files run like Scripting mode, except under the same interactivity
-    -- setting of the parent call.
+    -- For testing, it's useful to run septum as if commands were executed by a
+    -- human, but without UI elements, like the wait spinner.
     procedure Execute_Run is
         Srch       : SP.Searches.Search;
         Result     : SP.Commands.Command_Result;
         Use_Config : Boolean := True;
-        use type SP.User;
         use type SP.Commands.Command_Result;
         use all type SP.Interactive.Config_Result;
 
@@ -93,31 +81,13 @@ procedure Septum is
         while SP.Command_Line.Has_More_Arguments (Parse) loop
             if SP.Command_Line.Try_Match (Parse, "--no-config") then
                 Use_Config := False;
-            elsif SP.Command_Line.Try_Match (Parse, "--tool") then
-                if SP.Current_User /= SP.Human then
-                    Ada.Text_IO.Put_Line ("Cannot set both tool and scripted mode.");
-                    Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-                    return;
-                end if;
-                SP.Current_User := SP.Tool;
-                SP.Output.Stop_Interactivity;
-            elsif SP.Command_Line.Try_Match (Parse, "--script") then
-                if SP.Current_User /= SP.Human then
-                    Ada.Text_IO.Put_Line ("Cannot set both tool and scripted mode.");
-                    Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-                    return;
-                end if;
-                SP.Current_User := SP.Script;
-                SP.Output.Stop_Interactivity;
             else
                 exit;
             end if;
         end loop;
 
-        -- Cannot run as a user, so run as a tool by default for LLM usage.
-        if SP.Current_User = SP.Human then
-            SP.Current_User := SP.Tool;
-        end if;
+        SP.Current_User := SP.Script;
+        SP.Output.Stop_Interactivity;
 
         if Use_Config then
             if SP.Interactive.Run_Configs (Srch, SP.Config.Config_Locations) /= SP.Interactive.Ok then
@@ -131,10 +101,6 @@ procedure Septum is
             return;
         end if;
 
-        if SP.Output.Is_Pipeline then
-            SP.Output.Put_Line ("[");
-        end if;
-
         while SP.Command_Line.Has_More_Arguments (Parse) loop
             Result := SP.Commands.Run_Commands_From_File (Srch, SP.Command_Line.Next_Argument (Parse));
             if Result not in SP.Commands.Command_Success | SP.Commands.Command_Ignored then
@@ -142,11 +108,6 @@ procedure Septum is
                 exit;
             end if;
         end loop;
-
-        if SP.Output.Is_Pipeline then
-            SP.Output.New_Line;
-            SP.Output.Put_Line ("]");
-        end if;
     end Execute_Run;
 
     --  Default to printing help, so that if the command is unrecognized, the

@@ -32,11 +32,6 @@ package SP.Output is
     function Is_Interactive return Boolean;
     procedure Stop_Interactivity;
 
-    -- Is the programming running as a tool for another program?
-    --
-    -- Pipelines don't output any user interface elements.
-    function Is_Pipeline return Boolean;
-
     -- Some output is only for UI purposes.  Some is data which should always
     -- be shown.  Other output is important error messaging.
     --
@@ -80,13 +75,6 @@ package SP.Output is
     procedure Put_Line (Str : Ada.Strings.Unbounded.Unbounded_String) renames Trendy_Terminal.IO.Put_Line;
 
     procedure New_Line (Spacing : Positive := 1) renames Trendy_Terminal.IO.New_Line;
-
-    -- JSON
-
-    procedure Start_Pipeline_Result;
-    procedure Put_JSON_Key_Value (Key : String; Value : String);
-    procedure Put_JSON_Key_Value (Key : String; Value : Ada.Strings.Unbounded.Unbounded_String);
-    procedure Put_JSON_String (S : String);
 
 private
     Environment : Trendy_Terminal.Environments.Environment;

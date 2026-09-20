@@ -168,9 +168,6 @@ private
         -- since the focus is the membership test.
         Script_Stack : String_Sets.Set;
 
-        -- When not interactive should the program emit JSON?
-        Enable_JSON_Output : Boolean := True;
-
         -- Time of the oldest file loaded into cache. This should instead be per-file so updates can be faster,
         -- but my typical usage is one-time load and then bulk refresh, so this matches what I need in practice.
         Last_Reload : Ada.Real_Time.Time := Ada.Real_Time.Clock;

@@ -1,7 +1,7 @@
 ## Feature : Filters
 
 ### Scenario : Reordering filters
-  - When I run `bin/septum run --no-config --script examples/reorder_filters.septum`
+  - When I run `bin/septum run --no-config examples/reorder_filters.septum`
   - Then I get
 ```
 Loading commands from: D:\dev\ada\septum\examples\reorder_filters.septum
@@ -33,7 +33,7 @@ Command failed: reorder 3 3 3 3
 ```
 
 ### Scenario : Dropping line filters
-  - When I run `bin/septum run --no-config --script examples/drop_line_filters.septum`
+  - When I run `bin/septum run --no-config examples/drop_line_filters.septum`
   - Then I get
 ```
 Loading commands from: D:\dev\ada\septum\examples\drop_line_filters.septum
@@ -73,7 +73,7 @@ Command failed: drop 5
 ```
 
 ### Scenario : Dropping a non-existent line filter
-  - When I run `bin/septum run --no-config --script examples/drop_line_filters_fail.septum`
+  - When I run `bin/septum run --no-config examples/drop_line_filters_fail.septum`
   - Then I get
 ```
 Loading commands from: D:\dev\ada\septum\examples\drop_line_filters_fail.septum
@@ -95,7 +95,7 @@ Command failed: drop 2 3 5
 ```
 
 ### Scenario : Dropping path filters
-  - When I run `bin/septum run --no-config --script examples/drop_path_filters.septum`
+  - When I run `bin/septum run --no-config examples/drop_path_filters.septum`
   - Then I get
 
 ```
@@ -130,7 +130,7 @@ Dropping filter: Case Sensitive Match ".cpp"
 ```
 
 ### Scenario : Popping path filters
-  - When I run `bin/septum run --no-config --script examples/pop_path_filters.septum`
+  - When I run `bin/septum run --no-config examples/pop_path_filters.septum`
   - Then I get
 
 ```

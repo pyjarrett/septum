@@ -14,12 +14,9 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Characters.Latin_1;
-
 package body SP.Output is
 
     function Is_Interactive return Boolean is (SP.Current_User = SP.Human and then Environment.Is_Available);
-    function Is_Pipeline return Boolean is (SP.Current_User = SP.Tool);
 
     function Has_Colors return Boolean is (Environment.Is_Available);
 
@@ -28,9 +25,11 @@ package body SP.Output is
         Environment.Shutdown;
     end Stop_Interactivity;
 
+    -- A transition has been started but not completed to move to multiple-types of output to separate it
+    -- for scripts or other tooling.
     function Should_Show (Form : Mode) return Boolean is (
         case Form is
-            when UI => SP.Current_User /= SP.Tool,
+            when UI => True,
             when Data => True,
             when Error => True
     );
@@ -121,46 +120,5 @@ package body SP.Output is
             Trendy_Terminal.VT100.Hide_Cursor;
         end if;
     end Hide_Cursor;
-
-    -- Old-style printing
-
-    -- JSON
-
-    -- Need to track if any pipeline results have been returned so commas can be
-    -- added for each.
-    Has_Pipeline_Result : Boolean := False;
-
-    procedure Start_Pipeline_Result is
-    begin
-        if Has_Pipeline_Result then
-            Put_Line (",");
-        else
-            Has_Pipeline_Result := True;
-        end if;
-    end Start_Pipeline_Result;
-
-    procedure Put_JSON_Key_Value (Key : String; Value : String) is
-    begin
-        Put_JSON_String (Key);
-        Put (": ");
-        Put_JSON_String (Value);
-    end Put_JSON_Key_Value;
-
-    procedure Put_JSON_Key_Value (Key : String; Value : Ada.Strings.Unbounded.Unbounded_String) is
-    begin
-        Put_JSON_Key_Value (Key, Ada.Strings.Unbounded.To_String (Value));
-    end Put_JSON_Key_Value;
-
-    procedure Put_JSON_String (S : String) is
-    begin
-        Put ('"');
-        for C of S loop
-            if C in '\' | ''' | '"' | Ada.Characters.Latin_1.HT | Ada.Characters.Latin_1.LF | Ada.Characters.Latin_1.VT then
-                Put ('\');
-            end if;
-            Put (C);
-        end loop;
-        Put ('"');
-    end Put_JSON_String;
 
 end SP.Output;
