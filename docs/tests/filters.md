@@ -4,7 +4,6 @@
   - When I run `bin/septum run --no-config examples/reorder_filters.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\reorder_filters.septum
 
  > find-like string unbounded return function
 
@@ -36,7 +35,6 @@ Command failed: reorder 3 3 3 3
   - When I run `bin/septum run --no-config examples/drop_line_filters.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\drop_line_filters.septum
 
  > find-like string unbounded return function
 
@@ -76,7 +74,6 @@ Command failed: drop 5
   - When I run `bin/septum run --no-config examples/drop_line_filters_fail.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\drop_line_filters_fail.septum
 
  > find-like string unbounded return function
 
@@ -99,7 +96,6 @@ Command failed: drop 2 3 5
   - Then I get
 
 ```
-Loading commands from: D:\dev\ada\septum\examples\drop_path_filters.septum
 
  > exclude-path .git .config temp/
 
@@ -134,7 +130,6 @@ Dropping filter: Case Sensitive Match ".cpp"
   - Then I get
 
 ```
-Loading commands from: D:\dev\ada\septum\examples\pop_path_filters.septum
 
  > exclude-path .git .config temp
 

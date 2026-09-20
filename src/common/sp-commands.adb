@@ -188,8 +188,6 @@ package body SP.Commands is
             return Command_Failed;
         end if;
 
-        Put_Line (SP.Output.UI, "Loading commands from: " & Ada.Directories.Full_Name (File));
-
         if not SP.File_System.Read_Lines (Ada.Directories.Full_Name (File), Commands) then
             Put_Line ("Unable to load configuration file from: " & Ada.Directories.Full_Name (File));
         end if;

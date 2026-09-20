@@ -4,7 +4,6 @@
   - When I run `bin/septum run --no-config examples/match_files.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\match_files.septum
 
  > clear-dirs
 
@@ -39,7 +38,6 @@ Matching files: 3
   - When I run `bin/septum run --no-config examples/single_result.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\single_result.septum
 
  > clear-dirs
 
@@ -79,7 +77,6 @@ Matching files: 1
   - When I run `bin/septum run --no-config examples/single_result_and_match_files.septum`
   - Then I get
 ```
-Loading commands from: D:\dev\ada\septum\examples\single_result_and_match_files.septum
 
  > clear-dirs
 
@@ -127,7 +124,6 @@ Matching files: 1
   - Then I get
 
 ```
-Loading commands from: D:\dev\ada\septum\examples\single_result_multiple_searches.septum
 
  > clear-dirs
 
