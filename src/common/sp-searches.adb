@@ -661,16 +661,6 @@ package body SP.Searches is
         end if;
     end Print_Contexts;
 
-    procedure Print_Contexts_With_Cancellation(
-        Srch     : in Search;
-        Contexts : SP.Contexts.Context_Vectors.Vector;
-        First    : Natural;
-        Last     : Natural)
-    is
-    begin
-        Print_Contexts (Srch, Contexts, First, Last);
-    end Print_Contexts_With_Cancellation;
-
     function Num_Files (Srch : in Search) return Natural is
     begin
         return Srch.File_Cache.Num_Files;

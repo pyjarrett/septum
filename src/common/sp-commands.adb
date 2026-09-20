@@ -973,7 +973,7 @@ package body SP.Commands is
                 and then Try_Parse (To_String (Command_Line.Constant_Reference (2)), Last)
                 and then First <= Last
             then
-                SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, First, Last);
+                SP.Searches.Print_Contexts (Srch, Contexts, First, Last);
             else
                 SP.Output.Put_Line ("Bad number of results to give.");
                 return Command_Failed;
@@ -984,9 +984,9 @@ package body SP.Commands is
                 return Command_Failed;
             end if;
 
-            SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, 1, Last);
+            SP.Searches.Print_Contexts (Srch, Contexts, 1, Last);
         when 0 =>
-            SP.Searches.Print_Contexts_With_Cancellation (Srch, Contexts, 1, SP.Searches.Get_Max_Results (Srch));
+            SP.Searches.Print_Contexts (Srch, Contexts, 1, SP.Searches.Get_Max_Results (Srch));
         when others =>
             SP.Output.Put_Line ("Expected either no parameter or 1 to give a maximum number of results to return.");
             return Command_Failed;
