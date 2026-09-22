@@ -2,7 +2,7 @@ package SP
    with Preelaborate
 is
 
-    Version : constant String := "1.0.0-dev";
+    Version : constant String := "1.0.0-rc";
 
     type User is (Human, Script);
 
