@@ -180,7 +180,6 @@ procedure Make_Septum_Help is
 
             if Ada.Text_IO.Is_Open (Self.File) then
                 Ada.Text_IO.Close (Self.File);
-                Ada.Text_IO.Put_Line ("Closed output file");
             end if;
         end Finish;
 
@@ -323,8 +322,6 @@ procedure Make_Septum_Help is
 begin
     --  Parse the command line into a Make_Help_Config.
     Config := Parse_Command_Line;
-    Ada.Text_IO.Put_Line (Config'Image);
-
     for File of Config.Files loop
         declare
             Lines : SP.Strings.String_Vectors.Vector;
