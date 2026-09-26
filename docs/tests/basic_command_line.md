@@ -3,7 +3,7 @@
 ### Scenario : Version message check
   - When I run `bin/septum version`
   - Then I get no error
-  - Then the output is `septum v1.0.0-rc`
+  - Then the output is `septum v1.0.0`
 
 ### Scenario : Printing help information
   - When I run `bin/septum help`
