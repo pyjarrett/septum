@@ -137,15 +137,6 @@ package body SP.Help_Topics is
       SP.Help.Header ("Usage");
       SP.Help.Plain("");
 
-   end Usage;
-   pragma Style_Checks(On);
-
-   pragma Style_Checks(Off);
-   procedure Interactive is
-   begin
-      SP.Help.Header ("Interactive");
-      SP.Help.Plain("");
-
       SP.Help.Block("Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present.  ");
 
       SP.Help.Block("This is an example `.septum/config`  ");
@@ -187,20 +178,20 @@ package body SP.Help_Topics is
 
       SP.Help.Block("`quit` and `exit` end the interactive session. They do not write the cache or filters back to disk; put durable defaults in config files via `run` lines such as `enable-auto-search`, `set-max-results`, and `add-dirs` if you want them every launch.  ");
 
-   end Interactive;
+   end Usage;
    pragma Style_Checks(On);
 
    pragma Style_Checks(Off);
-   procedure Batch_Execution is
+   procedure Batch is
    begin
-      SP.Help.Header ("Batch Execution");
+      SP.Help.Header ("Batch");
       SP.Help.Plain("");
 
       SP.Help.Block("`septum run [--no-config] FILE...` runs Septum with commands from scripts ""as-if"" a human were running them.  ");
 
       SP.Help.Block("Use `--no-config` to ignore default environment config files with the `run` subcommand.  ");
 
-   end Batch_Execution;
+   end Batch;
    pragma Style_Checks(On);
 
    pragma Style_Checks(Off);
@@ -529,9 +520,8 @@ package body SP.Help_Topics is
 begin
 
    Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("about"), About'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("batch_execution"), Batch_Execution'Access);
+   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("batch"), Batch'Access);
    Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("file_cache"), File_Cache'Access);
-   Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("interactive"), Interactive'Access);
    Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("line_filters"), Line_Filters'Access);
    Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("path_filters"), Path_Filters'Access);
    Topics.Insert (Ada.Strings.Unbounded.To_Unbounded_String("results"), Results'Access);

@@ -109,8 +109,6 @@ let's shorten `match-contexts` to `match-c`.
 
 # Usage
 
-## Interactive
-
 Septum is meant to stay open in a terminal or tmux tab while you iterate. On startup it runs command scripts from the project-local `.septum/config` and from the global septum config directory when present.
 
 This is an example `.septum/config`
@@ -148,7 +146,7 @@ An example session might look like this:
 
 `quit` and `exit` end the interactive session. They do not write the cache or filters back to disk; put durable defaults in config files via `run` lines such as `enable-auto-search`, `set-max-results`, and `add-dirs` if you want them every launch.
 
-## Batch Execution
+# Batch
 
 `septum run [--no-config] FILE...` runs Septum with commands from scripts "as-if" a human were running them.
 
